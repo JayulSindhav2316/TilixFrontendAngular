@@ -1,0 +1,214 @@
+<p-toast></p-toast>
+<p-confirmDialog header="Confirmation" icon="fa fa-exclamation-triangle" [style]="{width: '25vw'}"></p-confirmDialog>
+<div class="p-grid">
+    <div class="p-col-12">
+        <div class="card">
+            <p-toolbar styleClass="p-mb-4">
+                <ng-template pTemplate="left">
+                    <div>
+                        <p-tag *ngFor="let role of roles" styleClass="p-mr-2">
+                            <span class="p-tag-text">{{ role }}</span>
+                            <span style="padding: 0px 0px 0px 4px;cursor: pointer;" class="p-tag-icon-close pi pi-times"
+                                (click)="unassignRole(role)"></span>
+                        </p-tag>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="right">
+                    <button pButton type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2" type="submit"
+                        (click)="addContactRole()" [disabled]="!canAddRole"></button>
+
+                </ng-template>
+            </p-toolbar>
+            <div *ngIf="contactSearchEnabled">
+                <p-toolbar styleClass="p-mb-4">
+                    <ng-template pTemplate="left">
+                        <div class="p-formgroup-inline">
+                            <form [formGroup]="searchByContactNameForm">
+                                <input formControlName="ParentEntityId" type="hidden">
+                                <div class="p-fluid p-formgrid p-grid">
+                                    <div class="p-field p-col-12 p-md-5" [ngClass]="errorIconCss('FirstName')">
+                                        <label for="firstname" class="p-sr-only">Firstname</label>
+                                        <input id="firstname" type="text" formControlName="FirstName" pInputText
+                                            placeholder="First Name" maxlength="30"
+                                            [ngClass]="errorFieldCss('FirstName')" (click)="resetSubmitted('FirstName')"
+                                            onkeypress="return (event.charCode > 64 && event.charCode < 91) 
+                                   || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) || (event.charCode==45) 
+                                   || (event.charCode==39) || (event.charCode==44) || (event.charCode==46)"
+                                            (paste)="matcher($event, 'FirstName')" disabled="!searchEnabled" />
+                                        <app-field-error-display [displayError]="isFieldValid('FirstName')"
+                                            [addErrorMessages]="addErrorMessages">
+                                        </app-field-error-display>
+                                    </div>
+                                    <div class=" p-field p-col-12 p-md-5" [ngClass]="errorIconCss('LastName')">
+                                        <label for="lastname" class="p-sr-only">Lastname</label>
+                                        <input id="lastname" type="text" formControlName="LastName" pInputText
+                                            placeholder="Last Name" maxlength="30" [ngClass]="errorFieldCss('LastName')"
+                                            (click)="resetSubmitted('LastName')" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) 
+								   || (event.charCode==45) || (event.charCode==39) || (event.charCode==44) || (event.charCode==46)"
+                                            (paste)="matcher($event, 'LastName')" disabled="!searchEnabled">
+                                        <app-field-error-display [displayError]="isFieldValid('LastName')"
+                                            [addErrorMessages]="addErrorMessages">
+                                        </app-field-error-display>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <button pButton type="button" icon="pi pi-search" class="p-button-primary p-mr-2 p-mb-2"
+                                type="submit" (click)="serachContacts()" disabled="!searchEnabled"></button>
+                        </div>
+                    </ng-template>
+                </p-toolbar>
+
+                <div *ngIf="showAddContactRoleTable">
+                    <p-table #dt [value]="contactRoleDetail" [rows]="1" [paginator]="false" dataKey="entityId"
+                        resizableColumns="true" styleClass="p-datatable-sm" [showCurrentPageReport]="true"
+                        [autoLayout]="true">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>
+                                    <span class="table-header">First Name</span>
+                                </th>
+                                <th>
+                                    <span class="table-header">Last Name</span>
+                                </th>
+                                <th>
+                                    <span class="table-header">Current Roles</span>
+                                </th>
+                                <th>
+                                    <span class="table-header"> Assigning Role</span>
+                                </th>
+                                <th>
+                                    <span class="table-header">Effective Date</span>
+                                </th>
+                                <th>
+                                    <span class="table-header">Add</span>
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-contact>
+                            <tr class="maxTableRow">
+                                <td>
+                                    {{contact.firstName}}
+                                </td>
+                                <td>
+                                    {{contact.lastName}}
+                                </td>
+                                <td>
+                                    <span *ngFor="let role of roles; let i=index" style="margin-left:5px">
+                                        <p-tag styleClass="mr-2" value="{{ role}}"></p-tag>
+                                    </span>
+                                </td>
+                                <td>
+                                    <p-dropdown id="roleDropdown" roleDropdown (onChange)="onRoleChange($event)"
+                                        [options]="roleList" placeholder="Select a Role" class="p-inputtext-sm"
+                                        optionLabel="name" optionValue="code" appendTo="body"> </p-dropdown>
+                                </td>
+                                <td>
+                                    <p-calendar appendTo="body" styleClass="ui-column-filter" dateFormat="mm/dd/yy"
+                                        [minDate]="minDate" [(ngModel)]="effectiveDate"
+                                        (onSelect)="onEffectiveDateChange($event)"></p-calendar>
+                                </td>
+                                <td>
+                                    <button pButton type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2"
+                                        type="submit" (click)="saveContactRole()" [disabled]="!roleSelected"></button>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+            <p-dialog [(visible)]="showRemoveDialog" [style]="{ width: '650px' }" header="Remove Role" [modal]="true"
+                styleClass="p-fluid" [contentStyle]="{minHeight: '100px'}" (onHide)="cancelRemoveDialog()">
+                <ng-template pTemplate="content">
+                    <div class="card" style="height: 250px;">
+                        <div class="p-fluid">
+                            <div class="p-field p-grid">
+                                <label class="p-col-12 p-mb-2 p-md-6 p-mb-md-0">Select End Date</label>
+                                <div class="p-col-12 p-md-6">
+                                    <p-calendar appendTo="body" styleClass="ui-column-filter" dateFormat="mm/dd/yy"
+                                        [(ngModel)]="endDate"></p-calendar>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"
+                        [disabled]="disableCancel" type="submit" (click)="removeRole()"></button>
+                    <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+                        (click)="cancelRemoveDialog()"></button>
+                </ng-template>
+            </p-dialog>
+        </div>
+    </div>
+
+    <p-dialog header="Confirm" [(visible)]="unassignRoleDialog" [style]="{width: '50vw'}">
+
+
+        <ng-template pTemplate="content">
+            <div class="p-fluid">
+
+                <div class="p-field p-grid">
+                    <i class="pi pi-exclamation-triangle p-col-2 p-mb-2" style="font-size: 4rem;"></i>
+                    <label class="p-confirm-dialog-message p-col-10 p-md-10">
+                        <p>Are you sure you want to unassign <b> {{unassignRoleContact}}</b> from
+                            <b>{{unassignRoleName}} role
+                            </b> at
+                            <b>{{unassignRoleAccount}} </b> ?
+                        </p>
+                    </label>
+                </div>
+                <div class="p-field p-grid">
+                    <label class="p-col-2 p-mb-2 p-md-2 p-mb-md-0">
+                        Effective Date
+                    </label>
+                    <div class="p-col-6 p-md-6">
+                        <p-calendar appendTo="body" styleClass="ui-column-filter" dateFormat="mm/dd/yy"
+                            [minDate]="minEffectiveEndDate" [(ngModel)]="effectiveEndDate"
+                            (onSelect)="effectiveEndDateChanged($event)">
+                        </p-calendar>
+                        <span *ngIf="effectiveEndDateRequired">The effecive date is required.</span>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <button pButton pRipple label="No" icon="pi pi-times" class="p-button-primary p-mb-2"
+                (click)="unassignRoleReject()"></button>
+            <button pButton pRipple label="Yes" icon="pi pi-check" class="p-button-primary p-mr-2 p-mb-2"
+                [disabled]="disabledUnassignSaveBtn" (click)="unassignRoleAccept()" autofocus></button>
+        </ng-template>
+
+
+    </p-dialog>
+
+    <p-dialog header="Confirm" [(visible)]="unassignRoleDialogSecond" [style]="{width: '50vw'}">
+
+        <ng-template pTemplate="content">
+            <div class="p-fluid">
+                <div class="p-field p-grid">
+                    <label class="p-col-1 p-md-1"></label>
+                    <label class="p-confirm-dialog-message p-col-11 p-md-11">
+                        <p> NOTE : Given there is no historic records associated with this record, this will remove them
+                            from
+                            historic records.</p>
+                    </label>
+                    <i class="pi pi-exclamation-triangle p-col-2 p-mb-2" style="font-size: 4rem;"></i>
+
+                    <label class="p-confirm-dialog-message p-col-10 p-md-10">
+                        <p>Are you sure you want to unassign <b> {{unassignRoleContact}}</b> from
+                            <b>{{unassignRoleName}} role
+                            </b> at
+                            <b>{{unassignRoleAccount}} </b> ?
+                        </p>
+                    </label>
+                </div>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <button pButton pRipple label="No" icon="pi pi-times" class="p-button-primary p-mb-2"
+                (click)="unassignRoleSecondReject()"></button>
+            <button pButton pRipple label="Yes" icon="pi pi-check" class="p-button-primary p-mr-2 p-mb-2"
+                [disabled]="disabledUnassignSaveBtn" (click)="unassignRoleSecondAccept()" autofocus></button>
+        </ng-template>
+    </p-dialog>

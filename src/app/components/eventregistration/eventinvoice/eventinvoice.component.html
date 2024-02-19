@@ -1,0 +1,209 @@
+<div *ngIf="showInvoice">
+   <p-toast></p-toast>
+   <div>
+    <form [formGroup]="invoiceNoteForm">
+    <p-dialog [(visible)]="showNote" [style]="{ width: '600px' }" header="Add a note" [modal]="true" styleClass="p-fluid" (onHide)="hideNoteDialog()">
+      <ng-template pTemplate="content">
+        <input type="hidden" formControlName="InvoiceId">
+        <div class="p-field p-col-12" [ngClass]="errorIconCss('Note')">
+            <label for="Email">Note</label>
+            <textarea [rows]="5" pInputTextarea formControlName="Note" autoResize="autoResize" maxlength="500"  [ngClass]="errorFieldCss('Note')"
+            (focusout) = "noteValidation($event)" (blur) = "noteValidation($event)"></textarea>
+              <app-field-error-display [displayError]="isFieldValid('Note')" [addErrorMessages]="addErrorMessages">
+              </app-field-error-display>
+        </div>
+        </ng-template>
+      <ng-template pTemplate="footer">
+        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="saveNote()"></button>
+        <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideNoteDialog()"></button>
+      </ng-template>
+    </p-dialog>
+  </form>
+   <div>
+    <form [formGroup]="emailForm">
+        <p-dialog [(visible)]="showEmail" [style]="{ width: '600px' }" header="Email Invoice" [modal]="true"
+            styleClass="p-fluid" (onHide)="hideEmailDialog()">
+            <ng-template pTemplate="content">
+                <div class="p-field p-col-12" [ngClass]="errorIconCss('ToEmail')">
+                    <label for="Email">Email</label>
+                    <input type="text" pInputText formControlName="ToEmail" [ngClass]="errorFieldCss('ToEmail')" />
+                    <app-field-error-display [displayError]="isFieldValid('ToEmail')"
+                        [addErrorMessages]="addErrorMessages">
+                    </app-field-error-display>
+                </div>
+                <div class="p-field p-col-12" [ngClass]="errorIconCss('Subject')">
+                    <label for="Subject">Subject</label>
+                    <input type="text" pInputText formControlName="Subject" [ngClass]="errorFieldCss('Subject')"
+                        onkeypress="return (event.charCode > 40 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32)"
+                        onKeyDown="if(this.value.length==64 && event.keyCode!=8) return false;"
+                        (paste)="matcher($event, 'Subject')" />
+                    <app-field-error-display [displayError]="isFieldValid('Subject')"
+                        [addErrorMessages]="addErrorMessages">
+                    </app-field-error-display>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Send" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"
+                    type="submit" (click)="sendEmail()"></button>
+                <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+                    (click)="hideEmailDialog()"></button>
+            </ng-template>
+        </p-dialog>
+    </form>
+</div>
+    <div class="invoice-box"> 
+        <table style="table-layout: fixed">
+            <tr class="top">
+                <td colspan="2">
+                    <table style="table-layout: fixed">
+                        <tr>
+                            <td class="title">
+                                <img [src]="logo" alt="Company logo" style="
+                                        width: 188;
+                                        max-width: 188;
+                                        height: 66px;
+                                        margin-left: 0 !important;
+                                    " />
+                            </td>
+                            <td class="title">INVOICE</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {{ invoice.organization.address1 }}<br />
+                                {{ invoice.organization.city }},
+                                {{ invoice.organization.state }}
+                                {{ invoice.organization.zip }}<br />
+                                <a href="https://{{
+                                        invoice.organization.website
+                                    }}">{{ invoice.organization.website }}</a><br />
+                            </td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="information">
+                <td colspan="2">
+                    <table style="table-layout: fixed">
+                        <tr>
+                            <td>
+                                <B>Bill to:</B><br />
+                                {{ invoice.billingAddress.billToName
+                                }}<br />
+                                {{ invoice.billingAddress.streetAddress
+                                }}<br />
+                                {{ invoice.billingAddress.city }},
+                                {{ invoice.billingAddress.state }}
+                                {{ invoice.billingAddress.zip }}
+                            </td>
+
+                            <td>
+                                <table style="
+                                        width: 55%;
+                                        margin-right: 0px;
+                                        margin-left: auto;
+                                        padding-right: 0px !important;
+                                    ">
+                                    <tr class="title-item">
+                                        <td style="width: 50%">Invoice</td>
+                                        <td style="width: 50%">
+                                            {{ invoice.invoiceId }}
+                                        </td>
+                                    </tr>
+                                    <tr class="title-item">
+                                        <td>Date</td>
+                                        <td>
+                                            {{
+                                            invoice.date
+                                            | date : "MM/dd/yyyy"
+                                            }}
+                                        </td>
+                                    </tr>
+                                    <tr class="title-item">
+                                        <td>Created</td>
+                                        <td>{{ invoice.userName }}</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table style="table-layout: fixed">
+                        <tr class="item-header">
+                            <td style="width: 10%">sr.no</td>
+                            <td style="width: 60%">Description</td>
+                            <td style="width: 15%">Rate</td>
+                            <td style="width: 15%">Amount</td>
+                        </tr>
+                        <tr class="item">
+                            <td style="text-align: center">
+                            </td>
+                            <td style="text-align: left">
+                                <b>{{ invoice.event.name }}</b>
+                                <br/>
+                                <b>{{invoice.event.eventTypeId == 1 ? "In-Person" : invoice.event.eventTypeId == 2 ? "Virtual" : "Pre Recorded"}}</b>
+                            </td>
+                            <td style="text-align: right">
+                            </td>
+                            <td style="text-align: right">
+                            </td>
+                        </tr>
+                        <tr class="item" *ngFor="let item of invoice.invoiceDetails; let i= index;">
+                            <td style="text-align: center">
+                                {{ i + 1 }}
+                            </td>
+                            <td style="text-align: left">
+                                {{ item.description }}
+                            </td>
+                            <td style="text-align: right">
+                                {{ item.price | currency }}
+                            </td>
+                            <td style="text-align: right">
+                                {{ item.amount | currency }}
+                            </td>
+                        </tr>
+                        <tr class="item">
+                            <td style="overflow-wrap: break-word" colspan="2" rowspan="3">
+                                <b>Important Announcement :</b>
+                                {{ invoice.notes }}
+                            </td>
+                            <td style="text-align: center">Total</td>
+                            <td style="text-align: right">
+                                {{ invoice.amount | currency }}
+                            </td>
+                        </tr>
+                        <tr class="item">
+                            <td style="text-align: center">
+                                <b>Balance</b>
+                            </td>
+                            <td style="text-align: right">
+                                <b>{{ invoice.amount | currency }}</b>
+                            </td>
+                        </tr>
+                        <tr>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                <div class="card">
+                                    <div class="center">
+                                        <button pButton pRipple label="Add Note" icon= "pi pi-plus" class="p-button-success p-mb-2 p-mr-2" (click)="addNote()"></button>
+                                        <button pButton pRipple label="Print" icon="pi pi-print"
+                                            class="p-button-success p-mb-2 p-mr-2" (click)="showPdf()"></button>
+                                        <button pButton pRipple label="Send Email" icon="pi pi-envelope"
+                                            class="p-button-success p-mr-2 p-mb-2" [disabled]="hideSendEmailButton"
+                                            (click)="showEmailDialog()"></button>
+                                            <button *ngIf="invoice.amount > 0" pButton pRipple label="Collect Payment" icon="pi pi-card" class="p-button-success p-mb-2" (click)="addToCart()"></button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</div>

@@ -1,0 +1,103 @@
+<div class="p-grid">
+  <div class="p-col-2 p-md-2 p-xl-2"></div>
+  <div class="p-col-8 p-md-8 p-xl-8">
+    <p-toast></p-toast>
+    <div *ngIf="showTable">
+    <div class="card">
+      <p-toolbar styleClass="p-mb-4">
+        <ng-template pTemplate="left">
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')"
+              placeholder="Search..." />
+          </span>
+        </ng-template>
+        <ng-template pTemplate="right">
+          <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2"
+            (click)="openNew()"></button>
+          <!-- <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger p-mb-2" (click)="deleteSelectedRoles()" [disabled]="!selectedRoles || !selectedRoles.length"></button> -->
+        </ng-template>
+      </p-toolbar>      
+      <p-table #dt [value]="roles" [columns]="cols" [rows]="10" [paginator]="true"
+        [globalFilterFields]="['name','description']" [rowHover]="true" dataKey="roleId" styleClass="p-datatable-sm"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [showCurrentPageReport]="true" resizableColumns="true">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="name" class="item-header" width="25%" pResizableColumn>  
+              <span class="table-header">Role Name</span>          
+              <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+            <th pSortableColumn="description" class="ui-resizable-column" width="55%" pResizableColumn>             
+              Description
+              <p-columnFilter type="text" field="description" display="menu"></p-columnFilter>
+            </th>
+            <th pSortableColumn="status" class="ui-resizable-column" width="10%" pResizableColumn>             
+              Status
+            </th>
+            <th width="10%">
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-role>
+          <tr class="maxTableRow">
+            <td>
+              {{role.name}}
+            </td>
+            <td>
+              {{role.description}}
+            </td>
+            <td style="text-align: center;">
+              <div *ngIf="role.status; else elseBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+              <ng-template #elseBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+              <!-- <p-inputSwitch readonly=true [ngModel]="role.status"></p-inputSwitch> -->
+              <div #pMenu></div>
+              <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+            </td>
+            <td style="text-align: center;">
+              <button type="button" pButton icon="pi pi-ellipsis-v"
+                (click)="setActiveRow(role);menu.toggle($event)"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+    </div>
+    <form [formGroup]="roleForm">
+      <p-dialog [(visible)]="roleDialog" [style]="{ width: '450px' }" header="Role Details" [modal]="true" styleClass="p-fluid" (onHide)="hideDialog()">
+        <ng-template pTemplate="content">
+          <input type="hidden" formControlName="RoleId">
+          <div class="p-field" [ngClass]="errorIconCss('RoleName')">
+            <label for="name">Name</label>
+            <input type="text" pInputText formControlName="RoleName" maxlength = "64" [ngClass]="errorFieldCss('RoleName')" autofocus (click) = "resetSubmitted('RoleName')" 
+            onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode == 32) " 
+            (paste)="matcher($event, 'RoleName')"/>
+            <app-field-error-display [displayError]="isFieldValid('RoleName')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+          <div class="p-field" [ngClass]="errorIconCss('Description')">
+            <label for="lastName">Description</label>
+            <textarea [rows]="5" pInputTextarea formControlName="Description" autoResize="autoResize" [ngClass]="errorFieldCss('Description')" maxlength = "250" 
+            (paste)="matcher($event, 'Description')" onKeyDown="if(this.value.length==250 && event.keyCode!=8) return false;" (click) = "resetSubmitted('Description')"></textarea>
+              <app-field-error-display [displayError]="isFieldValid('Description')" [addErrorMessages]="addErrorMessages">
+              </app-field-error-display>
+
+          </div>
+          <div class="p-field">
+            <label for="active">Active</label>
+          </div>
+          <div class="p-field">
+            <p-inputSwitch formControlName="Status"></p-inputSwitch>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+
+          <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="saveRole()"></button>
+          <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideDialog()"></button>
+
+        </ng-template>
+      </p-dialog>
+    </form>
+    <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+  </div>
+  <div class="p-col-3 p-md-3 p-xl-3"></div>
+</div>

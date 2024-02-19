@@ -1,0 +1,260 @@
+<div class="p-grid" *ngIf="dataLoaded">
+   <p-toast></p-toast>
+   <div class="p-col-2"></div>
+   <div class="p-col-8">
+      <div class="card">
+         <div class="p-grid">
+            <div class="p-col-5 p-d-flex p-ai-center p-jc-center">
+               <div class="p-mr-5"> <img *ngIf="!isMobile()" [src]="logo" height="122" width="372"></div>
+            </div>
+           
+            <div class="p-col-5">
+                  <div class="p-grid">
+                     <div class="p-col-12 right organization-title">
+                       {{organization.title}}
+                     </div>
+                     <div class="p-col-12 right organization-addrestitles">
+                        {{organization.address1}}
+                      </div>
+                      <div class="p-col-12 right organization-address">
+                        {{organization.city}},{{organization.state}},{{organization.zip}}
+                      </div>
+                     <div class="p-col-12 right organization-address">
+                        <a href="https://{{organization.website}}">{{organization.website}}</a>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="p-col-2">
+            </div>
+         </div>
+   </div>
+   <div class="p-col-2"></div>
+   <div class="p-col-2"></div>
+    <div class="p-col-5">
+       <div class="card">
+          <p-tabView  id="tabPayment" (onChange)="onChange($event)"  *ngIf="showPayment">
+             <p-tabPanel header="Credit Card" [cache]="false"  >
+                <ng-template pTemplate="content">
+                   <div class="card">
+                      <form [formGroup]="creditCardForm" (ngSubmit)="onSubmit()">
+                      <div class="p-d-flex">
+                         <div class="p-mr-2"><img class="payment-card" src="./assets/layout/images/visa.svg"></div>
+                         <div class="p-mr-2"><img class="payment-card" src="./assets/layout/images/master.svg"></div>
+                         <div class="p-mr-2"><img class="payment-card" src="./assets/layout/images/amex.svg"></div>
+                         <div class="p-mr-2"><img class="payment-card" src="./assets/layout/images/discover.svg"></div>
+                         <div class="p-mr-2"><img class="payment-card" src="./assets/layout/images/diners.svg"></div>
+                      </div>
+                      <hr>
+                      <div class="p-fluid p-formgrid p-grid">
+                         <div class="p-field p-col-12 p-md-12" [ngClass]="errorIconCss('Name')">
+                            <input formControlName="PersonId" type="hidden">
+                            <label for="Name">Card holder name</label>
+                            <input formControlName="Name" type="text" pInputText autocomplete="new-password"  class="p-inputtext-sm" [ngClass]="errorFieldCss('Name')" 
+                            (click) = "resetSubmitted('Name')" maxlength="30"
+                            onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) 
+                            || (event.charCode==32) || (event.charCode==39) " onKeyDown="if(this.value.length==30 && event.keyCode!=8) return false;"
+                            (paste)="matcher($event, 'Name')" />
+                            <app-field-error-display [displayError]="isFieldValid('Name')" [addErrorMessages]="addErrorMessages">
+                            </app-field-error-display>
+                         </div>
+                         <div class="p-field p-col-12 p-md-6" [ngClass]="errorIconCss('CardNumber')">
+                            <label for="CardNumber">Card Number</label>
+                            <p-inputMask formControlName="CardNumber" type="text" autocomplete="new-password" class="p-inputtext-sm" [autoClear]="false"
+                            mask="9999-9999-9999-9999" unmask="true" [ngClass]="errorFieldCss('CardNumber')" (click) = "resetSubmitted('CardNumber')" (change) = "creditCardNumberValidation($event)"></p-inputMask>
+                            <app-field-error-display [displayError]="isFieldValid('CardNumber')" [addErrorMessages]="addErrorMessages">
+                            </app-field-error-display>
+                         </div>
+                         <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('ExpDate')">
+                            <label for="ExpDate">Expiration Date</label>
+                            <p-inputMask formControlName="ExpDate" type="text" autocomplete="new-password" class="p-inputtext-sm" mask="99/99" 
+                            [ngClass]="errorFieldCss('ExpDate')" (click) = "resetSubmitted('ExpDate')" preventPaste="false"
+                            (keyup) = "expirationValidation($event)" (keydown) = "monthFirstPos($event)" (paste)="matcher($event, 'ExpDate')"></p-inputMask>
+                            <app-field-error-display [displayError]="isFieldValid('ExpDate')" [addErrorMessages]="addErrorMessages">
+                            </app-field-error-display>
+                         </div>
+                         <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('CVV')">
+                            <label for="CVV">CVV</label>
+                            <input type = "text" pInputText formControlName="CVV" (click)="resetecheckSubmitted('CVV')" 
+                            [ngClass]="errorFieldCss('CVV')" (click) = "resetSubmitted('CVV')"
+                            onkeypress="return (event.charCode > 47 && event.charCode < 58)" onKeyDown="if(this.value.length==4 && event.keyCode!=8) return false;"
+                            (paste)="matcher($event, 'CVV')" (focusout) = "CVVValidation($event)" (blur) = "CVVValidation($event)"/>
+                            <div *ngIf="submitted">
+                               <app-field-error-display [displayError]="isFieldValid('CVV')" [addErrorMessages]="addErrorMessages">
+                               </app-field-error-display>
+                            </div>
+                         </div>
+                         <div class="p-field p-col-12 p-md-6" [ngClass]="errorIconCss('Street')">
+                           <label for="Street">Street Address</label>
+                           <input type = "text" pInputText formControlName="Street" (click)="resetecheckSubmitted('Street')" 
+                           [ngClass]="errorFieldCss('Street')" (click) = "resetSubmitted('Street')"
+                           onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) 
+                            || (event.charCode==32) || (event.charCode==39)  || (event.charCode > 47 && event.charCode < 58)" onKeyDown="if(this.value.length==30 && event.keyCode!=8) return false;"
+                            (paste)="matcher($event, 'Street')" />
+                           <div *ngIf="submitted">
+                              <app-field-error-display [displayError]="isFieldValid('Street')" [addErrorMessages]="addErrorMessages">
+                              </app-field-error-display>
+                           </div>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6" [ngClass]="errorIconCss('Zip')">
+                           <label for="Zip">Zip</label>
+                           <input type = "text" pInputText formControlName="Zip" (click)="resetecheckSubmitted('Zip')" 
+                           [ngClass]="errorFieldCss('Zip')" (click) = "resetSubmitted('Zip')"
+                           onkeypress="return (event.charCode > 47 && event.charCode < 58)" onKeyDown="if(this.value.length==5 && event.keyCode!=8) return false;"
+                           (paste)="matcher($event, 'Zip')" (focusout) = "zipValidation($event)" (blur) = "zipValidation($event)"/>
+                           <div *ngIf="submitted">
+                              <app-field-error-display [displayError]="isFieldValid('Street')" [addErrorMessages]="addErrorMessages">
+                              </app-field-error-display>
+                           </div>
+                        </div>
+                      </div>
+                      </form>
+                   </div>
+                   <div class="center">
+                      <div data-ng-show="showError"  class="alert alert-danger">
+                         <table>
+                            <tr class="item" *ngFor="let error of errorList">
+                               <td>{{error.code}}</td>
+                               <td><b>{{error.text}}</b></td>
+                            </tr>
+                         </table>
+                      </div>
+                   </div>
+                   <BR />
+                   <div class="center">
+                      <button pButton pRipple label="Pay {{ cartTotal | currency}}" icon="pi pi-credit-card" class="p-button-success p-mr-2 p-mb-2" (click)="postCreditCardToAuthNet()" [disabled]="processing"></button>
+                   </div>
+                </ng-template>
+             </p-tabPanel>
+             <p-tabPanel header="E-Check" [cache]="false" >
+                <ng-template pTemplate="content">
+                   <div class="card">
+                      <form [formGroup]="eCheckForm" (ngSubmit)="onSubmit()">
+                      <div class="p-fluid p-formgrid p-grid">
+                         <div class="p-field p-col-12 p-md-12" >
+                            <input formControlName="PersonId" type="hidden">
+                            <label for="Name">Account holder name</label>
+                            <input formControlName="nameOnAccount" type="text" pInputText autocomplete="new-password"  class="p-inputtext-sm" maxlength="30"
+                            (click) = "resetecheckSubmitted()" [ngClass]="{ 'ng-dirty ng-invalid': ecsubmitted && eCheckForm.controls.nameOnAccount.errors}" onkeypress="return (event.charCode > 64 && event.charCode < 91) 
+                            || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) || (event.charCode==39) " onKeyDown="if(this.value.length==30 && event.keyCode!=8) return false;"
+                            (paste)="matcher($event, 'nameOnAccount')" />
+                            <div *ngIf="ecsubmitted">
+                               <small class="p-invalid" *ngIf="eCheckForm.controls.nameOnAccount.errors?.required">Name is required.</small>
+                            </div>
+                         </div>
+                         <div class="p-field p-col-12 p-md-12" >
+                           <label for="NickName">Nick Name</label>
+                           <input formControlName="nickName" type="text" pInputText  autocomplete="new-password" class="p-inputtext-sm" maxlength="64" 
+                           (click) = "resetecheckSubmitted()" [ngClass]="{ 'ng-dirty ng-invalid': ecsubmitted && eCheckForm.controls.nickName.errors}"/>
+                           <div *ngIf="ecsubmitted">
+                              <small class="p-invalid" *ngIf="eCheckForm.controls.nickName.errors?.required"> Bank Name is required.</small>                                    
+                           </div>
+                        </div>
+                         <div class="p-field p-col-12 p-md-12" >
+                           <label for="RoutingNumber">Routing Number</label>
+                           <input formControlName="routingNumber" class="p-inputtext-sm"  type="text" pInputText
+                           (click) = "resetecheckSubmitted()" [ngClass]="{ 'ng-dirty ng-invalid': ecsubmitted && eCheckForm.controls.routingNumber.errors}"/>
+                           <div *ngIf="ecsubmitted">
+                              <small class="p-invalid" *ngIf="eCheckForm.controls.routingNumber.errors?.required"> Routing Number is required.</small>
+                           </div>
+                        </div>
+                         <div class="p-field p-col-12 p-md-12" >
+                            <label for="AccountNumber">Account Number</label>
+                            <input type = "text" onKeyDown="if(this.value.length==18 && event.keyCode!=8) return false;"
+                            onkeypress="return (event.charCode > 47 && event.charCode < 58)" 
+                            pInputText formControlName="accountNumber"  (click) = "resetecheckSubmitted()" (focusout) = "AccountNumberValidation($event)" 
+                            (blur) = "AccountNumberValidation($event)" (paste)="matcher($event, 'accountNumber')" class="p-inputtext-sm"/>
+                            <div *ngIf="ecsubmitted">
+                               <small class="p-invalid" *ngIf="eCheckForm.controls.accountNumber.errors?.required"> Account Number is required.</small>
+                            </div>
+                         </div>
+                         <!-- <div class="p-field p-col-12 p-md-12" >
+                            <label for="AccountType">Account Type</label>
+                            <input formControlName="accountType" type="text" pInputText autocomplete="new-password" class="p-inputtext-sm" 
+                            (click) = "resetecheckSubmitted()" [ngClass]="{ 'ng-dirty ng-invalid': ecsubmitted && eCheckForm.controls.accountType.errors}">
+                            <div *ngIf="ecsubmitted">
+                               <small class="p-invalid" *ngIf="eCheckForm.controls.accountType.errors?.required"> Account Type is required.</small>
+                            </div>
+                         </div> -->
+                         <BR />
+                       
+                      </div>
+                      </form>
+                   </div>
+                   <div class="center">
+                     <div data-ng-show="showError"  class="alert alert-danger">
+                        <table>
+                           <tr class="item" *ngFor="let error of errorList">
+                              <td>{{error.code}}</td>
+                              <td><b>{{error.text}}</b></td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                     <BR />
+                     <div class="center">
+                        <button pButton pRipple label="Pay {{ cartTotal | currency}}" icon="pi pi-credit-card" [disabled]="processing" class="p-button-success p-mr-2 p-mb-2" (click)="postBankDataToAuthNet()" ></button>
+                     </div>
+                  <BR />
+                </ng-template>
+             </p-tabPanel>
+          </p-tabView>
+          <div  *ngIf="showPayment===false">
+             <h4> Payment has already been made on this invoice.</h4>
+             <div class="p-col-12">
+               <div class="center">
+                  <table class="receipt-table">
+                     <thead>
+                        <tr>
+                           <th>Receipt Date</th>
+                           <th>Amount</th>
+                           <th>Download</th>
+                        </tr>
+                     </thead>  
+                     <tbody>                   
+                        <tr class="item" *ngFor="let receipt of receipts">
+                           <td>
+                              {{getDate(receipt.date)}}
+                           </td>
+                           <td>
+                              {{receipt.totalAmount | currency}}
+                           </td>
+                           <td>
+                              <button pButton pRipple type="button" icon="pi pi-cloud-download" class="p-button-rounded p-mr-5" (click)="downloadReceiptPdf(receipt.receiptid)"></button>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>                     
+               </div> 
+            </div>
+         </div>
+       </div>
+      </div>
+      <div class="p-col-3">
+         <div class="card">
+           <div class="p-grid">
+              <div class="p-col-6 profile-label"><b>Invoice:</b></div>
+              <div class="p-col-6 profile-data"><b>{{invoice.invoiceId}} </b></div>
+              <div class="p-col-6 profile-label">Due Date:</div>
+              <div class="p-col-6 profile-data">{{invoice.dueDate |  date:'MM/dd/yyyy'}} </div>
+              <div class="p-col-6 profile-label">Total Amount:</div>
+              <div class="p-col-6 profile-data">{{invoice.amount | currency}}</div>
+              <div class="p-col-6 profile-label">Balance Due:</div>
+              <div class="p-col-6 profile-data">{{invoice.balanceAmount | currency}}</div>
+              <div class="p-col-6 profile-label">Amount Paid:</div>
+              <div class="p-col-6 profile-data">{{invoice.paidAmount | currency}}</div>
+              <div class="p-col-12">
+                 <div class="center">
+                       <button pButton pRipple type="button" label="View" class="p-button-rounded p-mr-5" (click)="showPdf()"></button>
+                       <button pButton pRipple type="button" icon="pi pi-cloud-download" class="p-button-rounded p-mr-5" (click)="downloadPdf()"></button>
+                       <button pButton pRipple type="button" icon="pi pi-print" class="p-button-rounded p-mr-5" (click)="printPdf()"></button>
+                 </div>
+              </div>
+           </div>
+          </div>
+      <div class="p-col-2"></div>
+      </div>
+      <div *ngIf="printInvoice">
+         <app-print-invoice [invoiceId]="printInvoiceId" (closeEvent)='closePrint($event)'></app-print-invoice>
+      </div>
+</div>

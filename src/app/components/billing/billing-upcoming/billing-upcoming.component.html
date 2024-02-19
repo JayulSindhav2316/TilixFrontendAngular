@@ -1,0 +1,242 @@
+<div class="p-grid">
+    <div class="p-col-12">
+        <p-toast></p-toast>
+        <div class="card">
+            <p-toolbar>
+                <div class="p-toolbar-group-left">
+                    <span *ngIf="!showAuto"><p-button  icon="pi pi-plus" (click) = "autoTabClicked()"  styleClass="p-mr-5"></p-button></span>
+                    <span *ngIf="showAuto"><p-button  icon="pi pi-minus" (click) = "autoTabClicked()"  styleClass="p-mr-5"></p-button></span>
+                    <span><h5>Automated Billing</h5></span>
+                </div>
+                <div class="p-toolbar-group-right">                   
+                    <span> </span>
+                    <span> <p-button label="Members"  icon="pi pi-users" badge="{{autoBillingMemberCount}}" styleClass="p-mr-2 p-ml-2"></p-button></span>
+                    <span><p-button label="Revenue" icon="pi pi-dollar" styleClass="p-button-warning" badge="{{autoBillingRevenue | currency}}" badgeClass="p-badge-danger"></p-button></span>
+                </div>
+            </p-toolbar>
+            <div *ngIf="showAuto">
+                <BR/>
+                <div class="p-grid">
+                        <div class="p-col-3">
+                            <label for="effectiveDate" class="p-col-fixed" style="width:200px">Next Billing Sheduled</label>
+                            <div class="p-col">
+                                <p-calendar [(ngModel)]="effectiveDate" [showIcon]="true" inputId="icon" [disabled]="true"></p-calendar>
+                            </div>
+                        </div>
+                        <div class="p-col-3">
+                            <label for="throughDate" class="p-col-fixed" style="width:200px">Through Due Date</label>
+                            <div class="p-col">
+                                <p-calendar [(ngModel)]="throughDate" [showIcon]="true" inputId="icon" [disabled]="true"></p-calendar>
+                            </div>
+                        </div>
+                        <div class="p-col-3">
+                            <label for="paused" class="p-col-fixed" style="width:200px">Status</label>
+                            <div class="p-col">
+                                <p-toggleButton [(ngModel)]="pauseStatus" onLabel="Running" offLabel="Paused" [disabled]="true" onIcon="pi pi-check" offIcon="pi pi-times" [style]="{'width': '10em'}"></p-toggleButton>
+                            </div>
+                        </div>
+                        <div class="p-col-3">                           
+                        </div>
+                </div>
+                <p-table #dt [value]="autoBillingList" [columns]="cols" [rows]="10" [paginator]="true" resizableColumns="true" [showCurrentPageReport]="true" styleClass="p-datatable-sm"
+                      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [globalFilterFields]="['name','cardNumber']">
+                      <ng-template pTemplate="caption">
+                        <div style="text-align: right">
+                            <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+                            <input type="text" pInputText size="50" placeholder="Search .." (input)="dt.filterGlobal($event.target.value, 'contains')"
+                             style="width:auto">
+                        </div>
+                    </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>                      
+                      <th pSortableColumn="createdDate" class="ui-resizable-column" pResizableColumn width="15%" >    
+                            Created
+                            <p-columnFilter class="table-header-left" type="text" field="createdDate" display="menu"></p-columnFilter>  
+                      </th>                   
+                      <!-- <th pSortableColumn="firstName" class="ui-resizable-column" pResizableColumn width="20%" >   
+                            First Name
+                            <p-columnFilter class="table-header-left" type="text" field="firstName" display="menu"></p-columnFilter> 
+                    </th>
+                    <th pSortableColumn="lastName" class="ui-resizable-column" pResizableColumn width="20%" >  
+                            Last Name
+                            <p-columnFilter class="table-header-left" type="text" field="lastName" display="menu"></p-columnFilter> 
+                    </th> -->
+                    <th pSortableColumn="name" class="ui-resizable-column" pResizableColumn width="15%" >  
+                        Billable Member <p-columnFilter class="table-header-left" type="text" field="name" display="menu"></p-columnFilter>                               
+                    </th>
+                      <th pSortableColumn="cardNumber" class="ui-resizable-column" pResizableColumn width="15%" >      
+                            Card #
+                            <p-columnFilter class="table-header-left" type="text" field="cardNumber" display="menu"></p-columnFilter>  
+                      </th>
+                      <th pSortableColumn="cardType" class="ui-resizable-column" pResizableColumn width="15%" >   
+                            Type
+                            <p-columnFilter class="table-header-left" type="text" field="cardType" display="menu"></p-columnFilter>  
+                      </th>
+                      <th pSortableColumn="expirationDate" class="ui-resizable-column" pResizableColumn width="15%" > 
+                            Expires
+                            <p-columnFilter class="table-header-left" type="text" field="expirationDate" display="menu"></p-columnFilter>  
+                      </th>
+                      <th pSortableColumn="nextDueDate" class="ui-resizable-column" pResizableColumn width="20%" >      
+                        Due Date
+                        <p-columnFilter class="table-header-left" type="text" field="nextDueDate" display="menu"></p-columnFilter>  
+                        </th>
+                      <th pSortableColumn="amount" width="15%" >   
+                            Amount
+                            <p-columnFilter class="table-header-left" type="text" field="amount" display="menu"></p-columnFilter>  
+                      </th>
+                      <th width="5%"></th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                    <tr class="maxTableRow">
+                    <td>
+                        {{ item.createDate | date:"MM/dd/yyyy"}}
+                    </td>
+                    <!-- <td>
+                        {{ item.firstName }}
+                    </td> -->
+                    <td>
+                        {{ item.name }}
+                    </td>
+
+                    <td>
+                        {{ item.cardNumber }}
+                    </td>
+                    <td>
+                       {{ item.cardType }}
+                    </td>
+                    <td>
+                        {{ item.expirationDate }}
+                     </td>
+                     <td>
+                        {{ item.nextDueDate | date:"MM/dd/yyyy"}}
+                    </td>
+                    <td >
+                      {{ item.amount | currency}}
+                    </td>
+                    <td style="text-align:center">
+                        <a><fa-icon [icon]="faEdit" (click)="editPersonAutoPay(item)"></fa-icon></a>
+                    </td>
+                    </tr>
+                </ng-template>
+                </p-table>
+
+            </div>
+        </div>
+        <div class="card">
+            <p-toolbar>
+                <div class="p-toolbar-group-left">
+                    <span *ngIf="!showManual"><p-button icon="pi pi-plus" (click) = "manualTabClicked()" styleClass="p-mr-5"></p-button></span>
+                    <span *ngIf="showManual"><p-button icon="pi pi-minus" (click) = "manualTabClicked()" styleClass="p-mr-5"></p-button></span>
+                    <h5>Manual Billing</h5>
+                </div>
+                <div class="p-toolbar-group-right">
+                    <p-button label="Members"  icon="pi pi-users" badge="{{manualBillingMemberCount}}" styleClass="p-mr-2"></p-button>
+                    <p-button label="Revenue" icon="pi pi-dollar" styleClass="p-button-warning" badge="{{manualBillingRevenue | currency}}" badgeClass="p-badge-danger"></p-button>
+                </div>
+            </p-toolbar>
+            <BR/>
+            <div *ngIf="showManual">
+                <p-table #mt [value]="manualBillingList" [columns]="cols" [rows]="10" [paginator]="true" resizableColumns="true" [showCurrentPageReport]="true" styleClass="p-datatable-sm"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [globalFilterFields]="['name','description']">
+                    <ng-template pTemplate="caption">
+                        <div style="text-align: right">
+                            <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+                            <input type="text" pInputText size="50" placeholder="Search .." (input)="mt.filterGlobal($event.target.value, 'contains')"
+                             style="width:auto">
+                        </div>
+                    </ng-template>
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th pSortableColumn="createdDate" class="ui-resizable-column" pResizableColumn width="15%" >   
+                                        Created  <p-columnFilter class="table-header-left" type="text" field="createdDate" display="menu"></p-columnFilter>                                  
+                                </th>
+                            <th pSortableColumn="name" class="ui-resizable-column" pResizableColumn width="15%" >  
+                                Billable Member <p-columnFilter class="table-header-left" type="text" field="name" display="menu"></p-columnFilter>                               
+                            </th>
+                            <!-- <th pSortableColumn="lastName" class="ui-resizable-column" pResizableColumn width="15%" >  
+                                Last Name  <p-columnFilter class="table-header-left" type="text" field="lastName" display="menu"></p-columnFilter>                               
+                            </th> -->
+                            <th pSortableColumn="dueDate" class="ui-resizable-column" pResizableColumn width="15%" >   
+                                Due Date  <p-columnFilter class="table-header-left" type="text" field="dueDate" display="menu"></p-columnFilter>                              
+                            </th>
+                            <th pSortableColumn="description" class="ui-resizable-column" pResizableColumn width="25%" > 
+                                Description <p-columnFilter class="table-header-left" type="text" field="description" display="menu"></p-columnFilter>                                
+                            </th>
+                            <th pSortableColumn="amount" class="ui-resizable-column" pResizableColumn width="15%">   
+                                Amount <p-columnFilter class="table-header-left" type="text" field="amount" display="menu"></p-columnFilter>                              
+                            </th>
+                            <th width="5%"></th>
+                        </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-item>
+                            <tr class="maxTableRow">
+                                <td>
+                                    {{ item.createDate | date:"MM/dd/yyyy"}}
+                                </td>
+                            <td>
+                                {{ item.name }}
+                            </td>
+                            <!-- <td>
+                                {{ item.lastName }}
+                            </td> -->
+                           
+                            <td>
+                                {{ item.dueDate | date:"MM/dd/yyyy"}}
+                            </td>
+                            <td>
+                                {{ item.description }}
+                            </td>
+                            <td>
+                            {{ item.amount | currency}}
+                            </td>
+                                <td style="text-align:center">
+                                    <a><fa-icon [icon]="faEdit" (click)="editPersonPaperInvoice(item)"></fa-icon></a>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+        </div>
+        <p-dialog [(visible)]="showAutoPayDialog" [style]="{ width: '650px' }" header="Suspend Auto Pay billing" [modal]="true"
+			styleClass="p-fluid"  [contentStyle]="{minHeight: '150px'}">
+	  
+		<ng-template pTemplate="content">
+			<form [formGroup]="autoPayForm" (ngSubmit)="onCancel()">
+		
+				<div class="card">
+                    <div class="p-field p-grid">
+                        <label for="person" class="p-col-12 p-mb-2 p-md-4 p-mb-md-0">Name</label>
+						<div class="p-col-12 p-md-8">
+							<input formControlName="person" pInputText  type="input" readonly/> 
+						</div>
+					</div>
+					<div class="p-field p-grid">
+						<label for="reason" class="p-col-12 p-mb-2 p-md-4 p-mb-md-0">Reason</label>
+						<div class="p-col-12 p-md-8">
+							<textarea formControlName="reason" pInputTextarea  rows="3"  type="text"> </textarea>
+						</div>
+					</div>
+                    <div class="p-field p-grid">
+						<label for="reviewDate" class="p-col-12 p-mb-2 p-md-4 p-mb-md-0">Review Date</label>
+						<div class="p-col-12 p-md-8">
+							<p-calendar formControlName="reviewDate" [minDate]="minDate" [showIcon]="true" appendTo="body" [readonlyInput]="true"></p-calendar>
+						</div>
+					</div>
+				</div>
+			</form>
+		</ng-template>
+		<ng-template pTemplate="footer">
+			<button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="stopAutoPay()"></button>
+			<button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="cancelAutoPay()"></button>
+		</ng-template>
+		</p-dialog>  
+    <p-dialog [(visible)]="editInvoice" [style]="{ width: '700px' }" header="" [modal]="true"
+        styleClass="p-fluid"  [contentStyle]="{minHeight: '150px'}">
+         <ng-template pTemplate="content">
+            <div *ngIf="editInvoice" class="upcoming-billing-edit-invoice">
+	            <app-edit-invoice class="edit-invoice" [invoiceId]="selectedInvoice.invoiceId" [paperInvoiceId]="selectedInvoice.paperInvoiceId" (closeEvent)='closeEditInvoice($event)'></app-edit-invoice>
+            </div>
+        </ng-template>
+    </p-dialog>
+</div>

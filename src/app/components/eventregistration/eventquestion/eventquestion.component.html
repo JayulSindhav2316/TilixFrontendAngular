@@ -1,0 +1,137 @@
+<div class="p-grid">
+    <div class="p-col-12">
+      <div class="card">
+        <div class="p-grid">
+          <div class="p-xl-12 p-md-6 p-sm-12" *ngIf="this.eventSession.selectedQuestion.length > 0">
+            <div *ngIf="showSessionQuestions">
+              <h5 *ngIf="findSessionQuestions().length > 0">Anwser Session Level Questions</h5>
+              <div style="margin-bottom: 5px;" *ngFor="let question of findSessionQuestions()">
+                <div class="card background-image"
+                  style="background-color: lightgray;">
+                  <h6 style="color: black;">{{question.questionNumber}}. {{question.question}}</h6>
+                  <h6 style="color: grey;"></h6>
+                  <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="question.answerTypeLookUpId == 1">
+                    <div class="p-field p-col-12">
+                      <h6>Short Description</h6>
+                      <textarea [rows]="3" pInputTextarea autoResize="autoResize" [(ngModel)]="question.answerValue">Max 200 characters allowed.</textarea>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="question.answerTypeLookUpId == 2">
+                    <div class="p-field p-col-12">
+                      <h6>Long Description</h6>
+                      <textarea [rows]="5" pInputTextarea autoResize="autoResize" [(ngModel)]="question.answerValue">Max 1000 characters allowed.</textarea>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 5">
+                    <div class="p-field p-col-6">
+                      <h6>Date</h6>
+                      <p-calendar [showIcon]="true" inputId="icon" appendTo="body" [(ngModel)]="question.answerValue" (onSelect)="setDate($event,question)"></p-calendar>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 6">
+                    <div class="p-field p-col-6">
+                      <h6>Time</h6>
+                      <p-calendar [timeOnly]="true" [hourFormat]="12" [(ngModel)]="question.answerValue"  appendTo="body" (onSelect)="setTime($event,question)"></p-calendar>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 7">
+                    <div class="p-field p-col-6">
+                      <h6>Date & Time</h6>
+                      <p-calendar [showTime]="true" [hourFormat]="12" appendTo="body" [(ngModel)]="question.answerValue" (onSelect)="setDateTime($event,question)"></p-calendar>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 4">
+                    <div class="p-field p-col-6">
+                        <p-multiSelect [options]="question.answerOption" placeholder="Select option(s)"  appendTo="body"  [(ngModel)] ="question.selectedAnwserOptions" optionLabel="option" optionValue="answerOptionId"></p-multiSelect>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 3">
+                    <div class="p-field p-col-6">
+                        <p-dropdown [options]="question.answerOption" [(ngModel)]="question.answerValue" [style]="{'width':'100%'}" placeholder="Select option"
+                        optionLabel="option" optionValue="answerOptionId">
+                      </p-dropdown>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="showEventQuestions">
+              <h5 *ngIf="findEventQuestions().length > 0">Anwser Event Level Questions</h5>
+              <div style="margin-bottom: 5px;" *ngFor="let question of findEventQuestions()">
+                <div class="card background-image"
+                  style="background-color: lightgray;">
+                  <h6 style="color: black;">{{question.questionNumber}}. {{question.question}}</h6>
+                  <h6 style="color: grey;"></h6>
+                  <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="question.answerTypeLookUpId == 1">
+                    <div class="p-field p-col-12">
+                      <h6>Short Description</h6>
+                      <textarea [rows]="3" pInputTextarea autoResize="autoResize" [(ngModel)]="question.answerValue">Max 200 characters allowed.</textarea>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="question.answerTypeLookUpId == 2">
+                    <div class="p-field p-col-12">
+                      <h6>Long Description</h6>
+                      <textarea [rows]="5" pInputTextarea autoResize="autoResize" [(ngModel)]="question.answerValue">Max 1000 characters allowed.</textarea>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 5">
+                    <div class="p-field p-col-6">
+                      <h6>Date</h6>
+                      <p-calendar [showIcon]="true" inputId="icon" appendTo="body" [(ngModel)]="question.answerValue" (onSelect)="setDate($event,question)"></p-calendar>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 6">
+                    <div class="p-field p-col-6">
+                      <h6>Time</h6>
+                      <p-calendar [timeOnly]="true" [hourFormat]="12" [(ngModel)]="question.answerValue"  appendTo="body" (onSelect)="setTime($event,question)" ></p-calendar>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 7">
+                    <div class="p-field p-col-6">
+                      <h6>Date & Time</h6>
+                      <p-calendar [showTime]="true" [hourFormat]="12" appendTo="body" [(ngModel)]="question.answerValue" (onSelect)="setDateTime($event,question)"></p-calendar>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 4">
+                    <div class="p-field p-col-6">
+                        <p-multiSelect [options]="question.answerOption" placeholder="Select option(s)"  appendTo="body"  [(ngModel)] ="question.selectedAnwserOptions" optionLabel="option" optionValue="answerOptionId"></p-multiSelect>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 3">
+                    <div class="p-field p-col-6">
+                        <p-dropdown [options]="question.answerOption" [(ngModel)]="question.answerValue" [style]="{'width':'100%'}" placeholder="Select option"
+                        optionLabel="option" optionValue="answerOptionId">
+                      </p-dropdown>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="p-xl-12 p-md-6 p-sm-12 center" *ngIf="this.eventSession.selectedQuestion.length > 0">
+              <a *ngIf="findEventQuestions().length > 0 && findSessionQuestions().length > 0" href="javascript:void(0)" [ngStyle]="{'color' : showEventQuestions ? '#689F38' : 'black' }"  (click)="eventQuestionPageClick()"><i class="pi pi-circle-on" style="font-size: xx-small;"></i></a>
+              &nbsp;&nbsp;&nbsp;
+              <a *ngIf="findSessionQuestions().length > 0 && findEventQuestions().length > 0" href="javascript:void(0)" [ngStyle]="{'color' : showSessionQuestions ? '#689F38' : 'black' }" (click)="sessionQuestionPageClick()"><i class="pi pi-circle-on" style="font-size: xx-small;"></i></a>
+          </div>
+          <div class="p-xl-12 p-md-6 p-sm-12" *ngIf="this.eventSession.selectedQuestion.length == 0">
+            <div class="center">
+              <h6>There are no questions associated with this event.</h6>
+            </div>
+          </div>
+          <div class="p-xl-12 p-md-6 p-sm-12 center">
+                <button pButton pRipple label="Back" icon="pi pi-arrow-left" class="p-button-success p-mr-2 p-mb-2" (click)="goBack()"></button>
+                <button pButton pRipple label="Continue" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" (click)="selectQuestion()"></button>
+                <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="goToSearch()"></button>
+          </div>
+          <div class="p-xl-12 p-md-6 p-sm-12">
+            <div class="center">
+            </div>
+          </div>
+          <div class="p-xl-12 p-md-6 p-sm-12">
+            <div class="center">
+              <h6>These questions are optional and/or could be answered later</h6>
+            </div>
+          </div>
+        <div>
+    </div>           
+</div>     

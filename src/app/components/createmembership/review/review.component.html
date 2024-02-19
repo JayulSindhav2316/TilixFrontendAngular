@@ -1,0 +1,128 @@
+
+<div class="p-grid">
+    <div class="p-col-6 p-md-6 p-xl-6">
+        <div class="card"  style="height:250px;">
+            <div class="card-header profile-title">
+                Membership
+            </div>
+            <hr class="profile-ruler">       
+            <form [formGroup]="dateForm">  
+            <div class="p-grid">
+                <div class="p-col-4 profile-label">Membership Type:</div>
+                <div class="p-col-8 profile-data">{{membershipType.name}}</div>
+                <div class="p-col-4 profile-label">Code:</div>
+                <div class="p-col-8 profile-data">{{membershipType.code}}</div>
+                <div class="p-col-4 profile-label">Period:</div>
+                <div class="p-col-8 profile-data">{{membershipType.periodName}}</div>         
+                <div class="p-col-4 profile-label">Start Date:</div>
+                <div class="p-col-8 profile-data"><p-calendar formControlName="startDate" [showIcon]="true" inputId="icon" (onSelect) = "setEndDate()"></p-calendar></div>
+                <div class="p-col-4 profile-label">End Date:</div>
+                <div class="p-col-8 profile-data" ><p-calendar formControlName="endDate" [showIcon]="true" inputId="icon"></p-calendar></div>           
+                <app-field-error-display [displayError]="endDateValidation('endDate')" [addErrorMessages]="addErrorMessages" style="margin-left: 250px;">
+                </app-field-error-display>
+            </div>
+        </form>
+        </div>
+    </div>
+    <div class="p-col-6 p-md-6 p-xl-6">
+        <div class="card"  style="height:250px;">
+            <div class="card-header profile-title">
+                Billable Member
+            </div>
+            <hr class="profile-ruler">
+            <div class="p-grid">
+                <div class="p-col-4 profile-label">Name:</div>
+                <div class="p-col-8 profile-data"><p-dropdown [options]="billableOptions" [(ngModel)]="selectedBillableEntity" optionLabel="name" optionValue="code" (onChange)="setBillableMember()"></p-dropdown></div>
+                <div *ngIf="!isCompanyBillable" class="p-col-4 profile-label">Gender:</div>
+                <div *ngIf="!isCompanyBillable" class="p-col-8 profile-data">{{billableEntity.gender}}</div>
+                <div *ngIf="!isCompanyBillable" class="p-col-4 profile-label">Age:</div>
+                <div *ngIf="!isCompanyBillable" class="p-col-8 profile-data">{{billableEntity.age}}</div>
+                <div class="p-col-4 profile-label">Invoice Preference:</div>
+                <div class="p-col-8 profile-data">
+                    <p-dropdown [options]="notificationList" [(ngModel)]="selectedNotification" optionLabel="name"  optionValue="code" (onChange)="updateBillingNotification()"></p-dropdown></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h6>Membership Fees</h6>
+    <p-table #dt [value]="membershipFees" [rows]="5" [paginator]="false"  [rowHover]="true" dataKey="feeId" resizableColumns="true" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="description" class="ui-resizable-column" pResizableColumn width="50%">Name <p-columnFilter type="text" field="description" display="menu"></p-columnFilter></th>
+                <th pSortableColumn="feeAmount" class="ui-resizable-column" pResizableColumn width="25%">Fee</th>
+                <th pSortableColumn="billingFrequency" class="ui-resizable-column" pResizableColumn width="25%">Billing Frequency</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-fee>
+            <tr class="maxTableRow">
+                <td>{{fee.description}}</td>
+                <td pEditableColumn>
+                    <p-cellEditor>
+                        <ng-template pTemplate="input">
+                            <p-inputNumber [(ngModel)]="fee.feeAmount" [showButtons]="true" [min]="0.0"  buttonLayout="horizontal"  spinnerMode="horizontal" [step]="0.25"
+                            decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" mode="currency" currency="USD" (onBlur)="checkFee(fee)">
+                            </p-inputNumber>
+                        </ng-template>
+                        <ng-template pTemplate="output">
+                            <a>{{fee.feeAmount | currency:'USD'}}</a>
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+                <td>{{fee.billingFrequency === 1 ? "Once" : fee.billingFrequency === 2 ? "On Renewal" : "Every Billing Cycle"}}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+<div *ngIf="showAdditionalMemberTable">
+    <div class="card">
+       <h6>Additional Contact(s)</h6>
+       <p-table [value]="additionalMembers" styleClass="p-datatable-sm">
+       <ng-template pTemplate="header">
+          <tr>
+             <th pColumn="name" class="ui-resizable-column" pResizableColumn width="40%">
+               Name
+             </th>
+             <th  pColumn="gender" pResizableColumn width="40%">
+                Gender
+             </th>
+             <th  pColumn="age" pResizableColumn width="20%">
+                Age
+             </th>
+   
+          </tr>
+       </ng-template>
+       <ng-template pTemplate="body" let-member>
+          <tr class="maxTableRow">
+             <td>
+                {{ member.name }}
+             </td>
+             <td>
+                {{ member.gender }}
+             </td>
+             <td>
+                {{ member.age}}
+             </td>
+          
+          </tr>
+       </ng-template>
+    </p-table>
+  </div>
+</div>
+<div class="card"> 
+    <p-fieldset [collapsed]="true" legend="Notes" [toggleable]="true">         
+    <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-12">
+        <textarea [rows]="5" pInputTextarea [(ngModel)]="notes" autoResize="autoResize" maxlength="500"
+        (focusout) = "noteValidation($event)" (blur) = "noteValidation($event)"></textarea>
+        </div>
+    </div>
+    </p-fieldset>
+</div> 
+<div class="center">
+    <button pButton pRipple label="Back" icon="pi pi-arrow-left" class="p-button-success p-mr-2 p-mb-2" (click)="goBack()"></button>
+    <button pButton pRipple label="Continue" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" (click)="goToNext()"></button>
+    <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="goToSearch()"></button>
+</div>
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

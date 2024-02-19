@@ -1,0 +1,280 @@
+<div class="p-grid">
+  <div class="p-col-12">
+     <p-toast></p-toast>
+     <div class="card">
+        <p-toolbar styleClass="p-mb-4">
+           <ng-template pTemplate="left">
+             
+           </ng-template>
+           <ng-template pTemplate="right">
+              <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="openNew()"></button>
+           </ng-template>
+        </p-toolbar>
+      
+        <div *ngIf="showTable">
+           <p-table #dt [value]="staffList"  *ngIf="showTable" [columns]="cols" [rows]="10" [paginator]="true" 
+           [globalFilterFields]="['firstName','lastName','userName','email','status','roleNames','cellPhoneNumber']"
+           [rowHover]="true" resizableColumns="true" [showCurrentPageReport]="true" styleClass="p-datatable-sm"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)">
+           <ng-template pTemplate="caption">
+            <div style="text-align: left">
+                <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+                <input type="text" pInputText size="30" placeholder="Search .." (input)="dt.filterGlobal($event.target.value, 'contains')"
+                 style="width:auto">
+            </div>
+        </ng-template>
+           <ng-template pTemplate="header">
+              <tr>
+                 <th pSortableColumn="firstName" class="ui-resizable-column" pResizableColumn>                   
+                   Name
+                    <p-columnFilter type="text" field="firstName" display="menu"></p-columnFilter>
+                 </th>
+                 <th pSortableColumn="email" class="ui-resizable-column" pResizableColumn>                   
+                    Email
+                    <p-columnFilter type="text" field="email" display="menu"></p-columnFilter>
+                 </th>
+                 <th pSortableColumn="userName" class="ui-resizable-column" pResizableColumn>
+                    Username
+                    <p-columnFilter type="text" field="userName" display="menu"></p-columnFilter>
+                 </th>
+                 <th pResizableColumn field="role">
+                    Role
+                 </th>
+                 <th pSortableColumn="status">
+                    Status
+                 </th>
+                 <th pSortableColumn="status">
+                  Locked
+               </th>
+                 <th></th>
+              </tr>
+           </ng-template>
+           <ng-template pTemplate="body" let-staff>
+              <tr class="maxTableRow">
+                 <td>
+                    {{ staff.firstName }}  {{ staff.lastName }}
+                 </td>
+                 <td>
+                    {{ staff.email }}
+                 </td>
+                 <td>
+                    {{ staff.userName }}
+                 </td>
+                 <td>
+                    <li *ngFor="let role of staff.roles;">
+                       {{role.name}}
+                    </li>
+                 </td>
+                 <td style="text-align: left;">
+                    <div *ngIf="staff.status; else elseStatusBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+                    <ng-template #elseStatusBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+                    <!-- <p-inputSwitch readonly=true [ngModel]="staff.status"></p-inputSwitch> -->
+                 </td>
+                 <td style="text-align: left;">
+                  <div *ngIf="staff.locked; else elseLockedBlock"><p-tag styleClass="p-mr-2" severity="danger" value="Yes" [rounded]="true"></p-tag></div>
+                  <ng-template #elseLockedBlock><p-tag styleClass="p-mr-2" severity="success" value="No" [rounded]="true"></p-tag></ng-template>
+                  <!-- <p-inputSwitch readonly=true [ngModel]="staff.locked"></p-inputSwitch> -->
+                  <div #pMenu></div>
+                  <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+               </td>
+                 <td style="text-align: left;">
+                    <button type="button" pButton icon="pi pi-ellipsis-v" (click)="setActiveRow(staff); menu.toggle($event)"></button>
+                 </td>
+              </tr>
+           </ng-template>
+           </p-table>
+        </div>
+     </div>
+     <form [formGroup]="staffDetailForm">
+        <p-dialog [(visible)]="userDialog" [style]="{ width: '650px' }" [header]="headerName" [modal]="true" styleClass="p-fluid" (onHide)="hideDialog()" [contentStyle]="{ maxHeight : '80vh'}">
+        <ng-template pTemplate="content">
+          <div class="p-fluid p-formgrid p-grid">
+            <div class="p-col-12 p-d-flex p-ai-center p-jc-center">
+                <div class="p-mr-5" *ngIf="profileImage"> 
+                    <img [src]="profileImage" class="rounded" width="100px"  height="100px" style=" border-radius: 05%; -webkit-filter: drop-shadow(2px 2px 2px #bbb); filter: drop-shadow(2px 2px 2px #bbb);">
+                </div>
+                <div class="p-mr-5" *ngIf="!profileImage"> 
+                    <img src="./assets/layout/images/No-Profile-Picture.jpg" class="rounded" width="100px"  height="100px" style=" border-radius: 05%; -webkit-filter: drop-shadow(2px 2px 2px #bbb); filter: drop-shadow(2px 2px 2px #bbb);">
+                </div>
+                <!-- <div style="display: none;">
+                  <input type="file" class="file-input" (change)="onFileSelected($event)" accept="image/png, image/gif, image/jpeg, image/jpg" #fileUpload>
+                </div> -->
+                <div class="row" style="display: none;">
+                  <div class="text-center col-md-12">
+                      <input type="file" class="file-input" (change)="fileChangeEvent($event)" accept="image/png, image/gif, image/jpeg, image/jpg"  #fileUpload />
+                  </div>
+              </div>
+              <div class="row">  
+               <div style="margin-top: 15px;display: flex;" *ngIf="showCropper">  
+                   <div class="text-center col-md-8" style="margin:1%;">  
+                       <h5 *ngIf="showTextCropper" style="text-align: center;">Cropped Image</h5>  
+                       <image-cropper   
+                       [imageChangedEvent]="imageChangedEvent"   
+                       [maintainAspectRatio]="true"   
+                       [aspectRatio]="4 / 4"  
+                       [resizeToWidth]="200"
+                       [cropper]="cropper"   
+                       format="png"   
+                       (imageCropped)="imageCropped($event)"   
+                       (imageLoaded)="imageLoaded()"  
+                       (cropperReady)="cropperReady()"   
+                       (loadImageFailed)="loadImageFailed()"></image-cropper>  
+                   </div>  
+                   <div class="text-center col-md-4" style="padding-top: 5px;margin: 1%;">  
+                       <h5 *ngIf="showTextCropper" style="text-align: center;">Preview</h5>  
+                       <img [src]="croppedImage" />  
+                   </div>  
+               </div> 
+               <div class="center" style="padding-top: 10px;" *ngIf="showTextCropper">
+                   <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="cropImageDone()" *ngIf="showTextCropper" style="width: auto;"></button>
+                   <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideCropper()" style="width: auto;"></button>
+               </div>  
+            </div>  
+                <div class="p-mr-5">
+                    <div class="p-mt-3">
+                        <a><fa-icon class="p-mr-3" [icon]="faCamera" pTooltip="Update profile photo" (click)="fileUpload.click()"></fa-icon></a>
+                        <a *ngIf="!showCropper"><fa-icon class="p-mr-3" [icon]="faTrash" pTooltip="Delete profile photo" (click)="deleteProfileImage()"></fa-icon></a>
+                    </div>
+                </div>
+            </div>
+          </div>
+           <div class="p-fluid p-formgrid p-grid">
+              <div class="p-field p-col-6" [ngClass]="errorIconCss('FirstName')">
+                 <label for="FirstName">First Name</label>
+                 <input type="text" pInputText formControlName="FirstName" autocomplete="new-password" (click) = "resetSubmitted('FirstName')" autofocus 
+                 [ngClass]="errorFieldCss('FirstName')" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) 
+                 || (event.charCode==45) || (event.charCode==39) || (event.charCode==44) || (event.charCode==46)" 
+                 onKeyDown="if(this.value.length==30 && event.keyCode!=8) return false;" (paste)="matcher($event, 'FirstName')" [readonly]="showCropper"/>
+                 <app-field-error-display [displayError]="isFieldValid('FirstName')" [addErrorMessages]="addErrorMessages">
+                 </app-field-error-display>
+              </div>
+              <div class="p-field p-col-6" [ngClass]="errorIconCss('LastName')">
+                 <label for="LastName">Last Name</label>
+                 <input type="text" pInputText formControlName="LastName" autocomplete="new-password" (click) = "resetSubmitted('LastName')" 
+                 [ngClass]="errorFieldCss('LastName')" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) 
+                 || (event.charCode==45) || (event.charCode==39) || (event.charCode==44) || (event.charCode==46)" 
+                 onKeyDown="if(this.value.length==30 && event.keyCode!=8) return false;" (paste)="matcher($event, 'LastName')" [readonly]="showCropper"/>
+                 <app-field-error-display [displayError]="isFieldValid('LastName')" [addErrorMessages]="addErrorMessages">
+                 </app-field-error-display>
+              </div>
+              <div class="p-field p-col-6" [ngClass]="errorIconCss('Department')">
+                 <label for="Organization">Department</label>
+                 <p-dropdown [options]="department" formControlName="Department" autocomplete="new-password" placeholder="Select a Department" appendTo="body" optionLabel="name" 
+                 optionValue="code"  (click) = "resetSubmitted('Department')" [ngClass]="errorFieldCss('Department')" [readonly]="showCropper">
+                 </p-dropdown>
+                 <app-field-error-display [displayError]="isFieldValid('Department')" [addErrorMessages]="addErrorMessages">
+                 </app-field-error-display>
+              </div>
+              <div class="p-field p-col-6" [ngClass]="errorIconCss('SelectedRoles')">
+                 <label for="Roles">Roles</label>
+                 <p-multiSelect [options]="roles" autocomplete="new-password" placeholder="Select Role(s)" formControlName="SelectedRoles" appendTo="body" optionLabel="name" optionValue="roleId"
+                 (click) = "resetSubmitted('SelectedRoles')" [ngClass]="errorFieldCss('SelectedRoles')" [readonly]="showCropper">
+                 </p-multiSelect>
+                 <app-field-error-display [displayError]="isFieldValid('SelectedRoles')" [addErrorMessages]="addErrorMessages">
+                 </app-field-error-display>
+              </div>
+              <div class="p-field p-col-6" [ngClass]="errorIconCss('Username')">
+                 <label for="Username">Username</label>
+                 <input type="text" pInputText required autocomplete="new-password" formControlName="Username" (click) = "resetSubmitted('Username')" 
+                 [ngClass]="errorFieldCss('Username')" onkeypress="return (event.charCode > 32 && event.charCode < 127) " maxlength=50 
+                 onKeyDown="if(this.value.length==64 && event.keyCode!=8) return false;" (paste)="matcher($event, 'Username')"
+                 (focusout) = "UserNameValidation($event)" [readonly]="showCropper"/>
+                 <app-field-error-display [displayError]="isFieldValid('Username')" [addErrorMessages]="addErrorMessages">
+                 </app-field-error-display>
+              </div>
+              <div class="p-field p-col-6" [ngClass]="errorIconCss('Email')">
+                 <label for="Email">Email</label>
+                 <input type="text" pInputText autocomplete="new-password" formControlName="Email" (click) = "resetSubmitted('Email')" [ngClass]="errorFieldCss('Email')" [readonly]="showCropper" [readonly]="showCropper"/>
+                 <app-field-error-display [displayError]="isFieldValid('Email')" [addErrorMessages]="addErrorMessages">
+                 </app-field-error-display>
+              </div>
+              <div class="p-field p-col-6" [ngClass]="errorIconCss('Cell')">
+               <label for="Cell">Cell</label>
+               <p-inputMask class="p-inputtext-sm" autocomplete="new-password" mask="(999) 999-9999? x99999" formControlName="Cell" (click) = "resetSubmitted('Cell')" [ngClass]="errorFieldCss('Cell')" [readonly]="showCropper"></p-inputMask>
+               <app-field-error-display [displayError]="isFieldValid('Cell')" [addErrorMessages]="addErrorMessages">
+               </app-field-error-display>
+              </div>
+              <div class="p-field p-col-6"></div>
+              <div *ngIf="!addNew" class="p-field p-col-12" [ngStyle] = "{'pointer-events': showCropper ? 'none' : 'auto'}">
+                <a (click)="clickEditPassword()" [text]="editPasswordText"></a>
+              </div>
+                <div *ngIf="addNew || editPasswordEnabled" class="p-field p-col-6" [ngClass]="errorIconCss('Password')">                  
+                 <label for="Password">Password</label>
+                 <div class="p-inputgroup">
+                    <input [type]="showPassword ? 'text' : 'password'" pPassword formControlName="Password" maxlength=20  
+                    (click) = "resetSubmitted('Password')" [ngClass]="errorFieldCss('Password')" (keypress) = "applyPasswordValidation()" [readonly]="showCropper"/>
+                    <span class="p-inputgroup-addon"  (click)="clickShowPassword()"><i [class]="showPassword ? 'pi pi-eye' : 'pi pi-eye-slash'" ></i></span>
+                 </div>
+                 <app-field-error-display [displayError]="isFieldValid('Password')" [addErrorMessages]="addErrorMessages">
+                 </app-field-error-display>
+               </div>
+                 <div *ngIf="addNew || editPasswordEnabled" class="p-field p-col-6" [ngClass]="errorIconCss('ConfirmPassword')">
+                    <label for="ConfirmPassword">Confirm Password</label>
+                    <div class="p-inputgroup">
+                       <input [type]="showConfirmPassword ? 'text' : 'password'" pPassword formControlName="ConfirmPassword" maxlength=20  (click) = "resetSubmitted('ConfirmPassword')" [ngClass]="errorFieldCss('ConfirmPassword')" [readonly]="showCropper"/>
+                       <span class="p-inputgroup-addon" (click)="clickShowConfirmPassword()"><i [class]="showConfirmPassword ? 'pi pi-eye' : 'pi pi-eye-slash'"></i></span>
+                    </div>
+                    <app-field-error-display [displayError]="isFieldValid('ConfirmPassword')" [addErrorMessages]="addErrorMessages">
+                    </app-field-error-display>
+                 </div>
+                 <div class="p-field p-col-3">
+                    <div>
+                       <label for="Status">Active</label>
+                       <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                          <p-inputSwitch formControlName='Status' [disabled]="showCropper"></p-inputSwitch>
+                       </div>
+                    </div>
+                 </div>
+                 <div class="p-field p-col-3">
+                  <div>
+                     <label for="Locked">Locked</label>
+                     <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                        <p-inputSwitch formControlName='Locked' [disabled]="showCropper"></p-inputSwitch>
+                     </div>
+                  </div>
+                 </div>
+                 <div class="p-field p-col-6">
+                 </div>
+              </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="saveUser()" [disabled]="showCropper"></button>
+        <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideDialog()" [disabled]="showCropper"></button>
+        </ng-template>
+        </p-dialog>
+     </form>
+     <form [formGroup]="resetPasswordForm">
+      <p-dialog [(visible)]="resetPasswordDialog" [style]="{ width: '400px' }" header="Reset Password" [modal]="true" styleClass="p-fluid" (onHide)="hideResetPassowordDialog()">
+        <ng-template pTemplate="content">
+        <div class="p-fluid p-formgrid p-grid p-ai-center">
+          <div class="p-field p-col-12" [ngClass]="errorIconCss('Password')">
+            
+            <label for="Password">New Password</label>
+            <div class="p-inputgroup">
+              <input [type]="showPassword ? 'text' : 'password'" pPassword formControlName="Password" maxlength=20  
+              (click) = "resetSubmitted('Password')" [ngClass]="errorFieldCss('Password')" (keypress) = "applyPasswordValidation()"/>
+              <span class="p-inputgroup-addon" (click)="clickShowPassword()"><i [class]="showPassword ? 'pi pi-eye' : 'pi pi-eye-slash'" ></i></span>
+            </div>
+            <app-field-error-display [displayError]="isFieldValid('Password')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+          <div class="p-field p-col-12" [ngClass]="errorIconCss('ConfirmPassword')">
+            <label for="ConfirmPassword">Confirm New Password</label>
+            <div class="p-inputgroup">
+              <input [type]="showConfirmPassword ? 'text' : 'password'" pPassword formControlName="ConfirmPassword" maxlength=20  (click) = "resetSubmitted('ConfirmPassword')" [ngClass]="errorFieldCss('ConfirmPassword')"/>
+              <span class="p-inputgroup-addon" (click)="clickShowConfirmPassword()"><i [class]="showConfirmPassword ? 'pi pi-eye' : 'pi pi-eye-slash'"></i></span>
+            </div>
+            <app-field-error-display [displayError]="isFieldValid('ConfirmPassword')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+        </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Update" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="resetPassword()"></button>
+          <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideResetPassowordDialog()"></button>
+        </ng-template>
+      </p-dialog>
+     </form>
+     <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+     </div>
+  </div>

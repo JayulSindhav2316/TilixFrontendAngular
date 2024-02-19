@@ -1,0 +1,65 @@
+<div class="p-grid">
+    <div class="p-col-12">
+        <p-toast></p-toast>
+        <div class="card">
+            <div *ngIf="showCompany">
+                <div>
+                    <p-toolbar styleClass="p-mb-4">
+                        <ng-template pTemplate="left">
+                        </ng-template>
+                        <ng-template pTemplate="right">
+                            <div class="p-formgroup-inline">
+                                <button pButton type="button" label="Assign Contact" icon="pi pi-plus"
+                                    class="p-button-primary p-mr-2 p-mb-2" (click)="addContacts()"></button>
+                            </div>
+                        </ng-template>
+                    </p-toolbar>
+                </div>
+                <div *ngIf="showSearch">
+                    <div class="p-field p-col-12 p-md-12">
+                        <app-search-contact-role [parentCompanyId]="companyId" 
+                            (addNewContactRoleEvent)="reloadContactRoles($event)"
+                            [searchEnabled]="true"></app-search-contact-role>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="showTable">
+                <p-table #dt [value]="accountContacts" [rows]="5" [paginator]="true" styleClass="p-datatable-sm"
+                    [showCurrentPageReport]="true" [autoLayout]="true">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th pSortableColumn="role" class="ui-resizable-column" pResizableColumn width='15%'>Role
+                                <p-columnFilter type="text" field="role" display="menu"></p-columnFilter>
+                            </th>
+                            <th pResizableColumn width='10%'>Photo
+                               
+                            </th>
+                            <th pSortableColumn="fullName" class="ui-resizable-column" pResizableColumn width='30%'>Name
+                                <p-columnFilter type="text" field="fullName" display="menu"></p-columnFilter>
+                            </th>
+                           
+                            <th pSortableColumn="primaryEmail" class="ui-resizable-column" pResizableColumn width='30%'>Email
+                                <p-columnFilter type="text" field="primaryEmail" display="menu"></p-columnFilter>
+                            </th>
+                            <th pSortableColumn="primaryPhone" class="ui-resizable-column" pResizableColumn width='15%'>Phone
+                                <p-columnFilter type="text" field="primaryPhone" display="menu"></p-columnFilter>
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-contactRole let-i="rowIndex">
+                        <tr class="maxTableRow">
+                            <td style="text-align:left"><button pButton type="button" class="p-button-link" *ngIf="contactRole.role" label="{{contactRole.role}}" (click)="showAccountRoleDetail(contactRole)"></button></td>
+                            <td class='image-loader'>
+                                <app-image-loader [imgSrc]='images[i]'></app-image-loader>
+                                <!--img width="75"  height="75" class="p-shadow-4"  [src]='images[0]'-->
+                            </td>
+                            <td><button pButton type="button" label="{{contactRole.fullName}}" class="p-button-link" (click)="showContactDetail(contactRole)"></button></td>
+                            <td>{{contactRole.primaryEmail}}</td>
+                            <td>{{contactRole.primaryPhone}}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </div>
+</div>

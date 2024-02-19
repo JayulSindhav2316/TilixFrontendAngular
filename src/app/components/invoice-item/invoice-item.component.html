@@ -1,0 +1,198 @@
+<div class="p-grid">
+	<div class="p-col-12">
+		<p-toast></p-toast>
+		<div class="card">
+      <div>
+			<p-toolbar styleClass="p-mb-4">
+				<ng-template pTemplate="left">
+					<span class="p-input-icon-left">
+						<i class="pi pi-search"></i>
+						<input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+					</span>
+				</ng-template>
+				<ng-template pTemplate="right">
+					<button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="openNew()"></button>
+				</ng-template>
+			</p-toolbar>
+			<p-table #dt [value]="itemList" [columns]="cols" [rows]="10" [paginator]="true" [globalFilterFields]="['itemCode','name','itemTypeName']" 
+        [rowHover]="true" dataKey="itemId" resizableColumns="true" styleClass="p-datatable" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+				[showCurrentPageReport]="true" rowExpandMode="single">
+				<ng-template pTemplate="header">
+					<tr> 
+            <th pSortableColumn="code" class="ui-resizable-column" width="10%" pResizableColumn>
+              <span class="table-header">Code</span>
+              <p-columnFilter type="text" field="code" display="menu"></p-columnFilter>
+						</th>
+						<th pSortableColumn="name" class="ui-resizable-column"  width="20%" pResizableColumn>
+              <span class="table-header">Name</span>
+              <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+						</th>
+						<th pSortableColumn="type" class="ui-resizable-column"  width="15%" pResizableColumn>
+              <span class="table-header">Type</span>
+              <p-columnFilter type="text" field="itemTypeName" display="menu"></p-columnFilter>
+						</th>
+						<th pSortableColumn="glAccount" class="ui-resizable-column"   width="10%" pResizableColumn>
+              <span class="table-header">GL Account</span>
+              <p-columnFilter type="text" field="glAccount" display="menu"></p-columnFilter>
+						</th>
+						<th pSortableColumn="fee"  width="10%" pResizableColumn>
+              <span class="table-header">Fee</span>
+              <p-columnFilter type="text" field="fee" display="menu"></p-columnFilter>
+						</th>
+            <th pSortableColumn="stock"  width="10%" pResizableColumn>
+              <span class="table-header">Total Stock</span>
+              <p-columnFilter type="text" field="totalStock" display="menu"></p-columnFilter>
+						</th>
+            <th pSortableColumn="stock"  width="10%" pResizableColumn>
+              <span class="table-header">Available Stock</span>
+              <p-columnFilter type="text" field="stockCount" display="menu"></p-columnFilter>
+						</th>            
+						<th pSortableColumn="status"  width="5%">
+							<span class="table-header">Stock Enabled</span>
+						</th>
+            <th pSortableColumn="enableStock"  width="5%">
+							<span class="table-header">Status</span>
+						</th>
+						<th  width="5%"></th>
+					</tr>
+				</ng-template>
+                <ng-template pTemplate="body" let-item>
+                    <tr>
+                      <td>
+                        {{item.itemCode}}
+                      </td>
+                      <td>
+                        {{item.name}}
+                      </td>
+                      <td>
+                        {{item.itemTypeName}}
+                      </td>
+                      <td>
+                        {{item.glAccountCode}}
+                      </td>
+                      <td>
+                        {{item.unitRate | currency}}
+                      </td>
+                      <td>
+                        {{item.totalStock}}
+                      </td>
+                      <td>
+                        {{item.stockCount}}
+                      </td>
+                      <td >
+                        <div *ngIf="item.enableStock; else elseEnableStockBlock"><p-tag styleClass="p-mr-2" severity="success" value="Yes" [rounded]="true"></p-tag></div>
+                        <ng-template #elseEnableStockBlock><p-tag styleClass="p-mr-2" severity="danger" value="No" [rounded]="true"></p-tag></ng-template>
+                      </td>
+                      <td >
+                        <div *ngIf="item.status; else elseStatusBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+                        <ng-template #elseStatusBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+                      
+                        <div #pMenu></div>
+                        <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+                      </td>
+                      <td style="text-align: center;">
+                        <button type="button" pButton icon="pi pi-ellipsis-v"
+                          (click)="setActiveRow(item);menu.toggle($event)"></button>
+                      </td>
+                    </tr>
+                  </ng-template>
+
+			</p-table>
+        </div>
+		</div>
+        <form [formGroup]="itemForm">
+            <p-dialog [(visible)]="itemDialog" [style]="{ width: '600px' }" [header]="headerName" [modal]="true" styleClass="p-fluid" (onHide)="hideDialog()">
+              <ng-template pTemplate="content">
+                <div class="p-fluid p-formgrid p-grid">
+                  <input type="hidden" formControlName="ItemId">
+                
+                  <div class="p-field p-col-6" [ngClass]="errorIconCss('ItemCode')">
+                    <label for="ItemCode">Code</label>
+                    <input type="text" pInputText formControlName="ItemCode"  autofocus [ngClass]="errorFieldCss('ItemCode')" (click) = "resetSubmitted('ItemCode')"
+                    onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || (event.charCode == 45)"
+                    (paste)="matcher($event, 'ItemCode')" maxlength="50"/>
+                      <app-field-error-display [displayError]="isFieldValid('ItemCode')" [addErrorMessages]="addErrorMessages">
+                      </app-field-error-display>
+                  </div>
+                  <div class="p-field p-col-6"[ngClass]="errorIconCss('ItemType')">
+                    <label for="ItemType">Type</label>
+                    <p-dropdown [options]="itemTypeList" formControlName="ItemType" placeholder="Select a Item Type" optionLabel="name" optionValue="code" appendTo="body"
+                      [ngClass]="errorFieldCss('ItemType')" (click) = "resetSubmitted('ItemType')">
+                    </p-dropdown>
+                    <app-field-error-display [displayError]="isFieldValid('ItemType')" [addErrorMessages]="addErrorMessages">
+                    </app-field-error-display>
+                  </div>
+                  <div class="p-field p-col-12" [ngClass]="errorIconCss('Name')">
+                    <label for="Name">Name</label>
+                    <input type="text" pInputText formControlName="Name"  autofocus [ngClass]="errorFieldCss('Name')" (click) = "resetSubmitted('Name')"
+                    onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32)"               
+                    (paste)="matcher($event, 'Name')" maxlength="100"/>
+                      <app-field-error-display [displayError]="isFieldValid('Name')" [addErrorMessages]="addErrorMessages">
+                      </app-field-error-display>
+                  </div>
+                  <div class="p-field p-col-12" [ngClass]="errorIconCss('Description')">
+                    <label for="Description">Description</label>
+                    <textarea [rows]="5" pInputTextarea formControlName="Description" autoResize="autoResize" [ngClass]="errorFieldCss('Description')" maxlength = "500" 
+                            (click) = "resetSubmitted('Description')"></textarea>
+                      <app-field-error-display [displayError]="isFieldValid('Description')" [addErrorMessages]="addErrorMessages">
+                      </app-field-error-display>
+                  </div>
+                  <div class="p-field p-col-6"[ngClass]="errorIconCss('GlAccount')">
+                    <label for="GlAccount">Gl Account</label>
+                    <p-dropdown [options]="glAccountsList" formControlName="GlAccount" placeholder="Select a GL Account" optionLabel="name" optionValue="code" 
+                    appendTo="body" [ngClass]="errorFieldCss('GlAccount')" (click) = "resetSubmitted('GlAccount')" >
+                    </p-dropdown>
+                    <app-field-error-display [displayError]="isFieldValid('GlAccount')" [addErrorMessages]="addErrorMessages">
+                    </app-field-error-display>
+                  </div>
+                  <div class="p-field p-col-6">
+                    <label for="Price">Price</label>
+                    <div class="p-inputgroup">
+                        <span class="p-inputgroup-addon">$</span>
+                        <p-inputNumber formControlName="Price" [min]="0" [step]="1" [showButtons]="true" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" (focusout)="amountValidation($event)"></p-inputNumber>
+                      </div>
+                  </div>
+                  <div class="p-field p-col-3">
+                    <div>
+                      <label for="Status">Active</label>
+                      <div class="p-field p-col-6 p-d-flex" style="padding-top: 15px;">
+                        <p-inputSwitch formControlName='Status'></p-inputSwitch>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="p-field p-col-3">
+                    <div>
+                      <label for="Status">Member Portal ?</label>
+                      <div class="p-field p-col-6 p-d-flex" style="padding-top: 15px;">
+                        <p-inputSwitch formControlName='EnableMemberPortal'></p-inputSwitch>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="p-field p-col-3">
+                    <div>
+                      <label for="Status">Enable Stock ?</label>
+                      <div class="p-field p-col-6 p-d-flex" style="padding-top: 15px;">
+                        <p-inputSwitch formControlName='EnableStock' (onChange)="enableStockField($event)"></p-inputSwitch>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="p-field p-col-3" [ngClass]="errorIconCss('TotalStock')">
+                    <div *ngIf="enableStock">
+                      <label for="TotalStock">Stock</label>
+                      <p-inputNumber formControlName="TotalStock" [ngClass]="errorFieldCss('TotalStock')" (onBlur)="validateStock($event)" 
+                        [min]="0" [step]="1" [showButtons]="true"></p-inputNumber>
+                      <app-field-error-display [displayError]="isFieldValid('TotalStock')" [addErrorMessages]="addErrorMessages">
+                      </app-field-error-display>
+                    </div>
+                  </div>                  
+                </div>
+              </ng-template>
+              <ng-template pTemplate="footer">
+                <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="saveItem()"></button>
+                <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideDialog()"></button>
+              </ng-template>
+            </p-dialog>
+          </form>
+    <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+	</div>
+</div>

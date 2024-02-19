@@ -1,0 +1,62 @@
+<div class="card">
+
+<h6>Required Fees</h6>
+<p-table #dtRequired [value]="requiredFees" [rows]="5" [paginator]="false" [(selection)]="selectedRequiredFees" selectionMode="multiple" 
+dataKey="feeId"  resizableColumns="true" styleClass="p-datatable-sm">
+<ng-template pTemplate="header">
+   <tr>
+      <th class="ui-resizable-column" pResizableColumn width="5%">
+         <p-tableHeaderCheckbox [disabled]="false"></p-tableHeaderCheckbox>
+      </th>
+      <th pSortableColumn="description" class="ui-resizable-column" pResizableColumn width="15%">Name <p-columnFilter type="text" field="description" display="menu"></p-columnFilter></th>
+      <th pSortableColumn="feeAmount" class="ui-resizable-column" pResizableColumn width="10%">Fee</th>
+      <th pSortableColumn="billingFrequency" class="ui-resizable-column" pResizableColumn width="15%">Billing Frequency </th>
+   </tr>
+</ng-template>
+<ng-template pTemplate="body" let-fee>
+   <tr class="maxTableRow">
+      <tr>
+      <td>
+         <p-tableCheckbox [value]="fee" [disabled]="false"></p-tableCheckbox>
+      </td>
+      <td>{{fee.description}}</td>
+      <td>{{fee.feeAmount | currency:'USD'}}</td>
+      <td>{{fee.billingFrequency === 1 ? "Once" : fee.billingFrequency === 2 ? "On Renewal" : "Every Billing Cycle"}}</td>
+   </tr>
+</ng-template>
+</p-table>
+</div>
+<div class="card">
+<div *ngIf="showOptionalFee">
+<h6>Optional Fee</h6>
+<p-table #dtOptional [value]="optionalFees" [rows]="5" [paginator]="false" [rowHover]="true" resizableColumns="true" 
+[(selection)]="selectedOptionalFees" styleClass="p-datatable-sm">
+<ng-template pTemplate="header" selectionMode="multiple">
+   <tr>
+      <th class="ui-resizable-column" pResizableColumn width="5%">
+         Select
+      </th>
+      <th class="ui-resizable-column" pResizableColumn width="15%" pSortableColumn="description">Name <p-columnFilter type="text" field="description" display="menu"></p-columnFilter></th>
+      <th  class="ui-resizable-column" pResizableColumn width="10%"  pSortableColumn="feeAmount">Fee</th>
+      <th pSortableColumn="billingFrequency" class="ui-resizable-column" pResizableColumn width="15%">Billing Frequency</th>
+   </tr>
+</ng-template>
+<ng-template pTemplate="body" let-fee>
+   <tr class="maxTableRow">
+      <tr>
+      <td>
+         <p-tableCheckbox [value]="fee"></p-tableCheckbox>
+      </td>
+      <td >{{fee.description}} </td>
+      <td>{{fee.feeAmount | currency:'USD'}}</td>
+      <td>{{fee.billingFrequency === 1 ? "Once" : fee.BillingFrequency === 2 ? "On Renewal" : "Every Billing Cycle"}}</td>
+   </tr>
+</ng-template>
+</p-table>
+</div>
+</div>
+<div class="center">
+   <button pButton pRipple label="Back" icon="pi pi-arrow-left" class="p-button-success p-mr-2 p-mb-2" (click)="goBack()"></button>
+   <button pButton pRipple label="Continue" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" (click)="selectMembershipFee()"></button>
+   <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="goToSearch()"></button>
+ </div>

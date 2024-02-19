@@ -1,0 +1,102 @@
+<p-toast></p-toast>
+<p-confirmDialog header="Confirmation" icon="fa fa-exclamation-triangle" [style]="{width: '25vw'}"></p-confirmDialog>
+<div class="p-grid">
+    <div class="p-col-12">
+        <div class="card">
+            <p-toolbar styleClass="p-mb-4">
+                <ng-template pTemplate="left">
+                    <div class="p-formgroup-inline">
+                            <form [formGroup]="searchByContactNameForm">
+                                <input formControlName="ParentEntityId" type="hidden">
+                                <div class="p-fluid p-formgrid p-grid">
+                                    <div class="p-field p-col-12 p-md-5" [ngClass]="errorIconCss('FirstName')">
+                                        <label for="firstname" class="p-sr-only">Firstname</label>
+                                        <input id="firstname" type="text" formControlName="FirstName" pInputText
+                                            placeholder="First Name" maxlength="30"
+                                            [ngClass]="errorFieldCss('FirstName')" (click)="resetSubmitted('FirstName')"
+                                            onkeypress="return (event.charCode > 64 && event.charCode < 91) 
+                                   || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) || (event.charCode==45) 
+                                   || (event.charCode==39) || (event.charCode==44) || (event.charCode==46)"
+                                            (paste)="matcher($event, 'FirstName')" />
+                                        <app-field-error-display [displayError]="isFieldValid('FirstName')"
+                                            [addErrorMessages]="addErrorMessages">
+                                        </app-field-error-display>
+                                    </div>
+                                    <div class=" p-field p-col-12 p-md-5" [ngClass]="errorIconCss('LastName')">
+                                        <label for="lastname" class="p-sr-only">Lastname</label>
+                                        <input id="lastname" type="text" formControlName="LastName" pInputText
+                                            placeholder="Last Name" maxlength="30" [ngClass]="errorFieldCss('LastName')"
+                                            (click)="resetSubmitted('LastName')" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) 
+								   || (event.charCode==45) || (event.charCode==39) || (event.charCode==44) || (event.charCode==46)"
+                                            (paste)="matcher($event, 'LastName')" />
+                                        <app-field-error-display [displayError]="isFieldValid('LastName')"
+                                            [addErrorMessages]="addErrorMessages">
+                                        </app-field-error-display>
+                                    </div>
+                                </div>
+                            </form>
+                        
+                        <button pButton type="button" icon="pi pi-search"
+                            class="p-button-primary p-mr-2 p-mb-2" type="submit" [disabled]="!contactSearchEnabled" (click)="searchContacts()" ></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+            
+            <div *ngIf="showAddContactRoleTable">
+                <p-table #dt [value]="accountContacts"  [rows]="5" [paginator]="true" dataKey="entityId"
+                    resizableColumns="true" styleClass="p-datatable-sm" [showCurrentPageReport]="true"
+                    [autoLayout]="true">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th pSortableColumn="fullName" class="ui-resizable-column" pResizableColumn style="width:25%;">
+                                <span class="table-header">Name</span>
+                                <p-columnFilter type="text" field="fullName" display="menu"></p-columnFilter>
+                            </th>
+                         
+                            <th pSortableColumn="roles" class="ui-resizable-column" pResizableColumn style="width:25%;">
+                                <span class="table-header">Current Roles</span>
+                                <p-columnFilter type="text" field="roles" display="menu"></p-columnFilter>
+                            </th>
+                            <th>
+                                <span class="table-header"> Assigning Role</span>
+                            </th>
+                            <th>
+                                <span class="table-header">Effective Date</span>
+                               
+                            </th>
+                            <th>
+                                <span class="table-header">Add</span>
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-contact let-i="rowIndex">
+                        <tr class="maxTableRow">
+                            <td>
+                                {{contact.fullName}}
+                            </td>
+                            
+                            <td>
+                                <span *ngFor="let role of contact.entityRoles; let i=index" style="margin-left:5px">
+                                    <p-tag styleClass="mr-2" value="{{ role}}"></p-tag>
+                                  </span>
+                            </td>
+                            <td *ngIf="!hasSelectedRole">
+                                <p-dropdown id="roleDropdown"  roleDropdown  (onChange)="onRoleChange(i,$event)"  [options]="roleList" placeholder="Select a Role" class="p-inputtext-sm"  optionLabel="name" optionValue="code" appendTo="body"> </p-dropdown>
+                            </td>
+                            <td *ngIf="hasSelectedRole">
+                                {{selectedParentRole}}
+                            </td>
+                            <td>
+                                <p-calendar appendTo="body" [(ngModel)]="contact.effectiveDate" styleClass="ui-column-filter" dateFormat="mm/dd/yy"  (onSelect)="onEffectiveDateChange(i,$event)"></p-calendar>
+                            </td>
+                            <td>
+                                <button pButton type="button" icon="pi pi-plus"
+                                class="p-button-rounded p-mr-2" type="submit" (click)="saveContactRole(contact.entityId)" [disabled]="contact.addRoleEnabled==0 &&  selectedParentRole === undefined"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </div>
+</div>

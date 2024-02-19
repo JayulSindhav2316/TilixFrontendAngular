@@ -1,0 +1,142 @@
+
+<form [formGroup]="invoiceEditForm" *ngIf="showInvoice">
+  <div class="card center">
+    <h3>{{headerName}}</h3>
+  </div>
+  <div class="card">
+    <div class="p-fluid p-formgrid p-grid">
+      <div class="p-field p-col-3">
+        <label for="invoiceDate">Invoice Date</label>
+        <p-calendar formControlName="InvoiceDate" [minDate]="minDate" [showIcon]="true" appendTo="body" [readonlyInput]="true" [disabled]="isPaperInvoice"></p-calendar>
+      </div>
+      <div class="p-field p-col-3">
+        <label for="dueDate">Due Date</label>
+        <p-calendar formControlName="DueDate" [minDate]="minDate" [showIcon]="true" appendTo="body" [readonlyInput]="true" [disabled]="isPaperInvoice"></p-calendar>
+      </div>
+      <div class="p-field p-col-6" *ngIf="billableEntityList.length > 1">
+        <label for="billableEntityId">Billable Person</label>
+        <p-dropdown [disabled]="true" [options]="billableEntityList" formControlName="BillableEntityId" optionLabel="Name" optionValue="entityId" appendTo="body" ></p-dropdown>
+      </div>
+    </div>
+  </div>
+  <div class="card" *ngIf="invoice.membershipId!=null">        
+    <h6>Existing Fee(s)</h6>
+    <p-table #dtRequired [value]="existingFees" [rows]="5" [paginator]="false" [(selection)]="selectedExistingFees"
+    dataKey="FeeId"  resizableColumns="true" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+      <tr>
+        <th class="ui-resizable-column" pResizableColumn width="10%">
+          Select
+        </th>
+        <th pSortableColumn="Description" class="ui-resizable-column" pResizableColumn width="20%">Name</th>
+        <th pSortableColumn="Amount" class="ui-resizable-column" pResizableColumn width="10%" style="text-align:center">Fee</th>
+      </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-fee let-rowIndex="rowIndex">
+      <tr class="maxTableRow">
+        <td>
+        <p-tableCheckbox [value]="fee"  [disabled]="fee.IsMandatory==1?true:false"></p-tableCheckbox>
+        </td>
+        <td>{{fee.Description}}</td>
+        <td pEditableColumn style="text-align:center">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <div class="p-inputgroup">              
+            <span class="p-inputgroup-addon">$</span>            
+              <input pInputText type = "number" size = "10" [(ngModel)]="fee.Amount" [ngModelOptions]="{standalone: true}" (focusout)="amountValidation($event,'existing', fee, rowIndex)"/> 
+            </div>
+            <!-- <input pInputText type="text" [(ngModel)]="fee.feeAmount"> -->
+          </ng-template>
+          <ng-template pTemplate="output">
+            <a>{{fee.Amount | currency:'USD'}}</a>
+          </ng-template>
+        </p-cellEditor>
+        </td>
+      </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <div *ngIf="showOptionalFee">
+    <div class="card">          
+      <h6>Add More Fee(s)</h6>
+      <p-table #dtOptional [value]="optionalFees" [rows]="5" [paginator]="false" [rowHover]="true" 
+      resizableColumns="true" [(selection)]="selectedOptionalFees" styleClass="p-datatable-sm"> 
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="ui-resizable-column" pResizableColumn width="10%">
+          Select
+          </th>
+          <th pSortableColumn="Description" class="ui-resizable-column" pResizableColumn width="20%">Name</th>
+          <th pSortableColumn="Amount" class="ui-resizable-column" pResizableColumn width="10%" style="text-align:center">Fee</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-fee let-rowIndex="rowIndex">        
+        <tr class="maxTableRow">
+        <td>
+          <p-tableCheckbox [value]="fee"></p-tableCheckbox>
+        </td>
+        <td>{{fee.Description}}</td>
+        <td pEditableColumn style="text-align:center">
+          <p-cellEditor>
+          <ng-template pTemplate="input">
+            <div class="p-inputgroup" style="text-align:right">               
+              <span class="p-inputgroup-addon">$</span>
+              <input pInputText type = "number" size = "10" [(ngModel)]="fee.Amount" [ngModelOptions]="{standalone: true}" (focusout)="amountValidation($event,'optional', fee, rowIndex)"/>      
+            </div>
+            <!-- <input pInputText type="text" [(ngModel)]="fee.feeAmount"> -->
+          </ng-template>
+          <ng-template pTemplate="output">
+            <a>{{fee.Amount | currency:'USD'}}</a>
+          </ng-template>
+        </p-cellEditor>
+        </td>
+        </tr>
+      </ng-template>
+      </p-table>
+    </div>
+  </div>
+  <div class="card" *ngIf="invoice.eventId!=null">        
+    <h6>Existing Amount(s)</h6>
+    <p-table #dtRequired [value]="existingInvoiceDetailsList" [rows]="5" [paginator]="false"
+    dataKey="invoice.eventId"  resizableColumns="true" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="Description" class="ui-resizable-column" pResizableColumn width="20%">Name</th>
+        <th pSortableColumn="Amount" class="ui-resizable-column" pResizableColumn width="10%" style="text-align:center">Amount</th>
+      </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-existingInvoiceDetailsList let-rowIndex="rowIndex">
+      <tr class="maxTableRow">
+        <td>{{invoice.event.name}} - {{existingInvoiceDetailsList.description}}</td>
+        <td pEditableColumn style="text-align:center">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <div class="p-inputgroup">              
+            <span class="p-inputgroup-addon">$</span>            
+              <input pInputText type = "number" size = "10" [(ngModel)]="existingInvoiceDetailsList.amount" [ngModelOptions]="{standalone: true}" (focusout)="eventamountValidation($event, rowIndex)" (keydown.enter)="eventamountValidation($event, rowIndex)"/> 
+            </div>
+          </ng-template>
+          <ng-template pTemplate="output">
+            <a>{{existingInvoiceDetailsList.amount | currency:'USD'}}</a>
+          </ng-template>
+        </p-cellEditor>
+        </td>
+      </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <div class="card">          
+  <h6>Note(s)</h6>
+    <div class="p-fluid p-formgrid p-grid">
+      <div class="p-field p-col-12">
+      <textarea [rows]="5" pInputTextarea formControlName="Note" autoResize="autoResize" maxlength="500"></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="center">
+      <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="saveInvoice()"></button>
+      <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideEditInvoice()"></button>
+    </div>
+  </div>
+</form>

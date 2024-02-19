@@ -1,0 +1,146 @@
+<div class="p-grid">
+  <div class="p-col-12 p-md-12 p-xl-12">
+    <p-toast></p-toast>
+    <div class="card">
+      <p-toolbar styleClass="p-mb-4">
+        <ng-template pTemplate="left">
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')"
+              placeholder="Search..." />
+          </span>
+        </ng-template>
+        <ng-template pTemplate="right">
+          <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2"
+            (click)="openNew()"></button>
+        </ng-template>
+      </p-toolbar>
+      <p-table #dt [value]="glaccountsList" [columns]="cols" [rows]="10" [paginator]="true" 
+      [globalFilterFields]="['name','code','accountType.name','detailType','costCenter.name']" [rowHover]="true" dataKey="roleId" 
+      styleClass="p-datatable-sm"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [showCurrentPageReport]="true">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="name" class="ui-resizable-column" pResizableColumn style="width:20%;">              
+              Name
+              <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+            <th pSortableColumn="code" class="ui-resizable-column" pResizableColumn style="width:20%;">              
+              Code
+              <p-columnFilter type="text" field="code" display="menu"></p-columnFilter>
+            </th>
+            <th pSortableColumn="glAccountTypeName" class="ui-resizable-column" pResizableColumn style="width:20%;">              
+              Type
+              <p-columnFilter type="text" field="glAccountTypeName" display="menu"></p-columnFilter>
+            </th>
+            <th pSortableColumn="detailType" class="ui-resizable-column" pResizableColumn style="width:20%;">             
+              Detail Type
+              <p-columnFilter type="text" field="detailType" display="menu"></p-columnFilter>
+            </th>
+            <th pSortableColumn="costCenterName" class="ui-resizable-column" pResizableColumn style="width:20%;">             
+              Cost Center
+              <p-columnFilter type="text" field="costCenterName" display="menu"></p-columnFilter>
+            </th>
+            <th style="width: 10rem" pSortableColumn="status" class="ui-resizable-column" pResizableColumn style="width:20%;">              
+              Status
+            </th>
+            <th style="width: 5rem"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-glaccount>
+          <tr>
+            <td>
+              {{glaccount.name}}
+            </td>
+            <td>
+              {{glaccount.code}}
+            </td>
+            <td>
+              {{glaccount.glAccountTypeName}}
+            </td>
+            <td>
+              {{glaccount.detailType}}
+            </td>
+            <td>
+              {{glaccount.costCenterName}}
+            </td>
+            <td >
+              <div *ngIf="glaccount.status; else elseStatusBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+              <ng-template #elseStatusBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+              <!-- <p-inputSwitch readonly=true [ngModel]="glaccount.status"></p-inputSwitch> -->
+              <div #pMenu></div>
+              <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+            </td>
+            <td style="text-align: center;">
+              <button type="button" pButton icon="pi pi-ellipsis-v"
+                (click)="setActiveRow(glaccount);menu.toggle($event)"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+    <form [formGroup]="glAccountForm">
+      <p-dialog [(visible)]="glAccountDialog" [style]="{ width: '600px' }" [header]="headerName" [modal]="true" styleClass="p-fluid" (onHide)="hideDialog()">
+        <ng-template pTemplate="content">
+          <div class="p-fluid p-formgrid p-grid">
+            <input type="hidden" formControlName="GLAccountID">
+            <div class="p-field p-col-12" [ngClass]="errorIconCss('Name')">
+              <label for="Name">Name</label>
+              <input type="text" pInputText formControlName="Name"  autofocus [ngClass]="errorFieldCss('Name')" (click) = "resetSubmitted('Name')"
+              onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32)"               
+              (paste)="matcher($event, 'Name')" maxlength="100"/>
+                <app-field-error-display [displayError]="isFieldValid('Name')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+            </div>
+            <div class="p-field p-col-12"[ngClass]="errorIconCss('DetailType')">
+              <label for="DetailType">Detail Type</label>
+              <textarea [rows]="2" pInputTextarea formControlName="DetailType" autoResize="autoResize" 
+              onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32)
+              || (event.charCode > 47 && event.charCode < 58)" maxlength="100" (paste)="matcher($event, 'DetailType')"
+              [ngClass]="errorFieldCss('DetailType')" (click) = "resetSubmitted('DetailType')"></textarea>
+                <app-field-error-display [displayError]="isFieldValid('DetailType')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+            </div>
+            <div class="p-field p-col-6"[ngClass]="errorIconCss('Type')">
+              <label for="Type">Type</label>
+              <p-dropdown [options]="glAccountTypesList" formControlName="Type" placeholder="Select a Type" optionLabel="name" optionValue="code" 
+              appendTo="body" [ngClass]="errorFieldCss('Type')" (click) = "resetSubmitted('Type')" >
+              </p-dropdown>
+              <app-field-error-display [displayError]="isFieldValid('Type')" [addErrorMessages]="addErrorMessages">
+              </app-field-error-display>
+            </div>
+            <div class="p-field p-col-6"[ngClass]="errorIconCss('CostCenter')">
+              <label for="CostCenter">Cost Center</label>
+              <p-dropdown [options]="costCenterList" formControlName="CostCenter" placeholder="Select a Cost Center" optionLabel="name" optionValue="code" appendTo="body"
+                [ngClass]="errorFieldCss('CostCenter')" (click) = "resetSubmitted('CostCenter')">
+              </p-dropdown>
+              <app-field-error-display [displayError]="isFieldValid('CostCenter')" [addErrorMessages]="addErrorMessages">
+              </app-field-error-display>
+            </div>
+            <div class="p-field p-col-9"[ngClass]="errorIconCss('Code')">
+              <label for="Code">Code</label>
+              <input type="text" pInputText formControlName="Code" [ngClass]="errorFieldCss('Code')"  
+              onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || (event.charCode == 45)"
+              maxlength="50"   (paste)="matcher($event, 'Code')" (click) = "resetSubmitted('Code')">
+                <app-field-error-display [displayError]="isFieldValid('Code')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+            </div>
+            <div class="p-field p-col-3">
+              <div>
+                <label for="Status">Active</label>
+                <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                  <p-inputSwitch formControlName='Status'></p-inputSwitch>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="saveGLAccount()"></button>
+          <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideDialog()"></button>
+        </ng-template>
+      </p-dialog>
+    </form>
+    <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+  </div>
+</div>

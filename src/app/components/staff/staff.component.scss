@@ -1,0 +1,15 @@
+::ng-deep
+    .maxTable
+    .ui-datatable-scrollable-view
+    .ui-datatable-scrollable-body {
+    min-height: 667vh !important;
+}
+
+.has-feedback {
+    position: relative;
+}
+a {
+  text-decoration-line: underline;
+  font-size: small;
+  cursor: pointer;
+}

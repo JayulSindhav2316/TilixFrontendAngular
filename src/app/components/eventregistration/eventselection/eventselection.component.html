@@ -1,0 +1,79 @@
+<div class="p-grid">
+	<div class="p-col-12" *ngIf="!openEventDetailsView">
+		<p-toast></p-toast>
+        <p-toolbar styleClass="p-mb-4">
+            <ng-template pTemplate="left">
+                <div class="p-formgroup-inline">
+                    <div class="p-field">
+                        <label for="serachSelection" class="p-sr-only">Search  By:</label>
+                        <input pInputText type="text" [(ngModel)]="searchText"
+                        placeholder="Search..." />
+                    </div>
+                    <button pButton type="button" label="Search"  icon="pi pi-search" class="p-button-primary p-mr-2 p-mb-2" (click)="dt.filterGlobal(searchText, 'contains')"></button>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="right">
+            </ng-template>
+        </p-toolbar>
+            <div>
+			<p-table #dt [value]="events" [columns]="cols" [rows]="10" [paginator]="true" [(selection)]="selectedEvents" [rowHover]="true" dataKey="eventId" resizableColumns="true"
+				styleClass="p-datatable-sm" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [globalFilterFields]="['name']" 
+				[showCurrentPageReport]="true" selectionMode="single">
+				<ng-template pTemplate="header">
+					<tr>
+						<th style="width: 5%" >
+						</th>
+						<th pSortableColumn="name" class="ui-resizable-column" pResizableColumn style="width:25%;" >	
+							<span class="table-header">Event Name</span> 
+							<p-columnFilter class="table-header-left" type="text" field="name" display="menu"></p-columnFilter>						
+					  </th>
+						<th pSortableColumn="eventType" class="ui-resizable-column" pResizableColumn style="width:10%;">							
+							  <span class="table-header">Event Type</span> 
+							  <p-columnFilter class="table-header-left" type="text" field="eventType" display="menu"></p-columnFilter>	
+						</th>
+						<th pSortableColumn="fromDate" class="ui-resizable-column" pResizableColumn style="width:25%;">	
+							<span class="table-header">Event Start</span> 
+						</th>
+					
+						<th pSortableColumn="toDate" class="ui-resizable-column"  pResizableColumn style="width:20%;">
+							<span class="table-header">Event End</span> 
+						</th>	
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-event>
+					<tr class="maxTableRow">
+						<td style='text-align: center;'>
+							<p-tableCheckbox [value]="event" (click)="SelectEvent(event)"></p-tableCheckbox>
+						</td>
+						<td>
+							<a href="javascript:void(0)" (click)="openEventDetails(event.eventId)">{{ event.name }}</a>
+						</td>
+						<td>
+							{{event.eventType}}
+						</td>
+						<td>
+							{{event.fromDate | date : "MM/dd/yyyy hh:mm a"}}
+						</td>
+						<td>
+							{{event.toDate | date : "MM/dd/yyyy hh:mm a"}}
+						</td>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="summary">
+					<div class="p-d-flex p-ai-center p-jc-between">
+						In total there are
+						{{ events ? events.length : 0 }} events.
+					</div>
+				</ng-template>
+			</p-table>
+            <br/>
+			<div class="center">
+				<button pButton pRipple label="Continue" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" (click)="selectEvent()"></button>
+				<button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="goBack()"></button>
+			</div>
+		</div>
+    </div>
+	<div class="p-col-12" *ngIf="openEventDetailsView">
+		<app-event-summary [eventId]="eventId" [addEditWizard]="false" [isCallFromEventRegistration]="true" (closeSummary)="closeEventSummary()" (Register)="selectEvent()"></app-event-summary>
+	</div>
+</div>

@@ -1,0 +1,107 @@
+.mediaContainer {
+  width: 100%;
+  height: auto;
+  position: relative;
+}
+
+.mediaContainer img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mediaContainer video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.overlay {
+  width: 100%;
+  position: absolute;
+  /* transition: all 0.3s ease; */
+  opacity: 0;
+  margin: auto;
+}
+
+.mediaContainer:hover .overlay {
+  opacity: 1;
+  width: 30%;
+  margin: auto;
+  height: auto;
+  position: absolute;
+}
+
+.receipt-table {
+  width: 100% !important;
+  text-align: left;
+}
+
+/* .dd-item  button {
+  display: none;
+}
+
+.dd-item .dd-list {
+  display: none;
+}
+
+.dd-item .expanded .dd-list {
+    display: block;
+}
+
+.dd-item,
+.dd-placeholder {
+    display: block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    min-height: 20px;
+} */
+
+.clsDailySaleByMonthCard p-chart div {
+  max-width: 35vw
+}
+
+.clsTotalMembershipsCard p-chart div {
+  max-width: 40vw;
+}
+
+.clsMemberDueExpireCard p-chart div {
+  max-width: 34vw;
+}
+
+.clsTerminationCard p-chart div {
+  max-width: 40vw;
+}
+
+.clsDocumentDownloadsCard p-chart div {
+  max-width: 34vw;
+}
+
+.clsMostActiveUserCard p-chart div {
+  max-width: 34vw;
+}
+
+.upcoming-billing-edit-invoice app-edit-invoice button.p-button {
+  width: auto !important;
+}
+
+.upcoming-billing-edit-invoice app-edit-invoice div:has(button.p-button) {
+  justify-content: right !important;
+}
+
+.upcoming-billing-edit-invoice app-edit-invoice div:has(button.p-button.p-datepicker-trigger) {
+  justify-content: unset !important;
+}
+
+td .p-button-link.relation-btn span{
+  max-width: 80px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.accountInfo-ruler
+{
+    width: -webkit-fill-available;
+    margin-right: 20px;
+    margin-left: 20px;
+}

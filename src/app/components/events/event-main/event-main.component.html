@@ -1,0 +1,55 @@
+<div class="p-col-12">
+  <div class="card" *ngIf="!hideAll">
+      <div class="card" style="background-color: lightgray;" *ngIf="loadHTML && index != 4">
+        <h3 style="color: black;">{{event.name}}&nbsp;<small style="color: grey;font-size: small;">({{ event.eventType}})</small> </h3>
+        <!-- <label style="color: grey;">{{ event.eventType}}</label> -->
+        <label style="color: grey;" *ngIf="event.fromDate && event.toDate">
+          {{event.fromDate | date : 'longDate' }} {{event.fromDate | date : 'shortTime' }}&nbsp;-&nbsp;
+          {{event.toDate | date : 'longDate' }} {{event.toDate | date : 'shortTime' }}&nbsp;<b>({{event.timeZone}})</b>
+        </label>
+      </div>
+      <p-tabView  id="tabContact" [(activeIndex)]="index" (onChange)="handleTabChange($event)">
+          <p-tabPanel header="Details" [disabled]="disableEventsTab && addNewEventRecord" [cache]="false">
+            <ng-template pTemplate="content">
+                <app-event-set-up [addNewEventRecord]="addNewEventRecord" [eventId]="eventId" [futureIndex]="futureTabIndex" (activeTabEvent)='setActiveTab($event)' 
+                  (activeEventId)=" setActiveEventId($event)" (tabValueChangedEvent)="tabValueChanged($event)">
+                </app-event-set-up>
+            </ng-template>
+          </p-tabPanel>
+          <p-tabPanel header="Questions" [disabled]="disableQuestionsTab  && addNewEventRecord" [cache]="false">  
+            <ng-template pTemplate="content">
+              <app-event-questions [futureIndex]="futureTabIndex" [addNewEventRecord]="addNewEventRecord" [eventId]="eventId" 
+                (activeTabEvent)='setActiveTab($event)' (tabValueChangedEvent)="tabValueChanged($event)">
+              </app-event-questions>
+            </ng-template>
+          </p-tabPanel>
+          <p-tabPanel header="Settings" [disabled]="disableSettingsTab  && addNewEventRecord" [cache]="false">
+              <ng-template pTemplate="content">                
+                <app-event-settings [addNewEventRecord]="addNewEventRecord" [eventId]="eventId"
+                 (activeTabEvent)='setActiveTab($event)' [futureIndex]="futureTabIndex" (tabValueChangedEvent)="tabValueChanged($event)">
+                </app-event-settings>                  
+              </ng-template>
+          </p-tabPanel>
+          <p-tabPanel header="Session" [disabled]="disableSessionsTab  && addNewEventRecord" [cache]="false">
+              <ng-template pTemplate="content">
+                <app-event-sessions [addNewEventRecord]="addNewEventRecord  && addNewEventRecord" [eventId]="eventId" [futureIndex]="futureTabIndex"
+                  (activeTabEvent)='setActiveTab($event)' (tabValueChangedEvent)="tabValueChanged($event)"></app-event-sessions>  
+            </ng-template>
+          </p-tabPanel>
+          <p-tabPanel header="Summary" [disabled]="disableSummarysTab  && addNewEventRecord" [cache]="false">
+            <ng-template pTemplate="content">
+              <app-event-summary [eventId]="eventId" [addEditWizard]="true" (activeTabEvent)='setActiveTab($event)'></app-event-summary>
+            </ng-template>
+          </p-tabPanel>
+      </p-tabView>
+  </div>
+</div>
+<p-dialog [(visible)]="showConfirmDialog" [style]="{ width: '450px' }" header="Confirm" [modal]="true" styleClass="p-fluid" [closable]="false">
+  <ng-template pTemplate="content">
+    <i class="pi pi-exclamation-triangle p-mr-2 p-mb-2" style="font-size: 2rem;"></i><span class="p-confirm-dialog-message">Do you want to save your changes?</span>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="No" icon="pi pi-times" class="p-button-primary p-mb-2" (click)="reject()"></button>
+    <button pButton pRipple label="Yes" icon="pi pi-check" class="p-button-primary p-mr-2 p-mb-2"(click)="accept()" autofocus></button>
+  </ng-template>
+</p-dialog>

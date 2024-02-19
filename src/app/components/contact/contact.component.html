@@ -1,0 +1,290 @@
+<div *ngIf="profileLoaded">
+    <div class="p-grid">
+        <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+        <p-toast></p-toast>
+        <div class="p-col-5 p-d-flex p-ai-center p-jc-center">
+            <div class="p-mr-5">
+                <img [src]="profileImage" class="rounded" width="100px" height="100px" style="
+                        border-radius: 05%;
+                        -webkit-filter: drop-shadow(2px 2px 2px #bbb);
+                        filter: drop-shadow(2px 2px 2px #bbb);
+                    " />
+            </div>
+            <div class="p-mr-5">
+                <h5 *ngIf="showPerson">
+                    {{ contact.person.prefix }} {{ contact.person.firstName }}
+                    {{ contact.person.middleName }}
+                    {{ contact.person.lastName }}
+                </h5>
+                <span>{{ contact.person.title }}</span>
+                <h5 *ngIf="showCompany">{{ contact.company.companyName }}</h5>
+                <div class="d-flex flex-column" *ngIf="showPerson">
+                    <span *ngIf= "age != 0">{{ age }}, </span><span>{{ contact.person.gender }}</span>
+                </div>
+                <div class="d-flex flex-column">
+                    <span>{{ contact.membershipStatus }}</span>
+                </div>
+                <div style="display: none">
+                    <input type="file" class="file-input" (change)="fileChangeEvent($event)" #fileUpload
+                        accept="image/png, image/gif, image/jpeg, image/jpg" />
+                </div>
+                <div class="p-mt-3">
+
+                    <a
+                        ><fa-icon
+                            class="p-mr-3"
+                            [icon]="faCamera"
+                            pTooltip="Update profile photo"
+                            (click)="fileUpload.click()"
+                        ></fa-icon
+                    ></a>
+                    <a
+                        ><fa-icon
+                            class="p-mr-3"
+                            [icon]="faTrash"
+                            pTooltip="Delete profile photo"
+                            (click)="deleteProfileImage()"
+                        ></fa-icon
+                    ></a>
+                    <i
+                        *ngIf="activeNotes > 0"
+                        class="pi pi-comment mr-4 p-text-secondary"
+                        pBadge
+                        style="font-size: 2rem; cursor: pointer"
+                        [value]="activeNotes"
+                        severity="danger"
+                        (click)="notesPanel.toggle($event)"
+                    ></i>
+                </div>
+
+                 
+            </div>
+        </div>
+        <div class="p-col-2">
+            <p-divider layout="vertical"> </p-divider>
+        </div>
+
+        <div
+            class="p-col-5 p-ai-center p-jc-center"
+            *ngIf="showMembership"
+        >
+       
+            <div class="p-grid">
+                <div *ngIf="!contact.isMember && contact.preferredCommunication==''" class="p-col-6 profile-label">Non Member</div>
+                <div *ngIf="contact.isMember && contact.isBillableNonMember" class="p-col-5 profile-label">Next Bill Date:</div>
+                <div *ngIf="contact.isMember && contact.isBillableNonMember" class="p-col-7 profile-data">
+                    {{ contact.nextBillDate | date : "MM/dd/yyyy" }}
+                </div>
+                <div *ngIf="contact.isMember && contact.isBillableNonMember" class="p-col-5 profile-label">Expiration Date:</div>
+                <div *ngIf="contact.isMember && contact.isBillableNonMember" class="p-col-7 profile-data">
+                    {{ contact.expirationDate | date : "MM/dd/yyyy" }}
+                </div>
+                <div *ngIf="contact.isMember || contact.preferredCommunication!=''"  class="p-col-5 profile-label">Invoice Preference:</div>
+                <div *ngIf="contact.isMember || contact.preferredCommunication!='' " class="p-col-7 profile-data">
+                    {{ contact.preferredCommunication }}
+                </div>
+
+                <div
+                    class="p-col-5 profile-label"
+                    *ngIf="contact.preferredCommunication != 'Paper Invoice' && contact.isMember"
+                >
+
+                    Email:
+                </div>
+                <div class="p-col-7 profile-data" *ngIf="
+                        contact.preferredCommunication != 'Paper Invoice' &&
+
+                        showPerson && contact.isMember"
+                >
+                    {{ contact.person.primaryEmail }}
+                </div>
+                <div class="p-col-7 profile-data" *ngIf="
+                        contact.preferredCommunication != 'Paper Invoice' &&
+
+                        showCompany && contact.isMember
+                    "
+                >
+
+                    {{ contact.company.email }}
+                </div>
+            </div>
+        </div>
+        <div class="p-col-12">
+            <div class="card">
+                <p-tabView id="tabContact" [(activeIndex)]="index">
+                    <p-tabPanel header="Overview" [cache]="false" *ngIf="showOverview">
+                        <ng-template pTemplate="content">
+                            <app-profile [entityId]="contact.entityId"
+                                (activeTabEvent)="setActiveTab($event)"></app-profile>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel header="Details" [cache]="false" *ngIf="showDetails">
+                        <ng-template pTemplate="content">
+                            <app-detail [entityId]="contact.entityId"
+                                (activeTabEvent)="setActiveTab($event)"></app-detail>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel header="Account Contacts" [cache]="false" *ngIf="showAccountContacts">
+                        <ng-template pTemplate="content">
+                            <app-account-contact [isPerson]="showPerson" [entityId]="contact.entityId"
+                                (activeTabEvent)="setActiveTab($event)"></app-account-contact>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel header="Activity" [cache]="false" *ngIf="showActivity">
+                        <ng-template pTemplate="content">
+
+                            <app-contact-activity [isPerson]="showPerson" [isCompany] = "showCompany" [entity]="contact" [isRoleActivity]="false"
+
+                                (activeTabEvent)="setActiveTab($event)"></app-contact-activity>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel header="Related Contacts" [cache]="false" *ngIf="showRelatedContacts">
+                        <ng-template pTemplate="content">
+                            <app-relations [isPerson]="showPerson" [entityId]="contact.entityId"
+                                (activeTabEvent)="setActiveTab($event)"></app-relations>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel header="Membership" [cache]="false" *ngIf="showMembership">
+                        <ng-template pTemplate="content">
+                            <app-membership-info [isPerson]="showPerson" [entityId]="contact.entityId"
+                                (activeTabEvent)="setActiveTab($event)"></app-membership-info>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel header="Invoice & Payments" [cache]="false" *ngIf="showInvoicePayments">
+                        <ng-template pTemplate="content">
+                            <app-invoices [entityId]="contact.entityId"
+                                (activeTabEvent)="setActiveTab($event)"></app-invoices>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel header="Wallet" [cache]="false" *ngIf="showWallet">
+                        <ng-template pTemplate="content">
+                            <app-ewallet [entityId]="contact.entityId"
+                                (activeTabEvent)="setActiveTab($event)"></app-ewallet>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel header="Roles" [cache]="false" *ngIf="showRoles && showCompany "> 
+                        <ng-template pTemplate="content">
+                            <app-roles [entityId]="contact.entityId" [selectedRole]="selectedRole"
+                                (activeTabEvent)="setActiveTab($event)"></app-roles>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel header="Role History" [cache]="false" *ngIf="showRoles && !showCompany ">
+                        <ng-template pTemplate="content">
+                            <app-role-history [entityId]="contact.entityId"
+                                (activeTabEvent)="setActiveTab($event)"></app-role-history>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel header="Web Info" [cache]="false" *ngIf="showWebInfo">
+                        <ng-template pTemplate="content">
+                            <app-web [entityId]="contact.entityId" [loginId]="contact.webLoginName"
+                                (activeTabEvent)="setActiveTab($event)"></app-web>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel *ngIf="!showCompany || showBoardGroups" header="Boards & Groups" [cache]="false">
+                        <ng-template pTemplate="content">
+                            <app-groups-crm [entityId]="contact.entityId"
+                                (activeTabEvent)="setActiveTab($event)"></app-groups-crm>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel header="Encounters" [cache]="false" *ngIf="showEncounters">
+                        <ng-template pTemplate="content">
+                            <app-communication [entityId]="contact.entityId"
+                                (activeTabEvent)="setActiveTab($event)"></app-communication>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel header="Notes" [cache]="false" *ngIf="showNotes">
+                        <ng-template pTemplate="content">
+                            <app-note [entityId]="contact.entityId" (activeTabEvent)="setActiveTab($event)"></app-note>
+                        </ng-template>
+                    </p-tabPanel>
+                </p-tabView>
+            </div>
+        </div>
+    </div>
+</div>
+<div></div>
+<p-dialog [(visible)]="showBillingNotificationDialog" [style]="{ width: '650px' }" header="Set Invoice Preference"
+    [modal]="true" styleClass="p-fluid" [contentStyle]="{ minHeight: '150px' }">
+    <ng-template pTemplate="content">
+        <div class="p-field p-grid">
+            <div class="p-col-8 p-md-8">
+                <p-dropdown [options]="notificationList" [(ngModel)]="selectedNotification"
+                    placeholder="Select Preferred Method" editable="false" optionLabel="name" optionValue="code"
+                    class="p-inputtext-sm"></p-dropdown>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit"
+            (click)="updateBillingNotification()"></button>
+        <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+            (click)="cancelNotification()"></button>
+    </ng-template>
+</p-dialog>
+<p-overlayPanel #notesPanel [style]="{ width: '450px' }" [showCloseIcon]="true">
+    <ng-template pTemplate>
+        <div *ngIf="notes.length > 0">
+            <p-table [value]="notes" [paginator]="true" [rows]="3">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th width="25%">Date</th>
+                        <th width="75%">Notes</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-note>
+                    <tr [ngClass]="{
+                            general: note.severity === 'General',
+                            warning: note.severity === 'Warning',
+                            emergency: note.severity === 'Emergency'
+                        }">
+                        <td>{{ note.createdOn | date : "MM/dd/yyyy" }}</td>
+                        <td style="
+                                text-overflow: ellipsis !important;
+                                max-width: 200px;
+                            ">
+                            {{ note.notes }}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+        <div *ngIf="notes.length === 0" class="center">
+            <h6>No Active Notes found.</h6>
+        </div>
+    </ng-template>
+</p-overlayPanel>
+<div class="delete-btn">
+    <button pButton label="Delete Member Profile" *ngIf="showPerson" [disabled]="disableDelete" 
+    (click)="deleteMemberProfile()" icon="pi pi-trash" class="p-button-danger" styleClass="p-button-danger"></button>
+    <button pButton label="Delete {{currentUser.accountName}} Profile" class="p-button-danger" *ngIf="showCompany" [disabled]="disableDelete" 
+    (click)="deleteCompanyProfile()" icon="pi pi-trash" styleClass="p-button-danger"></button>
+</div>
+<p-dialog [(visible)]="cropperDialog" [style]="{ width: '650px' }" [header]="cropperHeaderName" [modal]="true" (onHide)="hideCropperDialog()" [contentStyle]="{ maxHeight : '80vh'}">
+        <div class="container">  
+                <div style="margin-top: 15px;display: flex;">  
+                    <div class="text-center col-md-8" style="margin: 2%;">  
+                        <h5 style="text-align: center;">Cropped Image</h5>  
+                        <image-cropper   
+                        [imageChangedEvent]="imageChangedEvent"   
+                        [maintainAspectRatio]="true"   
+                        [aspectRatio]="4 / 4"  
+                        [resizeToWidth]="256"
+                        [cropper]="cropper"   
+                        format="png"   
+                        (imageCropped)="imageCropped($event)"   
+                        (imageLoaded)="imageLoaded()"  
+                        (cropperReady)="cropperReady()"   
+                        (loadImageFailed)="loadImageFailed()"></image-cropper>  
+                    </div>  
+                    <div class="text-center col-md-4" style="padding: 5px;margin: 2%;">  
+                        <h5 style="text-align: center;">Preview</h5>  
+                        <img [src]="croppedImage" />  
+                    </div>  
+                </div> 
+                <div class="center" style="padding-top: 10px;" *ngIf="showTextCropper">
+                    <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="cropImageDone()" *ngIf="showTextCropper"></button>
+                    <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideCropperDialog()"></button>
+                </div>  
+        </div>  
+</p-dialog>    
+

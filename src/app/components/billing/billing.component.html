@@ -1,0 +1,27 @@
+<div class="p-grid">
+
+  <div class="p-col-12">
+    <div class="card">
+      <p-tabView id="tabBilling" [(activeIndex)]="index">
+        <p-tabPanel header="Overview">
+          <app-billing-overview (activeTabEvent)='setActiveTab($event)'></app-billing-overview>
+        </p-tabPanel>
+        <p-tabPanel header="Upcoming Billing">
+          <ng-template pTemplate="content">
+            <app-billing-upcoming (activeTabEvent)='setActiveTab($event)'></app-billing-upcoming>
+          </ng-template>
+        </p-tabPanel>
+        <p-tabPanel header="Last Billing">
+          <ng-template pTemplate="content">
+            <app-billing-last (activeTabEvent)='setActiveTab($event)'></app-billing-last>
+          </ng-template>
+        </p-tabPanel>
+        <p-tabPanel header="Receivables">
+          <ng-template pTemplate="content">
+            <app-billing-receivables (activeTabEvent)='setActiveTab($event)'></app-billing-receivables>
+          </ng-template>
+        </p-tabPanel>
+      </p-tabView>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+<div class="p-grid">
+    <div class="p-col-12">
+        <p-toast></p-toast>
+        
+        <div *ngIf="showLoader">
+        
+        </div>   
+        <div class="p-col-8 p-offset-2">
+            <div class="card">
+                <h5>Recurring Billing Setup</h5>
+                <hr>
+                <div class="p-fluid">
+                    <div class="p-field p-grid">
+                        <label for="enabled" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">Enable</label>
+                        <div class="p-col-12 p-md-10">
+                            <p-toggleButton [(ngModel)]="autoBillingEnabled" onLabel="Enabled" offLabel="Disabled" onIcon="pi pi-check" offIcon="pi pi-times" [style]="{'width': '10em'}"></p-toggleButton>
+                        </div>
+                    </div>
+                    <div class="p-field p-grid">
+                        <label for="processDate" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">Process Date</label>
+                        <div class="p-col-12 p-md-10">
+                            <p-calendar [(ngModel)]="effectiveDate" [minDate]="minDate"  [readonlyInput]="true" inputId="min-max"></p-calendar>
+                        </div>
+                    </div>
+                    <div class="p-field p-grid">
+                        <label for="processDate" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">Through Date</label>
+                        <div class="p-col-12 p-md-10">
+                            <p-calendar [(ngModel)]="throughDate" [minDate]="minDate"  [readonlyInput]="true" inputId="min-max"></p-calendar>
+                        </div>
+                    </div>
+                    <div class="p-field p-grid">
+                        <label for="billingCordinator" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">Notification Email(s)</label>
+                        <div class="p-col-12 p-md-10">
+                            <input type="text" pInputText [(ngModel)]="emails"/>
+                        </div>
+                    </div>
+                    <div class="p-field p-grid">
+                        <label for="billingCordinator" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">Notification SMS(s)</label>
+                        <div class="p-col-12 p-md-10">
+                            <input type="text" pInputText [(ngModel)]="smsNumbers"/>
+                        </div>
+                    </div>
+                    <div class="p-field p-grid">
+                        <label for="enabled" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">Run Status</label>
+                        <div class="p-col-12 p-md-10">
+                            <p-toggleButton [(ngModel)]="autoBillingRunStatus" onLabel="Running" offLabel="Paused" onIcon="pi pi-check" offIcon="pi pi-times" [style]="{'width': '10em'}"></p-toggleButton>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="center">
+                    <button pButton pRipple  label="Save" icon="pi pi-save" class="p-button-success p-mr-2" (click)="updateSettings()"></button>
+                    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-warning"  (click)="cancelChanges()"></button>
+                </div>
+            </div>
+        </div>
+       
+</div>                   
+                
+           

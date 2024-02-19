@@ -1,0 +1,68 @@
+<div class="card">
+  <div class="p-grid vertical-container">
+    <div class="p-col-12 p-d-flex p-jc-center">
+      <div style="margin-top: 5%;">
+        <img [src]="'assets/layout/images/trilix_header.png'" height="109" width="297">
+      </div>
+    </div>
+  </div>
+  <div class="p-grid vertical-container">
+      <div class="p-col-12 p-d-flex p-ai-center p-jc-center">
+        <div class="mbrmax-rounded-div">
+          <div class="p-field">
+          </div>
+          <div style="height: 25px;"></div>
+          <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+            <div class="p-fluid p-formgrid p-grid p-jc-center">
+              <div class="p-field p-col-8" >
+                <label for="organizationName">Organization</label>
+                <div class="p-inputgroup">
+                <input [autoFocus]="!isValidOrganization" id="organizationName" type="text" size="30" name="organizationName" formControlName="organizationName"  pInputText  required="true" pTooltip="Enter your organization name." (keyup.enter) = "checkOrganization()" (blur) = "checkOrganization()" tabindex="0"/>
+                <span class="p-inputgroup-addon" (click)="checkOrganization()"><i class="pi pi-arrow-right" ></i></span>
+                </div>
+              </div>
+            </div>
+            <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="!isValidOrganization">
+              <div class="p-field p-col-8" >
+               <br/>
+              </div>
+            </div>
+            <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="isValidOrganization ">
+              <div class="p-field p-col-8" >
+                 <label for="userName">Username</label>
+                <input [autoFocus]="isValidOrganization" id="userName" type="text" size="30" name="userName"  formControlName="userName" pInputText  required="true" tabindex="1"/>
+              </div>
+            </div>
+           
+            <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="isValidOrganization">
+              <div class="p-field p-col-8" >
+                <label for="password">Password</label>
+                  <div class="p-inputgroup">
+                    <input [type]="showPassword ? 'text' : 'password'"   pPassword  maxlength=20 formControlName="password" [feedback]="false" tabindex="2"/>
+                    <span class="p-inputgroup-addon" (click)="clickShowPassword()"><i [class]="showPassword ? 'pi pi-eye':'pi pi-eye-slash'"></i></span>
+                </div>
+                 
+              </div> 
+            </div>
+          
+            <div class="p-col-12 p-d-flex p-jc-center" *ngIf="isValidOrganization || !isForgotPassword">
+              <button pButton pRipple type="button" label="Login" class="p-button-rounded" type="submit" [disabled]="!loginForm.valid"></button>
+            </div>    
+            <div class="p-col-12 p-d-flex p-jc-center" *ngIf="isValidOrganization">
+              <p-button label="Forgot Password?" styleClass="p-button-link" (click)="resetPassword()"></p-button>
+            </div>          
+            <div class="p-grid">
+              <div class="p-col-12" style="color: red; max-width:300px;text-align: center;" *ngIf="this.showErrorMessage"><span>{{this.errorMessage}}</span></div>
+            </div>
+          </form>
+        </div>
+      </div>
+  </div>
+  <div class="p-grid vertical-container">
+    <div class="p-col-12 p-d-flex p-ai-center p-jc-center">
+      <div class="box" style="height:100px">
+       &nbsp;
+      </div>
+    </div>
+  </div>
+</div>

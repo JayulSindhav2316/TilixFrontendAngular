@@ -1,0 +1,205 @@
+<!-- <p>group-registration works!</p> -->
+<!-- *ngIf="groupRegistration"  -->
+<div class="card">
+    <p-toolbar styleClass="p-mb-4">
+       <ng-template pTemplate="left">
+          <div>
+            <div class="card-header profile-title"><h3>Registration Groups</h3></div>
+            <div style="margin:10px" class="p-formgroup-inline">
+                
+                    <span class="p-input-icon-left">
+                      <i class="pi pi-search"></i>
+                      <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains');" [(ngModel)]="searchText" placeholder="Search..." />
+                    </span>
+            </div>
+          </div>
+       </ng-template>
+       <ng-template pTemplate="right">
+        
+        <button pButton type="button"icon="pi pi-plus" class="ui-button-info p-mb-2 p-mr-2" [label]="'Add'"
+  pAddRow (click)="addRow()"></button>
+  <div>
+    <small for="Status"><strong>Include Inactive?</strong></small>
+    <div class="p-col-3" style="padding-top: 5px;">
+      <p-inputSwitch [(ngModel)]="includeInactive" (onChange)="includeInactiveQuestions($event)"></p-inputSwitch>
+    </div>
+  </div>
+    </ng-template>
+     </p-toolbar>	               
+     <p-table [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [globalFilterFields]="['name']" styleClass="p-datatable" [paginator]="true" editMode="row" [rows]="10"  [expandedRowKeys]="expandedRows" responsiveLayout="scroll"  [resizableColumns]="true" columnResizeMode="expand" #dt [value]="cars" dataKey="registrationGroupId">
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 5%;"></th>
+                <th [style]="{'width':'300px'}">Name</th>
+                <th [style]="{'width':'300px'}">Type</th>
+                <th [style]="{'width':'200px'}">Status</th>  
+                <th [style]="{'width':'200px'}"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-ri="rowIndex" let-expanded="expanded">
+            <tr>
+                <td>
+                    <button type="button" (click)="hideExpand()" *ngIf="rowData.type=='Membership' && rowData.registrationgroupmembershiplinks" pButton pRipple [pRowToggler]="rowData" class="p-button-text p-button-rounded p-button-plain" 
+                      [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                    </button>
+
+                  </td>
+                  <!-- [pEditableColumn]="rowData" [pEditableColumnField]="'name'" -->
+                <td>
+                    <div>
+                        <input [ngClass]="applyClass('text',rowData.name)" id="grpname{{rowData.registrationGroupId}}" (focus)="showCancel(rowData)" (keydown.Enter)="onEditComplete(rowData, 'name')" (keydown.tab)="onEditComplete(rowData, 'name')" pInputText type="text" [(ngModel)]="rowData.name" required="true"   [style]="{'width':'100%'}" 
+                         placeholder="Enter a group name">
+                        </div>
+                </td>
+                <td>
+                  <p-dropdown (focus)="showCancel(rowData)"  (onChange)="onEditComplete(rowData, 'type')" [(ngModel)]="rowData.type" (keydown.ArrowDown)="doNothing($event)" (keydown.Enter)="onEditComplete(rowData, 'type')" (keydown.ArrowDown)="doNothing($event)"  placeholder="Select" optionLabel="name" optionValue="code" [options]="designationList" [(ngModel)]="rowData.type" appendTo="body" [style]="{'width':'100%'}"></p-dropdown>
+                </td>
+                
+                <td [pEditableColumn]="rowData" [pEditableColumnField]="'status'">
+                    <p-cellEditor id="grpstatus{{rowData.registrationGroupId}}">
+                        <ng-template pTemplate="input">
+                           
+                            <p-toggleButton [(ngModel)]="rowData.status" onLabel="Active" offLabel="Inactive" 
+                            (onChange)="toggleStatus(rowData)" styleClass="p-button-danger">
+                         </p-toggleButton>
+                        </ng-template>
+                        <ng-template pTemplate="output">
+                            <p-toggleButton [(ngModel)]="rowData.status" onLabel="Active" offLabel="Inactive" 
+                            (onChange)="toggleStatus(rowData)" styleClass="p-button-danger">
+                        </p-toggleButton>
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+                <td style="display:flex">
+                    <!-- <button id="save{{rowData.registrationGroupId}}" style="display:none;" (click)="onEditComplete(rowData,'save')" pButton pRipple type="button" icon="pi pi-save" class="p-button-rounded p-button-success p-mr-2 p-mb-2 saveB" 
+                        pTooltip="Save Group"  tooltipPosition="left">
+                    </button>  -->
+                    <button [disabled]="disableSave" id="save{{rowData.registrationGroupId}}" style="display:none;" (click)="onEditComplete(rowData,'save')" pButton pRipple type="button" icon="pi pi-save" class="p-button-rounded p-button-success p-mr-2 p-mb-2 saveB" 
+                pTooltip="Save Group"  tooltipPosition="left">
+              </button> 
+                    <button *ngIf="rowData.registrationGroupId!=0" id="menuOp{{rowData.registrationGroupId}}" pButton type="button" icon="pi pi-ellipsis-v"
+										(click)="setActiveRow(rowData);menu.toggle($event)" class="p-button-rounded menuOpB"
+										styleClass="p-button-sm p-mr-0"></button>
+                                        <!-- class="ui-button-danger"     -->
+                   
+                                        <button id="cancel{{rowData.registrationGroupId}}" style="display:none;margin-left: 5px;" (click)="onRowEditCancel(rowData, ri)" pButton pRipple type="button" icon="pi pi-times"
+                                        class="p-button-rounded p-button-danger p-mr-2 p-mb-2 cancelB" pTooltip="Reset"  tooltipPosition="left">
+                                      </button>                    
+                    <!-- <button (class)="cancelButton" id="cancel{{rowData.registrationGroupId}}" style="display:none;margin-left: 5px; background-color: red; "  styleClass="p-button-sm p-mr-0" pButton type="button" icon="pi pi-times" class="p-button-rounded" (click)="onRowEditCancel(rowData, ri)"></button> -->
+                    <p-menu #menu [popup]="true" [model]="menuItems" position="left" appendTo="body">
+                    </p-menu>
+                </td>
+            </tr>
+        </ng-template>
+<!-- inside table -->
+<ng-template pTemplate="rowexpansion" let-rowData>
+    <tr>
+        <td colspan="7">
+            <div class="p-3">
+                <p-table responsiveLayout="scroll" [value]="rowData.registrationgroupmembershiplinks">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Membership Type</th>
+                            <th>Description</th>
+                            <th></th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-order>
+                        <tr>
+                            <td>{{order.membership.name}}</td>
+                            <td>{{order.membership.description}}</td>
+                        <td>
+                            <button styleClass="p-button-sm p-mr-0" pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-mr-2 p-mb-2" (click)="deleteLink(order)"></button>
+                        </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="6">There are no linked types for this group yet.</td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="summary">
+                        <div *ngIf="!groupRegistration" class="p-grid">
+                            <div class="p-col-12">
+                                <p-toast></p-toast>
+                                <div class="card">
+                                    <p-toolbar styleClass="p-mb-4">
+                                        <ng-template pTemplate="left">
+                                            <div class="p-formgroup-inline">
+                                                <div class="p-field">
+                                                    <label for="serachSelection" class="p-sr-only">Search  By:</label>
+                                                    <p-multiSelect [options]="membershipCategory" placeholder="Select Membership(s)"  appendTo="body"  [(ngModel)] ="selectedMembershipCategory" optionLabel="name" optionValue="code"></p-multiSelect>
+                                                    <!-- <p-multiSelect [options]="cities" [(ngModel)]="selectedCityCodes" optionLabel="name" optionValue="code"></p-multiSelect> -->
+                                                </div>
+                                                <button pButton type="button" label="Search"  icon="pi pi-search" class="p-button-primary p-mr-2 p-mb-2"  (click)="serachMemberships()"></button>
+                                            </div>
+                                        </ng-template>
+                                        <ng-template pTemplate="right">
+                                        </ng-template>
+                                    </p-toolbar>
+                                </div>
+                                    <div *ngIf="showTable">
+                                    <p-table #dt [value]="membershipTypes" [columns]="cols" [rows]="25" [paginator]="true" [(selection)]="selectedMembershipType" [rowHover]="true" dataKey="membershipTypeId" resizableColumns="true"
+                                        styleClass="p-datatable-sm" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+                                        [showCurrentPageReport]="true" selectionMode="multiple">
+                                        <ng-template pTemplate="header">
+                                            <tr>
+                                                <th style="width: 5%" >
+                                                </th>
+                                                <th pSortableColumn="categoryName" class="ui-resizable-column" pResizableColumn style="width:25%;">							
+                                                    Membership  Type
+                                                    <p-columnFilter type="text" field="categoryName" display="menu"></p-columnFilter>
+                                              </th>
+                                                <th pSortableColumn="name" class="ui-resizable-column" pResizableColumn style="width:10%;">							
+                                                      Name
+                                                      <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+                                                </th>
+                                                <th pSortableColumn="name" class="ui-resizable-column" pResizableColumn style="width:25%;">							
+                                                      Description
+                                                      <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+                                                </th>
+
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-membershipType>
+                                            <tr class="maxTableRow">
+                                                <td style='text-align: center;'>
+                                                    <p-tableCheckbox [value]="membershipType" (click)="SelectMembership(membershipType)"></p-tableCheckbox>
+                                                </td>
+                                                <td>
+                                                    {{ membershipType.categoryName }}
+                                                </td>
+                                                <td>
+                                                    {{ membershipType.name }}
+                                                </td>
+                                                <td>
+                                                    {{ membershipType.description }}
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="summary">
+                                            <div class="p-d-flex p-ai-center p-jc-between">
+                                                In total there are
+                                                {{ membershipTypes ? membershipTypes.length : 0 }} membership types.
+                                            </div>
+                                        </ng-template>
+                                    </p-table>
+                                    <div class="center">
+                                        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" (click)="saveMembershipLink()"></button>
+                                        <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="goBack()"></button>
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                      </ng-template>
+                </p-table>
+            </div>
+        </td>
+    </tr>
+</ng-template>
+
+    </p-table>
+     
+</div>			
+
+ <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

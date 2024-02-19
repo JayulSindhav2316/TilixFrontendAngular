@@ -1,0 +1,20 @@
+tr.emergency{
+    background:#f7b5b5;
+}
+
+tr.warning{
+    background:rgb(247, 226, 187);
+}
+
+tr.general{
+    background:rgb(204, 221, 243);
+}
+div.line-overflow {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+:host ::ng-deep .p-tag {
+    margin-bottom: 1px;
+}

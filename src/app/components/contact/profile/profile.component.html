@@ -1,0 +1,845 @@
+<div class="p-grid" *ngIf="profileLoaded">
+  <div class="p-col-6 p-md-6 p-xl-6">
+    <div class="card" style="height:auto;">
+      <div class="card-header profile-title">
+        Details
+        <div class="header-buttons">
+          <a>
+            <fa-icon [icon]="faEdit" (click)="setActiveTab(1)"></fa-icon>
+          </a>
+        </div>
+      </div>
+      <hr class="profile-ruler">
+      <div class="p-grid" *ngIf="!isCompanyProfile">
+        <div class="p-col-3 profile-label">Address:</div>
+        <div class="p-col-9 profile-data">{{contact.streetAddress}} </div>
+        <div class="p-col-3 profile-label"></div>
+        <div class="p-col-9 profile-data">{{contact.city}}, {{contact.state}}, {{contact.zip}} </div>
+        <div class="p-col-3 profile-label">Phone:</div>
+        <div class="p-col-9 profile-data">{{contact.formattedPhoneNumber}}</div>
+        <div class="p-col-3 profile-label">Email:</div>
+        <div class="p-col-9 profile-data">{{contact.primaryEmail}}</div>
+        <div class="p-col-3 profile-label">Preferred Contact:</div>
+        <div class="p-col-9 profile-data">{{preferredContact}}</div>
+        <hr class="accountInfo-ruler" *ngIf="configuration.displayRoles===1">
+        <div class="p-col-3 profile-label" *ngIf="configuration.displayRoles===1">{{currentUser.accountName}}:</div>
+        <div class="p-col-9 profile-account-data" *ngIf="configuration.displayRoles===1"><button pButton type="button"
+            label="{{contact.company.companyName}}" class="p-button-link" (click)="showAccountDetail(contact)"></button>
+        </div>
+        <div class="p-col-3 profile-label" *ngIf="configuration.displayRoles===1">Title:</div>
+        <div class="p-col-9 profile-data" *ngIf="configuration.displayRoles===1">{{contact.title}} </div>
+        <div class="p-col-3 profile-label" *ngIf="configuration.displayRoles===1">Role(s):</div>
+        <div class="p-col-9 profile-data" *ngIf="configuration.displayRoles===1"><span
+            *ngFor="let role of historyRoles; let i=index" style="margin-left:5px;">
+            <p-tag styleClass="mr-2">
+              <a (click)="showAccountRoleDetail(role)" style="color: white; cursor: pointer;">{{ role.role }}</a>
+            </p-tag>
+          </span></div>
+        <hr class="accountInfo-ruler" *ngIf="configuration.displayRoles===0">
+        <div class="p-col-3 profile-label" *ngIf="configuration.displayRoles===0">{{currentUser.accountName}} Name:
+        </div>
+        <div class="p-col-9 profile-data" *ngIf="configuration.displayRoles===0">{{contact.company.companyName}}</div>
+        <div class="p-col-3 profile-label" *ngIf="configuration.displayRoles===0">Title:</div>
+        <div class="p-col-9 profile-data" *ngIf="configuration.displayRoles===0">{{contact.title}} </div>
+        <div class="p-col-3 profile-label" *ngIf="configuration.displayRoles===0">Email:</div>
+        <div class="p-col-9 profile-data" *ngIf="configuration.displayRoles===0">{{contact.company.email}} </div>
+        <div class="p-col-3 profile-label" *ngIf="configuration.displayRoles===0">{{currentUser.accountName}} Website:
+        </div>
+        <div class="p-col-9 profile-data" *ngIf="configuration.displayRoles===0"><a [href]="contact.company.website"
+            target="_blank">{{contact.company.website}}</a></div>
+      </div>
+      <div class="p-grid" *ngIf="isCompanyProfile">
+        <div class="p-col-3 profile-label">Address:</div>
+        <div class="p-col-9 profile-data">{{company.streetAddress}} </div>
+        <div class="p-col-3 profile-label"></div>
+        <div class="p-col-9 profile-data">{{company.city}}, {{company.state}}, {{company.zip}} </div>
+        <div class="p-col-3 profile-label">Phone:</div>
+        <div class="p-col-9 profile-data">{{company.phone}}</div>
+        <div class="p-col-3 profile-label">Email:</div>
+        <div class="p-col-9 profile-data">{{company.email}}</div>
+      </div>
+    </div>
+  </div>
+  <div class="p-col-6 p-md-6 p-xl-6" *ngIf="showAccountContacts">
+    <div class="card leaderboard" style="height:380px;">
+      <div class="card-header profile-title">
+        Account Contacts
+        <div class="header-buttons">
+          <a>
+            <fa-icon [icon]="faEdit" (click)="setActiveTab(3)"></fa-icon>
+          </a>
+        </div>
+      </div>
+      <hr class="profile-ruler">
+      <div *ngIf="accountContacts.length >0">
+        <p-table #dt [value]="accountContacts" [rows]="4" [paginator]="true" styleClass="p-datatable-sm"
+          [showCurrentPageReport]="false" [autoLayout]="true">
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="Role" class="ui-resizable-column" pResizableColumn width='20%'>Role</th>
+              <th pSortableColumn="Name" class="ui-resizable-column" pResizableColumn width='40%'>Name </th>
+              <th pSortableColumn="Email" class="ui-resizable-column" pResizableColumn width='20%'>Email </th>
+              <th pSortableColumn="Phone" class="ui-resizable-column" pResizableColumn width='20%'>Phone</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-contactRole>
+            <tr class="maxTableRow">
+              <td style="text-align:left"><button pButton type="button" *ngIf="contactRole.role" label="{{contactRole.role}}" class="p-button-link" 
+                  (click)="showAccountRoleDetail(contactRole)"></button></td>
+              <td><button pButton type="button" label="{{contactRole.firstName}} {{contactRole.lastName}}" class="p-button-link" 
+                  (click)="showContactDetail(contactRole)"></button></td>
+              <td>{{contactRole.primaryEmail}}</td>
+              <td>{{contactRole.primaryPhone}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div *ngIf="accountContacts?.length === 0">
+        <div class="p-grid">
+          <div class="p-col-12 center">
+            <h6>No Account Contacts</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-col-6 p-md-6 p-xl-6" *ngIf="showActivities">
+    <div class="card leaderboard" style="height:auto;">
+      <div class="card-header profile-title">
+        Activity
+        <div class="header-buttons">
+          <a>
+            <fa-icon [icon]="faEdit" (click)="setActiveTab(3)"></fa-icon>
+          </a>
+        </div>
+      </div>
+      <hr class="profile-ruler">
+      <div *ngIf="contactActivities && contactActivities.length >0" class="contact-activities">
+        <p-accordion [multiple]="false">
+          <p-accordionTab *ngFor="let activity of pagedContactActivities" [selected]="false">
+            <ng-template pTemplate="header">
+              <div class="p-col-12" style="padding-right: 20px;">
+                <div class="p-fluid p-formgrid p-grid">
+                  <div class="p-col-8 p-md-8 ">
+                    <div class="line-overflow" *ngIf="activity.entityId===entity.entityId">
+                      <span style="text-align: left;" *ngIf="activity.interactionType===0">
+                        <b>Phone</b> call with </span>
+                      <span style="text-align: left;" *ngIf="activity.interactionType===1">
+                        <b>In-Person Interaction </b> with</span>
+                      <span style="text-align: left;" *ngIf="activity.interactionType===2">
+                        <b>Email</b> to </span>
+                      <span
+                        *ngIf="activity.interactionType===0 || activity.interactionType===1 || activity.interactionType===2">
+                        <span *ngFor="let item of activity.contactActivityInteractions;let i=index">
+                          {{activity.contactActivityInteractions[i]?.interactionEntity?.person?.firstName}}
+                          {{activity.contactActivityInteractions[i]?.interactionEntity?.person?.lastName}}
+                          <ng-container *ngIf="i < activity.contactActivityInteractions.length - 1">
+                            <span *ngIf="i === activity.contactActivityInteractions.length - 2 && 
+                                          activity.contactActivityInteractions.length > 2 ||
+                                       activity.contactActivityInteractions.length === 2">
+                              and </span>
+                            <span *ngIf="i !== activity.contactActivityInteractions.length - 2 && 
+                                                  i !== activity.contactActivityInteractions.length - 1">,
+                            </span>
+                          </ng-container>
+                        </span>
+                      </span>
+                    </div>
+                    <div class="line-overflow" *ngIf="activity.entityId!==entity.entityId">
+                      <span style="text-align: left;" *ngIf="activity.interactionType===0">
+                        <b>Phone</b> call with
+                        {{activity.entity.person?.firstName}}
+                        {{activity.entity.person?.lastName}}
+                      </span>
+                      <span style="text-align: left;" *ngIf="activity.interactionType===1">
+                        <b>In-Person Interaction </b> with
+                        {{activity.entity.person?.firstName}}
+                        {{activity.entity.person?.lastName}}
+                      </span>
+                      <span style="text-align: left;" *ngIf="activity.interactionType===2">
+                        <b>Email</b> from
+                        {{activity.entity.person?.firstName}}
+                        {{activity.entity.person?.lastName}}
+                      </span>
+
+                    </div>
+                    <span style="text-align: left;"
+                      *ngIf="activity.interactionType===3 || activity.interactionType===4">
+                      <b>{{activity.subject}}</b>
+                    </span>
+                  </div>
+
+                  <div class="p-col-4 p-md-4" style="text-align: center;">
+                    {{activity.activityDate | date:'MM/dd/yyyy'}}</div>
+                  <div *ngIf="activity.interactionType!=3 && activity.interactionType!=4"
+                    class="p-col-12 p-md-12 line-overflow">{{ activity.subject }}</div>
+                  <div class="p-col-12 p-md-12 line-overflow">{{ activity.description }}</div>
+                </div>
+              </div>
+            </ng-template>
+          </p-accordionTab>
+        </p-accordion>
+        <p-paginator [rows]="activityItemsPerPage" [totalRecords]="totalActivityRecords"
+          (onPageChange)="onActivityPageChange($event)"></p-paginator>
+
+      </div>
+      <div *ngIf="contactActivities?.length === 0">
+        <div class="p-grid">
+          <div class="p-col-12 center">
+            <h6>No Activities</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="p-col-6 p-md-6 p-xl-6" *ngIf="showMembership">
+    <div class="card leaderboard" style="height:300px;">
+      <div class="card-header profile-title">
+        Membership
+        <div class="header-buttons">
+          <a *ngIf="entity.memberships.length > 0">
+            <fa-icon class="p-mr-3" [icon]="faPlus" (click)="createMembership()" pTooltip="Create membership"
+              tooltipPosition="left"></fa-icon>
+          </a>
+          <a>
+            <fa-icon [icon]="faEdit" (click)="setActiveTab(3)"></fa-icon>
+          </a>
+        </div>
+      </div>
+      <hr class="profile-ruler">
+      <div *ngIf="entity.memberships.length >0">
+        <p-table #dt [value]="entity.memberships" [rows]="4" [paginator]="true" styleClass="p-datatable-sm"
+          [showCurrentPageReport]="false" [autoLayout]="true">
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="Membership" class="ui-resizable-column" pResizableColumn width='40%'>Membership</th>
+              <th pSortableColumn="startDate" class="ui-resizable-column" pResizableColumn width='20%'>Join </th>
+              <th pSortableColumn="endDate" class="ui-resizable-column" pResizableColumn width='20%'>Expiration </th>
+              <th pSortableColumn="nextBillDate" class="ui-resizable-column" pResizableColumn width='20%'>Next Bill</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-membership>
+            <tr class="maxTableRow">
+              <td>{{membership.membershipType.code}}-{{membership.membershipType.name}}</td>
+              <td>{{membership.startDate| date:'MM/dd/yyyy'}}</td>
+              <td>{{membership.endDate| date:'MM/dd/yyyy'}}</td>
+              <td>{{membership.nextBillDate| date:'MM/dd/yyyy'}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div *ngIf="entity.memberships.length === 0">
+        <div class="p-grid">
+          <div class="p-col-12 center">
+            <h6>No memberships</h6>
+          </div>
+          <div class="p-col-12 center">
+            <button pButton pRipple label="Create Membership" icon="pi pi-plus" class="p-button-outlined"
+              styleClass="p-button-sm" (click)="createMembership()"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="p-col-6 p-md-6 p-xl-6" *ngIf="showMembership">
+    <div class="card leaderboard">
+      <div class="card-header profile-title">
+        Related Contacts
+        <div class="header-buttons">
+          <a>
+            <fa-icon [icon]="faEdit" (click)="setActiveTab(2)"></fa-icon>
+          </a>
+        </div>
+      </div>
+      <hr class="profile-ruler">
+      <div>
+        <p-table #dt [value]="relations" [rows]="5" [paginator]="true" styleClass="p-datatable-sm"
+          [showCurrentPageReport]="false" [autoLayout]="true">
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="Person.firstName" class="ui-resizable-column" pResizableColumn width='40%'>
+                Name
+              </th>
+
+              <th pSortableColumn="type" class="ui-resizable-column" pResizableColumn width='20%'>Relation
+
+              </th>
+              <th pSortableColumn="relatedPerson.gender" class="ui-resizable-column" pResizableColumn width='20%'>Gender
+
+              </th>
+              <th pSortableColumn="relatedPerson.dateOfBirth" class="ui-resizable-column" pResizableColumn width='20%'>
+                Birth Date
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="loadingbody">
+
+          </ng-template>
+          <ng-template pTemplate="body" let-relation>
+            <tr class="maxTableRow">
+              <td><button [pTooltip]="relation.Name" pButton type="button"
+                  label="{{ relation.firstName}} {{ relation.lastName }}" class="p-button-link"
+                  (click)="showDetail(relation)"></button></td>
+
+              <td>{{relation.relationshipType}}</td>
+              <td>{{relation.gender}}</td>
+              <td>{{relation.dateOfBirth | date:'MM/dd/yyyy' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+  <div class="p-col-6 p-md-6 p-xl-6">
+    <div class="card leaderboard">
+      <div class="card-header profile-title">
+        Encounters
+        <div class="header-buttons">
+          <a>
+            <fa-icon [icon]="faEdit" (click)="isCompanyProfile ? setActiveTab(7) : setActiveTab(8)"></fa-icon>
+          </a>
+        </div>
+      </div>
+      <hr class="profile-ruler">
+      <div *ngIf="entity.communications.length >0">
+        <p-table #dt [value]="entity.communications" [rows]="5" [paginator]="true" styleClass="p-datatable-sm"
+          [showCurrentPageReport]="false" [autoLayout]="true">
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="date" class="ui-resizable-column" pResizableColumn width='20%'>Date
+              </th>
+              <th pSortableColumn="from" class="ui-resizable-column" pResizableColumn width='20%'>By
+              </th>
+              <th pSortableColumn="type" class="ui-resizable-column" pResizableColumn width='20%'>Type
+              </th>
+              <th pSortableColumn="subject" class="ui-resizable-column" pResizableColumn width='40%'>Subject
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-communication>
+            <tr class="maxTableRow">
+              <td>{{communication.date | date:'MM/dd/yyyy'}}</td>
+              <td>{{communication.from}}</td>
+              <td>{{communication.type}}</td>
+              <td>{{communication.subject}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div *ngIf="entity.communications.length === 0" class="center">
+        <h6>No encounters</h6>
+      </div>
+    </div>
+  </div>
+  <div class="p-col-12 p-md-12 p-xl-12" *ngIf="showInvoicePayments">
+    <div class="card leaderboard">
+      <div class="card-header profile-title">
+        Invoice & Payments
+        <div class="header-buttons">
+          <a>
+            <fa-icon [icon]="faEdit" (click)="setActiveTab(4)"></fa-icon>
+          </a>
+        </div>
+      </div>
+      <hr class="profile-ruler">
+      <div *ngIf="entity.invoicePayments.length >0">
+        <p-table #dt [value]="entity.invoicePayments" [rows]="5" [paginator]="true" styleClass="p-datatable-sm"
+          [showCurrentPageReport]="false">
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="ID" class="ui-resizable-column" pResizableColumn width="15%">#ID</th>
+              <th pSortableColumn="Date" class="ui-resizable-column" pResizableColumn width="15%">Date</th>
+              <th pSortableColumn="Item" class="ui-resizable-column" pResizableColumn width="25%">Item </th>
+              <th pSortableColumn="Total" class="ui-resizable-column" pResizableColumn width="15%">Total</th>
+              <th pSortableColumn="Paid" class="ui-resizable-column" pResizableColumn width="15%">Paid </th>
+              <th pSortableColumn="Due" class="ui-resizable-column" pResizableColumn width="15%">Due </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-invoicePayment>
+            <tr class="maxTableRow">
+              <td>{{invoicePayment.invoiceId}}</td>
+              <td>{{invoicePayment.date | date:'MM/dd/yyyy'}}</td>
+              <td>{{invoicePayment.description}}</td>
+              <td>{{invoicePayment.total |currency}}</td>
+              <td>{{invoicePayment.paid |currency}}</td>
+              <td>{{invoicePayment.balance |currency}}</td>
+
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div *ngIf="entity.invoicePayments.length === 0" class="center">
+        <h6>No invoices</h6>
+      </div>
+    </div>
+  </div>
+  <div class="p-col-6 p-md-6 p-xl-6" *ngIf="!isCompanyProfile">
+    <div class="card" style="height:200px;">
+      <div class="card-header profile-title">
+        Social Networking
+        <div class="header-buttons">
+          <a>
+            <fa-icon [icon]="faEdit" (click)="setActiveTab(1)"></fa-icon>
+          </a>
+        </div>
+      </div>
+      <hr class="profile-ruler">
+      <div class="p-grid">
+        <div class="p-col-3 profile-label">Facebook:</div>
+        <div class="p-col-9 profile-data">{{contact.facebookName}}</div>
+        <div class="p-col-3 profile-label">Twitter:</div>
+        <div class="p-col-9 profile-data">{{contact.twitterName }}</div>
+        <div class="p-col-3 profile-label">Linked-in:</div>
+        <div class="p-col-9 profile-data">{{contact.linkedinName}}</div>
+        <div class="p-col-3 profile-label">Web Site:</div>
+        <div class="p-col-9 profile-data"><a [href]="contact.website" target="_blank">{{contact.website ?
+            contact.website.replace('https://','').replace('http://','') : contact.website }}</a></div>
+      </div>
+    </div>
+
+  </div>
+  <!-- <div class="p-col-6 p-md-6 p-xl-6" *ngIf="!isCompanyProfile">
+    <div class="card" style="height:200px;">
+      <div class="card-header profile-title">
+        {{currentUser.accountName}}
+        <div class="header-buttons">
+          <a>
+            <fa-icon [icon]="faEdit" (click)="setActiveTab(1)"></fa-icon>
+          </a>
+        </div>
+      </div>
+      <hr class="profile-ruler">
+      <div class="p-grid">
+        <div class="p-col-3 profile-label">{{currentUser.accountName}} Name:</div>
+        <div class="p-col-9 profile-data">{{contact.company.companyName}}</div>
+        <div class="p-col-3 profile-label">Title:</div>
+        <div class="p-col-9 profile-data">{{contact.title}} </div>
+        <div class="p-col-3 profile-label">Email:</div>
+        <div class="p-col-9 profile-data">{{contact.company.email}} </div>
+        <div class="p-col-3 profile-label">{{currentUser.accountName}} Web Site:</div>
+        <div class="p-col-9 profile-data"><a [href]="contact.company.website"
+            target="_blank">{{contact.company.website}}</a></div>
+      </div>
+    </div>
+  </div> -->
+  <div *ngIf="!isCompanyProfile" class="p-col-6 p-md-6 p-xl-6">
+    <div class="card leaderboard">
+      <div class="card-header profile-title">
+        Boards & Groups
+        <div class="header-buttons">
+          <a>
+            <fa-icon [icon]="faEdit" (click)="setActiveTab(7)"></fa-icon>
+          </a>
+        </div>
+      </div>
+      <hr class="profile-ruler">
+      <div *ngIf="entity.groupMembers.length >0">
+        <p-table #dt [value]="entity.groupMembers" [rows]="5" [paginator]="true" styleClass="p-datatable-sm"
+          [showCurrentPageReport]="false" [autoLayout]="true">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 75%;">Group Name</th>
+              <th style="width: 25%;">Term</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-groupMember>
+            <tr class="maxTableRow">
+              <td style="text-overflow: ellipsis !important; max-width: 250px;">{{groupMember.group.groupName}}</td>
+              <td>{{groupMember.group.terrmStartDate | date:'MM/dd/yyyy'}} - {{groupMember.group.termEndDate |
+                date:'MM/dd/yyyy'}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div *ngIf="entity.groupMembers.length === 0" class="center">
+        <h6>No Groups</h6>
+      </div>
+    </div>
+  </div>
+  <div class="p-col-6 p-md-6 p-xl-6">
+    <div class="card leaderboard">
+      <div class="card-header profile-title">
+        Notes
+        <div class="header-buttons">
+          <a>
+            <fa-icon [icon]="faEdit" (click)="isCompanyProfile ? setActiveTab(8) : setActiveTab(9)"></fa-icon>
+          </a>
+        </div>
+      </div>
+      <hr class="profile-ruler">
+      <div *ngIf="entity.notes.length >0">
+        <p-table #dt [value]="entity.notes" [rows]="5" [paginator]="true" styleClass="p-datatable-sm"
+          [showCurrentPageReport]="false" [autoLayout]="true">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 15%">Date</th>
+              <th style="width: 55%">Notes</th>
+              <th style="width: 15%">Active</th>
+              <th style="width: 15%">Severity</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-note>
+            <tr class="maxTableRow">
+              <td>{{note.createdOn | date:'MM/dd/yyyy'}}</td>
+              <td style="text-overflow: ellipsis !important; max-width: 200px;">{{note.notes}}</td>
+              <td>
+                <div *ngIf="note.status; else elseStatusBlock">
+                  <p-tag styleClass="p-mr-2" severity="success" value="Yes" [rounded]="true"></p-tag>
+                </div>
+                <ng-template #elseStatusBlock>
+                  <p-tag styleClass="p-mr-2" severity="danger" value="No" [rounded]="true"></p-tag>
+                </ng-template>
+              </td>
+              <td>
+                <div *ngIf="note.severity === 'General'">
+                  <p-tag styleClass="p-mr-2" severity="info" value="General" [rounded]="true"></p-tag>
+                </div>
+                <div *ngIf="note.severity === 'Warning'">
+                  <p-tag styleClass="p-mr-2" severity="warning" value="Warning" [rounded]="true"></p-tag>
+                </div>
+                <div *ngIf="note.severity === 'Emergency'">
+                  <p-tag styleClass="p-mr-2" severity="danger" value="Emergency" [rounded]="true"></p-tag>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div *ngIf="entity.notes.length === 0" class="center">
+        <h6>No Notes</h6>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<!-- Skeletons-->
+<div class="p-grid" *ngIf="!profileLoaded">
+  <div class="p-col-6 p-md-6 p-xl-6">
+    <div class="card">
+      <div class="grid formgrid">
+        <div class="p-field p-col-6 p-md-6 p-pr-md-6 p-pr-0">
+          <div class="custom-skeleton p-p-4">
+            <div class="p-d-flex p-jc-between p-mt-1">
+              <p-skeleton width="3rem"></p-skeleton>
+              <p-skeleton width="9rem"></p-skeleton>
+            </div>
+
+            <div class="p-d-flex p-jc-between p-mt-1">
+              <p-skeleton width="3rem"></p-skeleton>
+              <p-skeleton width="9rem"></p-skeleton>
+            </div>
+            <div class="p-d-flex p-jc-between p-mt-1">
+              <p-skeleton width="3rem"></p-skeleton>
+              <p-skeleton width="9rem"></p-skeleton>
+            </div>
+            <div class="p-d-flex p-jc-between p-mt-1">
+              <p-skeleton width="3rem"></p-skeleton>
+              <p-skeleton width="9rem"></p-skeleton>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-col-6 p-md-6 p-xl-6">
+    <div class="card">
+      <p-table #dt [value]="skeletonnList" [rows]="4" [paginator]="true" styleClass="p-datatable-sm"
+        [showCurrentPageReport]="false" [autoLayout]="true">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="Membership" class="ui-resizable-column" pResizableColumn width='40%'>Membership
+            </th>
+            <th pSortableColumn="startDate" class="ui-resizable-column" pResizableColumn width='20%'>Join </th>
+            <th pSortableColumn="endDate" class="ui-resizable-column" pResizableColumn width='20%'>Expiration
+            </th>
+            <th pSortableColumn="nextBillDate" class="ui-resizable-column" pResizableColumn width='20%'>Next Bill
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+          <tr>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+  <div class="p-col-6 p-md-6 p-xl-6">
+    <div class="card">
+      <p-table #dt [value]="skeletonnList" [rows]="4" [paginator]="true" styleClass="p-datatable-sm"
+        [showCurrentPageReport]="false" [autoLayout]="true">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="Role" class="ui-resizable-column" pResizableColumn width='20%'>Membership
+            </th>
+            <th pSortableColumn="Name" class="ui-resizable-column" pResizableColumn width='40%'>Join </th>
+            <th pSortableColumn="Email" class="ui-resizable-column" pResizableColumn width='20%'>Expiration
+            </th>
+            <th pSortableColumn="Phone" class="ui-resizable-column" pResizableColumn width='20%'>Next Bill
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+          <tr>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+  <div class="p-col-6 p-md-6 p-xl-6">
+    <div class="card">
+      <p-table #dt [value]="skeletonnList" [rows]="4" [paginator]="true" styleClass="p-datatable-sm"
+        [showCurrentPageReport]="false" [autoLayout]="true">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="relatedPerson.firstName" class="ui-resizable-column" pResizableColumn width='20%'>
+              First Name
+            </th>
+            <th pSortableColumn="relatedPerson.lastName" class="ui-resizable-column" pResizableColumn width='20%'>Last
+              Name
+            </th>
+            <th pSortableColumn="type" class="ui-resizable-column" pResizableColumn width='20%'>Relation
+
+            </th>
+            <th pSortableColumn="relatedPerson.gender" class="ui-resizable-column" pResizableColumn width='20%'>Gender
+
+            </th>
+            <th pSortableColumn="relatedPerson.dateOfBirth" class="ui-resizable-column" pResizableColumn width='20%'>
+              Birth Date
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+          <tr>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+  <div class="p-col-6 p-md-6 p-xl-6">
+    <div class="card">
+      <p-table #dt [value]="skeletonnList" [rows]="4" [paginator]="true" styleClass="p-datatable-sm"
+        [showCurrentPageReport]="false" [autoLayout]="true">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="date" class="ui-resizable-column" pResizableColumn width='20%'>Date
+            </th>
+            <th pSortableColumn="from" class="ui-resizable-column" pResizableColumn width='20%'>By
+            </th>
+            <th pSortableColumn="type" class="ui-resizable-column" pResizableColumn width='20%'>Type
+            </th>
+            <th pSortableColumn="subject" class="ui-resizable-column" pResizableColumn width='40%'>Subject
+
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+          <tr>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+  <div class="p-col-12 p-md-12 p-xl-12">
+    <div class="card">
+      <p-table #dt [value]="skeletonnList" [rows]="4" [paginator]="true" styleClass="p-datatable-sm"
+        [showCurrentPageReport]="false" [autoLayout]="true">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="ID" class="ui-resizable-column" pResizableColumn width="15%">#ID</th>
+            <th pSortableColumn="Date" class="ui-resizable-column" pResizableColumn width="15%">Date</th>
+            <th pSortableColumn="Item" class="ui-resizable-column" pResizableColumn width="25%">Item </th>
+            <th pSortableColumn="Total" class="ui-resizable-column" pResizableColumn width="15%">Total</th>
+            <th pSortableColumn="Paid" class="ui-resizable-column" pResizableColumn width="15%">Paid </th>
+            <th pSortableColumn="Due" class="ui-resizable-column" pResizableColumn width="15%">Due </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+          <tr>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+  <div class="p-col-6 p-md-6 p-xl-6">
+    <div class="card">
+      <div class="grid formgrid">
+        <div class="p-field p-col-6 p-md-6 p-pr-md-6 p-pr-0">
+          <div class="custom-skeleton p-p-4">
+            <div class="p-d-flex p-jc-between p-mt-1">
+              <p-skeleton width="3rem"></p-skeleton>
+              <p-skeleton width="9rem"></p-skeleton>
+            </div>
+
+            <div class="p-d-flex p-jc-between p-mt-1">
+              <p-skeleton width="3rem"></p-skeleton>
+              <p-skeleton width="9rem"></p-skeleton>
+            </div>
+            <div class="p-d-flex p-jc-between p-mt-1">
+              <p-skeleton width="3rem"></p-skeleton>
+              <p-skeleton width="9rem"></p-skeleton>
+            </div>
+            <div class="p-d-flex p-jc-between p-mt-1">
+              <p-skeleton width="3rem"></p-skeleton>
+              <p-skeleton width="9rem"></p-skeleton>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="p-col-6 p-md-6 p-xl-6">
+    <div class="card">
+      <div class="grid formgrid">
+        <div class="p-field p-col-6 p-md-6 p-pr-md-6 p-pr-0">
+          <div class="custom-skeleton p-p-4">
+            <div class="p-d-flex p-jc-between p-mt-1">
+              <p-skeleton width="3rem"></p-skeleton>
+              <p-skeleton width="9rem"></p-skeleton>
+            </div>
+
+            <div class="p-d-flex p-jc-between p-mt-1">
+              <p-skeleton width="3rem"></p-skeleton>
+              <p-skeleton width="9rem"></p-skeleton>
+            </div>
+            <div class="p-d-flex p-jc-between p-mt-1">
+              <p-skeleton width="3rem"></p-skeleton>
+              <p-skeleton width="9rem"></p-skeleton>
+            </div>
+            <div class="p-d-flex p-jc-between p-mt-1">
+              <p-skeleton width="3rem"></p-skeleton>
+              <p-skeleton width="9rem"></p-skeleton>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="p-col-6 p-md-6 p-xl-6">
+    <div class="card">
+      <p-table #dt [value]="skeletonnList" [rows]="4" [paginator]="true" styleClass="p-datatable-sm"
+        [showCurrentPageReport]="false" [autoLayout]="true">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 75%;">Group Name</th>
+            <th style="width: 25%;">Term</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+          <tr>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+  <div class="p-col-6 p-md-6 p-xl-6">
+    <div class="card">
+      <p-table #dt [value]="skeletonnList" [rows]="4" [paginator]="true" styleClass="p-datatable-sm"
+        [showCurrentPageReport]="false" [autoLayout]="true">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 15%">Date</th>
+            <th style="width: 55%">Notes</th>
+            <th style="width: 15%">Active</th>
+            <th style="width: 15%">Severity</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+          <tr>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+            <td>
+              <p-skeleton></p-skeleton>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>

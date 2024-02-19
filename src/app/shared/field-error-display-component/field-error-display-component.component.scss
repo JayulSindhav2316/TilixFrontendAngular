@@ -1,0 +1,22 @@
+.error-icon {
+    margin-top: -35px;
+}
+
+.form-control-feedback {
+    position: absolute;
+    margin-right: 40px;
+    right: 0;
+    z-index: 2;
+    display: block;
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+    text-align: center;
+    pointer-events: none;
+    color: red;
+}
+
+.password-policy {
+    font-size: x-small;
+    color: red;
+}

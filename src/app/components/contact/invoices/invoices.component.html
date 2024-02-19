@@ -1,0 +1,462 @@
+<p-toast></p-toast>
+<div *ngIf="!printInvoice && !itemInvoice && !openMembershipEditInvoiceForm && !openEventEditInvoiceForm">
+	<div class="p-grid">
+		<div class="p-col-12">
+
+			<div class="card">
+				<p-toolbar styleClass="p-mb-4">
+					<ng-template pTemplate="left">
+						<div class="p-formgroup-inline">
+							<div class="p-field">
+								<label for="serachSelection" class="p-sr-only">Search By:</label>
+								<p-dropdown id='serachSelection' [options]="searchList" [(ngModel)]="selectedSearch"
+									optionLabel="name"></p-dropdown>
+							</div>
+							<div *ngIf="!showrefundDialog">
+								<form [formGroup]="searchbyDateForm">
+									<div class="p-fluid p-formgrid p-grid">
+										<div class="p-field p-col-12 p-md-5" [ngClass]="errorIconCss('startDate')">
+											<label for="startDate" class="p-sr-only">Start Date</label>
+											<p-calendar *ngIf="selectedSearch.name=='Date'" formControlName="startDate"
+												[monthNavigator]="true" [yearNavigator]="true" yearRange="2021:2030"
+												placeholder="From" class="p-inputtext-sm"
+												[ngClass]="errorFieldCss('startDate')"
+												(click)="resetSubmitted('startDate')"></p-calendar>
+											<app-field-error-display [displayError]="isFieldValid('startDate')"
+												[addErrorMessages]="addErrorMessages">
+											</app-field-error-display>
+										</div>
+										<div class="p-field p-col-12 p-md-5" [ngClass]="errorIconCss('endDate')"
+											style="margin-left: -25px;">
+											<label for="endDate" class="p-sr-only">End Date</label>
+											<p-calendar *ngIf="selectedSearch.name=='Date'" formControlName="endDate"
+												[monthNavigator]="true" [yearNavigator]="true" yearRange="2021:2030"
+												placeholder="To" class="p-inputtext-sm"
+												[ngClass]="errorFieldCss('endDate')"
+												(click)="resetSubmitted('endDate')"></p-calendar>
+											<app-field-error-display [displayError]="isFieldValid('endDate')"
+												[addErrorMessages]="addErrorMessages">
+											</app-field-error-display>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="p-field">
+								<label for="item" class="p-sr-only">Item Description</label>
+								<input id="item" *ngIf="selectedSearch.name=='Item'" type="text" [(ngModel)]="item"
+									pInputText placeholder="item">
+							</div>
+							<button pButton type="button" *ngIf="selectedSearch.name=='Date'" label="Search"
+								icon="pi pi-search" class="p-button-primary p-mr-2 p-mb-2" (click)="searchInvoices()"
+								style="margin-left: -75px;"></button>
+							<button pButton type="button" *ngIf="selectedSearch.name!='Date'" label="Search"
+								icon="pi pi-search" class="p-button-primary p-mr-2 p-mb-2"
+								(click)="searchInvoices()"></button>
+
+						</div>
+					</ng-template>
+					<ng-template pTemplate="right">
+						<div class="p-formgroup-inline">
+							<button pButton type="button" label="Create Invoice" icon="pi pi-plus"
+								class="p-button-success p-mr-2 p-mb-2" (click)="createInvoice()"></button>
+						</div>
+					</ng-template>
+				</p-toolbar>
+				<div class="card" *ngIf="noRecords">
+					<div class="center">
+						<h6>No records found.</h6>
+					</div>
+				</div>
+				<div *ngIf="showTable">
+					<p-table #dt [value]="invoices" [columns]="cols" [rows]="5" [paginator]="true"
+						[globalFilterFields]="['invoiceDate','invoiceId','description','DueAmount','Recieved','TotalBalanceDue','status']"
+						[rowHover]="true" dataKey="invoiceDetailId" styleClass="p-datatable-sm"
+						currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+						[showCurrentPageReport]="true" rowExpandMode="single">
+						<ng-template pTemplate="header">
+							<tr>
+								<th width="5%"></th>
+								<th pSortableColumn="date" width="10%">
+									Date
+									<p-columnFilter type="text" field="date" display="menu"></p-columnFilter>
+								</th>
+								<th pSortableColumn="invoiceId" width="10%">
+									Invoice #
+									<p-columnFilter type="text" field="invoiceId" display="menu"></p-columnFilter>
+								</th>
+								<th pSortableColumn="entityName" width="15%">
+									Member
+									<p-columnFilter type="text" field="entityName" display="menu"></p-columnFilter>
+								</th>
+								<th pSortableColumn="billableEntityName" width="15%">
+									Billable Member
+									<p-columnFilter type="text" field="billableEntityName" display="menu"></p-columnFilter>
+								</th>
+								<th pSortableColumn="description" width="15%">
+									Description
+									<p-columnFilter type="text" field="description" display="menu"></p-columnFilter>
+								</th>
+								<th pSortableColumn="dueDate" width="10%">
+									Due Date
+									<p-columnFilter type="text" field="dueDate" display="menu"></p-columnFilter>
+								</th>
+								<th pSortableColumn="total" width="8%">
+									Due
+								</th>
+								<th  class="hidden-sm" pSortableColumn="paid" width="10%">
+									Recieved
+								</th>
+								<th pSortableColumn="balance" width="8%">
+									Balance
+								</th>
+								<th width="5%" style="text-align: center;">
+								</th>
+							</tr>
+						</ng-template>
+						<ng-template pTemplate="body" let-invoice let-expanded="expanded">
+							<tr class="maxTableRow">
+								<td>
+									<button type="button" pButton pRipple [pRowToggler]="invoice"
+										class="p-button-text p-button-rounded p-button-plain"
+										[icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+									</button>
+								</td>
+								<td>
+									{{ invoice.date | date:'MM/dd/yyyy'}}
+								</td>
+								<td>
+									{{ invoice.invoiceId }}-{{ invoice.invoiceDetailId }}
+								</td>
+								<td>
+									{{ invoice.entityName }}
+								</td>
+								<td>
+									{{ invoice.billableEntityName }}
+								</td>
+								<td>
+									{{ invoice.description }}
+								</td>
+								<td>
+									{{ invoice.dueDate | date:'MM/dd/yyyy'}}
+								</td>
+								<td>
+									{{ invoice.amount | currency: 'USD'}}
+								</td>
+								<td  class="hidden-sm">
+									{{ invoice.paid | currency: 'USD'}}
+								</td>
+								<td>
+									{{ invoice.balance | currency: 'USD'}}
+								</td>
+								<td style="text-align:center">
+									<button pButton type="button" icon="pi pi-ellipsis-v"
+										(click)="setActiveRow(invoice);menu.toggle($event)" class="p-button-rounded"
+										styleClass="p-button-sm p-mr-0"></button>
+									<div #pMenu></div>
+									<p-menu #menu [popup]="true" [model]="menuItems" position="left" appendTo="body">
+									</p-menu>
+								</td>
+							</tr>
+						</ng-template>
+						<ng-template pTemplate="rowexpansion" let-invoice>
+							<tr>
+								<td colspan="1">
+								</td>
+								<td colspan="8">
+									<div *ngIf="invoice.paymentDetails.length <=0 && invoice.writeOffDetails.length <=0">No Payments on this invoice.</div>
+									<div *ngIf="invoice.paymentDetails.length > 0">
+										<p-table [value]="invoice.paymentDetails" dataKey="receiptDetailId"
+											resizableColumns="true">
+											<ng-template pTemplate="header">
+							<tr>
+								<th pSortableColumn="receiptId" width="15%">Receipt # <p-columnFilter type="text"
+										field="receiptId" display="menu"></p-columnFilter>
+								</th>
+								<th pSortableColumn="paymentDate" width="20%">Date <p-columnFilter type="text"
+										field="paymentDate" display="menu"></p-columnFilter>
+								</th>
+								<th pSortableColumn="paymentMode" width="20%">Payment Mode <p-columnFilter type="text"
+										field="paymentMode" display="menu"></p-columnFilter>
+								</th>
+								<th pSortableColumn="amount" width="15%">Amount</th>
+								<th pSortableColumn="Refund" width="15%">Refund </th>
+								<th pSortableColumn="Void" width="15%">Void </th>
+							</tr>
+						</ng-template>
+						<ng-template pTemplate="body" let-paymentDetails>
+							<tr>
+								<td>{{paymentDetails.receiptId}}</td>
+								<td>{{paymentDetails.paymentDate | date:'MM/dd/yyyy'}}</td>
+								<td>{{paymentDetails.paymentMode}}</td>
+								<td>{{paymentDetails.amount | currency:'USD'}}</td>
+								<td *ngIf="!paymentDetails.hasRefund">
+									<button pButton
+										[disabled]="paymentDetails.hasRefund === true || paymentDetails.voided === true"
+										type="button" icon="pi pi-refresh" (click)="refund(paymentDetails)"
+										class="p-button-rounded" styleClass="p-button-sm p-mr-0"></button>
+								</td>
+								<td *ngIf="paymentDetails.hasRefund">
+									{{paymentDetails.refund | currency:'USD'}}
+								</td>
+								<td *ngIf="!(paymentDetails.voided)">
+									<button pButton
+										[disabled]="paymentDetails.canVoid === false || paymentDetails.hasRefund === true || paymentDetails.paymentMode==='Off Line'"
+										type="button" icon="pi pi-undo" (click)="void(paymentDetails)"
+										class="p-button-rounded" styleClass="p-button-sm p-mr-0"></button>
+								</td>
+								<td *ngIf="paymentDetails.voided">
+									<div>
+										<p-tag styleClass="p-mr-2" severity="danger" value="Voided" [rounded]="true">
+										</p-tag>
+									</div>
+								</td>
+							</tr>
+						</ng-template>
+					</p-table>
+				</div>
+				<div *ngIf="invoice.writeOffDetails.length > 0">
+					<p-table [value]="invoice.writeOffDetails" dataKey="writeOffId" resizableColumns="true">
+						<ng-template pTemplate="header">
+							<tr>
+								<th pSortableColumn="writeOffId" width="15%">Write Off ID # </th>
+								<th pSortableColumn="date" width="20%">Date </th>
+								<th pSortableColumn="user" width="20%">User</th>
+								<th pSortableColumn="amount" width="10%">Amount </th>
+								<th pSortableColumn="reason" width="35%">Reason</th>
+							</tr>
+						</ng-template>
+						<ng-template pTemplate="body" let-writeOffDetails>
+							<tr>
+								<td>{{writeOffDetails.writeOffId}}</td>
+								<td>{{writeOffDetails.date | date:'MM/dd/yyyy'}}</td>
+								<td>{{writeOffDetails.user.firstName}} {{writeOffDetails.user.lastName}}</td>
+								<td>{{writeOffDetails.amount | currency:'USD'}}</td>
+								<td style="text-overflow: ellipsis !important; max-width: 200px;">
+									{{writeOffDetails.reason}} </td>
+							</tr>
+						</ng-template>
+					</p-table>
+				</div>
+				</td>
+				</tr>
+				</ng-template>
+				<ng-template pTemplate="summary">
+					<div class="p-d-flex p-ai-center p-jc-between">
+						In total there are
+						{{ invoices ? invoices.length : 0 }} Invoices.
+					</div>
+				</ng-template>
+				</p-table>
+			</div>
+		</div>
+
+		<p-dialog [(visible)]="showrefundDialog" [style]="{ width: '650px' }" header="Refund Payment" [modal]="true"
+			styleClass="p-fluid" [contentStyle]="{minHeight: '400px'}" (onHide)="cancelRefundDialog()">
+			<ng-template pTemplate="content">
+				<form [formGroup]="refundForm" (ngSubmit)="onCancel()">
+					<input type="hidden" formControlName="receipDetailId">
+					<div class="card" style="height: 370px;">
+						<div class="p-fluid">
+							<div class="p-field p-grid" [ngClass]="errorIconCss('reasonRefund')">
+								<label for="reasonRefund" class="p-col-12 p-mb-2 p-md-6 p-mb-md-0">Reason</label>
+								<div class="p-col-12 p-md-6">
+									<textarea pInputTextarea rows="3" maxlength="250" formControlName="reasonRefund"
+										type="text"> </textarea>
+									<app-field-error-display [displayError]="isFieldValid('reasonRefund')"
+										[addErrorMessages]="addErrorMessages"></app-field-error-display>
+								</div>
+							</div>
+							<div class="p-field p-grid">
+								<label for="feePaid" class="p-col-12 p-mb-2 p-md-6 p-mb-md-0">Fee Paid</label>
+								<div class="p-col-12 p-md-6">
+									<div class="p-inputgroup">
+										<span class="p-inputgroup-addon">$</span>
+										<input type="number" size="10"
+											onKeyDown="if(this.value.length==10 && event.keyCode!=8) return false;"
+											min="0.01" pInputText formControlName="feePaidAmount" readonly
+											(click)="resetSubmitted('feePaidAmount')" />
+									</div>
+								</div>
+							</div>
+							<div class="p-field p-grid">
+								<label for="feeProcessing" class="p-col-12 p-mb-2 p-md-6 p-mb-md-0">Processing
+									Charge</label>
+								<div class="p-col-12 p-md-6" [ngClass]="errorIconCss('processingFee')">
+									<div class="p-inputgroup">
+										<span class="p-inputgroup-addon">$</span>
+										<input type="number" min="0"  size="10" pInputText  formControlName="processingFee"
+											(click)="resetSubmitted('processingFee')"
+											(keyup)="onProcessingFeeEvent($event)" />
+									</div>
+									<app-field-error-display [displayError]="isFieldValid('processingFee')"
+										[addErrorMessages]="addErrorMessages"></app-field-error-display>
+								</div>
+							</div>
+							<div class="p-field p-grid">
+								<label for="refundAmount" class="p-col-12 p-mb-2 p-md-6 p-mb-md-0">Refund Amount</label>
+								<div class="p-col-12 p-md-6" [ngClass]="errorIconCss('refundAmount')">
+									<div class="p-inputgroup">
+										<span class="p-inputgroup-addon">$</span>
+										<input type="number" size="10"
+											onKeyDown="if(this.value.length==10 && event.keyCode!=8) return false;"
+											min="0.01" pInputText formControlName="refundAmount"
+											[ngClass]="errorFieldCss('refundAmount')"
+											(click)="resetSubmitted('refundAmount')" />
+									</div>
+									<app-field-error-display [displayError]="isFieldValid('refundAmount')"
+										[addErrorMessages]="addErrorMessages"></app-field-error-display>
+								</div>
+							</div>
+							<div class="p-field p-grid" [ngClass]="errorIconCss('refundMode')">
+								<label for="refundMode" class="p-col-12 p-mb-2 p-md-6 p-mb-md-0">Refund Mode</label>
+								<div class="p-col-12 p-md-6">
+									<p-dropdown [options]="refundModes" optionLabel="name"
+										placeholder="Select Refund Mode" formControlName="refundMode" appendTo="body">
+									</p-dropdown>
+									<app-field-error-display [displayError]="isFieldValid('refundMode')"
+										[addErrorMessages]="addErrorMessages"></app-field-error-display>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+				<div class="center">
+					<div data-ng-show="showError" class="alert alert-danger">
+						<table>
+							<tr class="item">
+								<td><b>{{refundError}}</b></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</ng-template>
+			<ng-template pTemplate="footer">
+				<button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"
+					[disabled]="disableCancel" type="submit" (click)="refundPayment()"></button>
+				<button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+					(click)="cancelRefundDialog()"></button>
+			</ng-template>
+		</p-dialog>
+		<p-dialog [(visible)]="showVoidDialog" [style]="{ width: '650px' }" header="Void Payment" [modal]="true"
+			styleClass="p-fluid" [contentStyle]="{minHeight: '350px'}" (onHide)="cancelRefundDialog()">
+			<ng-template pTemplate="content">
+				<form [formGroup]="voidForm" (ngSubmit)="onCancel()">
+					<input type="hidden" formControlName="receipId">
+					<div class="card" style="height: 350px;">
+						<div class="p-fluid">
+							<div class="p-field p-grid" [ngClass]="errorIconCss('reasonVoid')">
+								<label for="reasonVoid" class="p-col-12 p-mb-2 p-md-6 p-mb-md-0">Reason</label>
+								<div class="p-col-12 p-md-6">
+									<textarea pInputTextarea maxlength="250" rows="3" formControlName="reasonVoid"
+										type="text"> </textarea>
+									<app-field-error-display [displayError]="isFieldValid('reasonVoid')"
+										[addErrorMessages]="addErrorMessages"></app-field-error-display>
+								</div>
+							</div>
+							<div class="p-field p-grid">
+								<label for="feePaid" class="p-col-12 p-mb-2 p-md-6 p-mb-md-0">Payment Mode</label>
+								<div class="p-col-12 p-md-6">
+									<input type="text" pInputText formControlName="paymentMode" readonly />
+								</div>
+							</div>
+							<div class="p-field p-grid">
+								<label for="feePaid" class="p-col-12 p-mb-2 p-md-6 p-mb-md-0">Fee Paid</label>
+								<div class="p-col-12 p-md-6">
+									<div class="p-inputgroup">
+										<span class="p-inputgroup-addon">$</span>
+										<input type="number" size="10"
+											onKeyDown="if(this.value.length==10 && event.keyCode!=8) return false;"
+											min="0.01" pInputText formControlName="feePaidAmount" readonly
+											(click)="resetSubmitted('feePaidAmount')" />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+				<div class="center">
+					<div data-ng-show="showError" class="alert alert-danger">
+						<table>
+							<tr class="item">
+								<td><b>{{voidError}}</b></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</ng-template>
+			<ng-template pTemplate="footer">
+				<button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"
+					[disabled]="disableCancel" type="submit" (click)="voidPayment()"></button>
+				<button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+					(click)="cancelVoidDialog()"></button>
+			</ng-template>
+		</p-dialog>
+		<p-dialog [(visible)]="showWriteOffDialog" [style]="{ width: '650px' }" header="Write Off Receivable"
+			[modal]="true" styleClass="p-fluid" [contentStyle]="{minHeight: '250px'}" (onHide)="cancelWriteOffDialog()">
+			<ng-template pTemplate="content">
+				<form [formGroup]="writeOffForm" (ngSubmit)="onCancel()">
+					<input type="hidden" formControlName="invoiceDetailId">
+					<div class="card" style="height: 250px;">
+						<div class="p-fluid">
+							<div class="p-field p-grid" [ngClass]="errorIconCss('reasonWriteOff')">
+								<label for="reasonWriteOff" class="p-col-12 p-mb-2 p-md-6 p-mb-md-0">Reason</label>
+								<div class="p-col-12 p-md-6">
+									<textarea pInputTextarea maxlength="250" rows="3" formControlName="reasonWriteOff"
+										type="text"> </textarea>
+									<app-field-error-display [displayError]="isFieldValid('reasonWriteOff')"
+										[addErrorMessages]="addErrorMessages"></app-field-error-display>
+								</div>
+							</div>
+
+							<div class="p-field p-grid">
+								<label for="feePaid" class="p-col-12 p-mb-2 p-md-6 p-mb-md-0">Write Off Amount</label>
+								<div class="p-col-12 p-md-6">
+									<div class="p-inputgroup">
+										<span class="p-inputgroup-addon">$</span>
+										<input type="number" size="10"
+											onKeyDown="if(this.value.length==10 && event.keyCode!=8) return false;"
+											min="0.01" pInputText formControlName="writeOffAmount"
+											(click)="resetSubmitted('writeOffAmount')" />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+				<div class="center">
+					<div data-ng-show="showError" class="alert alert-danger">
+						<table>
+							<tr class="item">
+								<td><b>{{writeOffError}}</b></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</ng-template>
+			<ng-template pTemplate="footer">
+				<button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"
+					[disabled]="disableCancel" type="submit" (click)="writeOffPayment()"></button>
+				<button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+					(click)="cancelWriteOffDialog()"></button>
+			</ng-template>
+		</p-dialog>
+		<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+	</div>
+</div>
+</div>
+<div *ngIf="printInvoice">
+	<app-print-invoice [invoiceId]="printInvoiceId" (closeEvent)='closePrint($event)'></app-print-invoice>
+</div>
+<div *ngIf="openMembershipEditInvoiceForm">
+	<app-edit-invoice [invoiceId]="selectedInvoice.invoiceId" [paperInvoiceId]="0"
+		(closeEvent)='closeEditInvoice($event)'></app-edit-invoice>
+</div>
+<div *ngIf="openEventEditInvoiceForm">
+	<app-edit-invoice [invoiceId]="selectedInvoice.invoiceId" [paperInvoiceId]="0"
+		(closeEvent)='closeEventEditInvoice($event)'></app-edit-invoice>
+</div>
+<div *ngIf="itemInvoice">
+	<app-general-edit-invoice [entity]="companyInvoice ? company : person"
+		[invoiceId]="selectedInvoice ? selectedInvoice.invoiceId : 0" (closeEvent)='closeItemInvoice($event)'>
+	</app-general-edit-invoice>
+</div>

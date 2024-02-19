@@ -1,0 +1,49 @@
+<div class="p-grid">
+    <div class="p-col-12">
+      <div class="card">
+        <div class="card-header profile-title">
+          <h5>Questions</h5>
+        </div>
+        <hr class="profile-ruler">
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-12">
+            <p-pickList [source]="questionList" [target]="selectedQuestionList" sourceHeader="Available Questions" targetHeader="Linked Questions" [dragdrop]="true"
+                [responsive]="true" [sourceStyle]="{'height':'30rem'}"  [targetStyle]="{'border' : 'dashed', 'border-color' : 'limegreen', 'height':'30rem'}" 
+                [showSourceControls]="false" [showTargetControls]="false" filterBy="question" 
+                sourceFilterPlaceholder="Search available questions" targetFilterPlaceholder="Search linked questions" (onMoveToTarget)="formValueChangedEvent()"
+                (onMoveToSource)="formValueChangedEvent()" (onMoveAllToTarget)="formValueChangedEvent()" (onMoveAllToSource)="formValueChangedEvent()">
+                <ng-template let-question pTemplate="item">                
+                  <div class="product-item"><!--  [pTooltip]="getQuestionOptionsListHTML(question.questionBankId)" -->
+                    <div class="mr-5">
+                      <button *ngIf="question.answerOptions.length > 0; else elseBlock" type="button" pButton pRipple class="p-button-text p-button-rounded p-button-plain" 
+                        (click)="setActiveRow(question.questionBankId)" [icon]="question.questionBankId == selectedQuestionId ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                      </button>
+                      <ng-template #elseBlock>
+                        <button type="button" class="p-button-text p-button-plain" pButton style="cursor: all-scroll;"></button>
+                      </ng-template>
+                    </div>
+                    <div class="product-list-detail">
+                        <h6 style="margin: 0;">{{question.question}}</h6>
+                    </div>
+                    <div class="product-list-action">
+                      <h6 style="margin: 0;">{{question.answerTypeLookUp.answerType}}</h6>
+                    </div>
+                  </div>
+                  <div class="product-item" *ngIf="question.questionBankId == selectedQuestionId">
+                    <ul>
+                      <li *ngFor="let option of question.answerOptions">{{option.option}}</li>
+                    </ul>
+                  </div>
+                </ng-template>
+            </p-pickList>
+          </div>
+        </div>
+    </div>
+  </div>
+  <div class="p-col-12 p-d-flex p-jc-center">
+    <button pButton pRipple label="Back" icon="pi pi-arrow-left" class="p-button-warning p-mr-2 p-mb-2" (click)="goBack()"></button>
+    <button pButton pRipple label="Save & Continue" icon="pi pi-arrow-right" class="p-button-success p-mr-2 p-mb-2" (click)="continue()"></button>
+    <button pButton pRipple label="Close" icon="pi pi-times" class="p-button-danger p-mb-2" (click)="cancel()"></button>
+  </div> 
+</div>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

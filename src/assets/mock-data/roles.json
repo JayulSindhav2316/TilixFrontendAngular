@@ -1,0 +1,46 @@
+{
+    "data":[
+    {
+        "roleId": 23,
+        "name": "Administrator",
+        "description": "Has Acceess to all functions",
+        "status": 1
+    },
+    {
+        "roleId": 42,
+        "name": "Back Office",
+        "description": "Has  access to Back Office Operations",
+        "status": 0
+    },
+    {
+        "roleId": 91,
+        "name": "Controle Center",
+        "description": "Access to Selected Control Center function",
+        "status": 1
+    },
+    {
+        "roleId": 33,
+        "name": "Accounting",
+        "description": "Manage Accounting Setup",
+        "status": 1
+    },
+    {
+        "roleId": 64,
+        "name": "Conferences",
+        "description": "Manage Conferences",
+        "status": 0
+    },
+    {
+        "roleId": 56,
+        "name": "Chapters",
+        "description": "Manage Chapters",
+        "status": 1
+    },
+    {
+        "roleId": 89,
+        "name": "Committees",
+        "description": "Manage Comittees",
+        "status": 1
+    }
+]
+}

@@ -1,0 +1,213 @@
+<div class="p-grid" *ngIf="event">
+  <div class="p-col-12">
+    <div class="card">
+      <div class="p-grid">
+        <div class="p-xl-8 p-md-6 p-sm-12">
+          <div class="card background-image" [ngStyle]="{'background-image': 'url(' + coverImageURL + ')'}"
+            style="background-color: lightgray;">
+            <h3 style="color: black;">{{event.name}} </h3>
+            <h6 style="color: grey;">{{ event.eventType}}</h6>
+            <h6 style="color: grey;" *ngIf="event.fromDate && event.toDate">
+              Event dates : {{event.fromDate | date : 'longDate' }} {{event.fromDate | date : 'shortTime'
+              }}&nbsp;-&nbsp;
+              {{event.toDate | date : 'longDate' }} {{event.toDate | date : 'shortTime'
+              }}&nbsp;<b>({{event.timeZone}})</b>
+            </h6>
+            <h6 style="color: grey;" *ngIf="event.regStartDate && event.regEndDate">
+              Registration Dates : {{event.regStartDate | date : 'longDate' }} {{event.regStartDate | date : 'shortTime'
+              }}&nbsp;-&nbsp;
+              {{event.regEndDate | date : 'longDate' }} {{event.regEndDate | date : 'shortTime'
+              }}&nbsp;<b>({{event.timeZone}})</b>
+            </h6>
+          </div>
+          <!-- <p><small>{{ event.eventType}}</small></p><hr> -->
+
+          <!-- <h6>Description</h6>
+          <hr> -->
+          <div class="card" *ngIf="event.description.length > 0 || event.summary.length > 0">
+            <p>{{event.summary}}</p>
+            <p class="event-description" [innerHTML]="templateSafeHTML"></p>
+          </div>
+
+          <!-- <p>{{event.description}}</p> -->
+
+          <!-- <hr style="border: none;"> -->
+
+          <!-- <h6 style="color: gray;">Summary</h6>
+          <hr> -->
+          <!-- <p>{{event.summary}}</p> -->
+
+          <hr style="border: none;">
+          <div class="card" *ngIf="event.eventQuestions.length > 0">
+            <h6 style="color: gray;">Event Questions</h6>
+            <hr>
+            <ul>
+              <li *ngFor="let question of event.eventQuestions">{{question.question}}</li>
+            </ul>
+          </div>
+        </div>
+        <div class="p-xl-4 p-md-6 p-sm-12">
+          <div class="card">
+            <div style="text-align: center;">
+              <p-image [src]="eventImage" width="275" [preview]="true"></p-image>
+            </div>
+            <hr>
+            <div *ngIf="event.eventTypeId == 1" style="overflow: auto;">
+              <h6 style="color: gray;">LOCATION</h6>
+              <label>{{event.location}}</label><br>
+              <label>{{event.area}}</label><br>
+              <label>{{event.city}}, {{event.state}}, {{event.zip}}</label><br>
+              <hr>
+            </div>
+            <div *ngIf="event.eventTypeId == 2" style="overflow: auto;">
+              <h6 style="color: gray;">LOCATION</h6>
+              <label>{{event.location}}</label><br>
+              <h6 style="color: gray;">LIVE WEBINAR LINK</h6>
+              <a [href]="event.webinarLiveLink" target="_blank">{{event.webinarLiveLink}}</a><br>
+              <hr>
+            </div>
+            <div *ngIf="event.eventTypeId == 3" style="overflow: auto;">
+              <h6 style="color: gray;">RECORDED WEBINAR LINK</h6>
+              <a [href]="event.webinarRecordedLink" target="_blank">{{event.webinarRecordedLink}}</a><br>
+              <hr>
+            </div>
+            <div *ngIf="event.eventContacts.length > 0" style="overflow: auto;">
+              <h6 style="color: gray;">CONTACT PERSON(S)</h6>
+              <div *ngFor="let contact of event.eventContacts">
+                <label>{{contact.name}}</label><br>
+                <label>{{contact.email}}</label><br>
+                <label>{{contact.phoneNumber}}</label><br>
+                <hr>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card p-col-12">
+          <div class="card-header profile-title">
+            <h6 style="color: gray;">Registration Dates & Periods</h6>
+          </div>
+          <hr class="profile-ruler">
+          <h6 style="color: grey;" *ngIf="event.regStartDate && event.regEndDate">{{event.regStartDate | date :
+            'longDate' }} {{event.regStartDate | date : 'shortTime' }}&nbsp;-&nbsp;
+            {{event.regEndDate | date : 'longDate' }} {{event.regEndDate | date : 'shortTime'
+            }}&nbsp;<b>({{event.timeZone}})</b>
+          </h6>
+          <p-table [value]="linkedGroups" [rows]="10" [paginator]="true" styleClass="p-datatable-sm"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+            [showCurrentPageReport]="true" [autoLayout]="true" [scrollable]="true">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="min-width:200px">Group Name</th>
+                <th style="min-width:100px; max-width:100px">
+                  <label class="p-ml-2">Online?</label>
+                </th>
+                <th style="padding: 1rem; min-width:400px; justify-content: center;"
+                  *ngFor="let fee of event.linkedFeeTypes">
+                  {{fee.registrationFeeTypeName}}
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-group>
+              <tr>
+                <td style="min-width:200px">{{group.groupName}}</td>
+                <td style="min-width:100px; max-width:100px">
+                  {{group.enableOnlineRegistration == 1 ? "Yes" : "No"}}
+                </td>
+                <td style="padding: 1rem; min-width:400px ;justify-content: center"
+                  *ngFor="let fee of group.groupPriorityDateSettings">
+                  {{fee.registrationGroupDateTime | date : 'short' }}&nbsp;&nbsp;To
+                  &nbsp;&nbsp;{{fee.registrationGroupEndDateTime | date : 'short' }}
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+        <div class="p-col-12" *ngIf="event.sessions.length > 0">
+          <h5 style="color: gray;">SESSIONS
+            <small>
+              <p-button [icon]="expandAllTabs ? 'pi pi-minus' : 'pi pi-plus'" (click)="clickExpandAll(expandAllTabs)"
+                styleClass="p-button-text" label="Expand All">
+              </p-button>
+            </small>
+          </h5>
+          <hr>
+          <p-accordion>
+            <div *ngFor="let session of event.sessions">
+              <p-accordionTab [header]="session.name" [selected]="expandAllTabs">
+                <h6 *ngIf="event.eventTypeId == 1 || event.eventTypeId == 2" style="color: gray;">
+                  {{session.startDatetime | date : 'longDate' }} {{session.startDatetime | date : 'shortTime'
+                  }}&nbsp;-&nbsp;
+                  {{session.endDateTime | date : 'longDate' }} {{session.endDateTime | date : 'shortTime'
+                  }}&nbsp;<b>({{event.timeZone}})</b>
+                  <b style="float: right;">&nbsp;&nbsp;{{session.location}}</b>
+                </h6>
+                <div class="card">
+                  <h6>Pricing :</h6>
+                  <hr>
+                  <p-table [value]="session.groupPricing" responsiveLayout="scroll" [rows]="10" [paginator]="true"
+                    styleClass="p-datatable-sm"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+                    [showCurrentPageReport]="true">
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th style="padding: 1rem;" class="p-col-1">Group Name</th>
+                        <th class="p-col-1" style="padding: 1rem;" *ngFor="let period of session.linkedFeeTypes">
+                          {{period.registrationFeeTypeName}}
+                        </th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-group>
+                      <tr>
+                        <td>{{group.groupName}}</td>
+                        <td *ngFor="let pricing of group.groupPriorityFeeSettings">
+                          {{ pricing.price | currency}}
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+
+                <div class="card" *ngIf="session.sessionQuestions.length > 0">
+                  <h6>Session Questions :</h6>
+                  <hr>
+                  <ul>
+                    <li *ngFor="let question of session.sessionQuestions">{{question.question}}</li>
+                  </ul>
+                </div>
+
+                <div class="card" *ngIf="session.sessionLeaders.length > 0">
+                  <h6>Leaders :</h6>
+                  <hr>
+                  <div class="p-grid">
+                    <div class="p-col-2" style="text-align: center;" *ngFor="let leader of session.sessionLeaders">
+                      <img class="rounded" width="100px" height="100px"
+                        id="imgLeader_{{session.sessionId}}_{{leader.entityId}}">
+                      <h6>{{leader.entityName}}</h6>
+                    </div>
+                  </div>
+                </div>
+              </p-accordionTab>
+              <hr>
+            </div>
+          </p-accordion>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="p-col-12 p-d-flex p-jc-center">
+    <button pButton pRipple label="Edit" icon="pi pi-pencil" class="p-button-primary p-mr-2 p-mb-2"
+      *ngIf="!addEditWizard && !isCallFromEventRegistration" (click)="editEvent()"></button>
+    <button pButton pRipple label="Clone" icon="pi pi-clone" class="p-button-warning p-mr-2 p-mb-2" *ngIf="!isCallFromEventRegistration"
+      (click)="cloneEvent()"></button>
+    <button pButton pRipple label="Back" icon="pi pi-arrow-left" class="p-button-warning p-mr-2 p-mb-2"
+      *ngIf="addEditWizard && !isCallFromEventRegistration" (click)="goBack()"></button>
+    <!-- <button pButton pRipple label="Print Summary" icon="pi pi-print" class="p-button-success p-mr-2 p-mb-2"></button> -->
+    <button pButton pRipple label="Done" icon="pi pi-check" class="p-button-success p-mb-2" *ngIf="addEditWizard && !isCallFromEventRegistration"
+      [routerLink]="['/events/events']"></button>
+    <button pButton pRipple label="Close" icon="pi pi-times" class="p-button-danger p-mb-2" *ngIf="!addEditWizard && !isCallFromEventRegistration"
+      (click)="closeSummaryClick()"></button>
+      <button pButton pRipple label="Back" icon="pi pi-arrow-left" class="p-button-success p-mr-2 p-mb-2" (click)="closeSummaryClick()" *ngIf="isCallFromEventRegistration && !addEditWizard"></button>
+      <button pButton pRipple label="Register" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" (click)="RegisterClick()" *ngIf="isCallFromEventRegistration && !addEditWizard"></button>
+  </div>
+  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+</div>

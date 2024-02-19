@@ -1,0 +1,61 @@
+.has-feedback {
+    position: relative;
+}
+.fullerrordisplayforlastsection{
+    margin-right: -17em;
+}
+.firsterrordisplayforlastsection{
+    margin-right: -8em;
+}
+.lasterrordisplayforlastsection{
+    margin-right: -1em;
+}
+.displaylastsection{
+    margin-left: 0.5em;
+}
+.searchbuttondisplaywhenerror{
+    margin-top: -5em;
+}
+.new-display{
+    margin-top: -3em;
+}
+.new-displayNonName{
+    margin-top: -2em;
+}
+@media screen and  (max-width : 1078px) {
+    .new-display{
+    margin-top: 0;
+    }
+}
+
+td {
+    white-space:nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+   
+ }
+ @media (max-width: 767px) {
+    .hidden-xs {
+      display: none !important;
+    }
+  }
+  @media (min-width: 768px) and (max-width: 991px) {
+    .hidden-sm {
+      display: none !important;
+    }
+  }
+  @media (min-width: 992px) and (max-width: 1199px) {
+    .hidden-md {
+      display: none !important;
+    }
+  }
+  @media (min-width: 1200px) {
+    .hidden-lg {
+      display: none !important;
+    }
+  }
+
+  :host ::ng-deep .custom-toast .p-toast {
+    width: auto !important;
+}

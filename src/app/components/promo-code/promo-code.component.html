@@ -1,0 +1,191 @@
+<div class="p-grid">
+    <div class="p-col-12">
+      <p-toast></p-toast>
+       <div class="card">
+          <p-toolbar styleClass="p-mb-4">
+             <ng-template pTemplate="left"><h4>Manage Promo Codes</h4>
+             </ng-template>
+             <ng-template pTemplate="right">
+                <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="openNew()"></button>
+             </ng-template>
+          </p-toolbar>
+        
+        <div *ngIf="showTable">
+          <p-table #dt [value]="promoCodeList" [rows]="10" [paginator]="true" [globalFilterFields]="['code','description']"
+             [rowHover]="true" resizableColumns="true" [showCurrentPageReport]="true" styleClass="p-datatable" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)">
+             <ng-template pTemplate="caption">
+              <div style="text-align: left">
+                  <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+                  <input type="text" pInputText size="30" placeholder="Search .." (input)="dt.filterGlobal($event.target.value, 'contains')"
+                   style="width:auto">
+              </div>
+              </ng-template>
+             <ng-template pTemplate="header">
+                <tr>
+                   <th pSortableColumn="Code" class="ui-resizable-column" pResizableColumn width="15%">                   
+                      Code
+                      <p-columnFilter type="text" field="Code" display="menu"></p-columnFilter>
+                   </th>
+                    <th pSortableColumn="Description" class="ui-resizable-column" pResizableColumn width="25%">
+                    Description
+                    <p-columnFilter type="text" field="Description" display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="Discount" class="ui-resizable-column" pResizableColumn width="15%">
+                    Discount
+                    <p-columnFilter type="text" field="Discount" display="menu"></p-columnFilter>
+                    </th>
+                   <th pSortableColumn="Start Date" class="ui-resizable-column" pResizableColumn width="10%">
+                    Start Date
+                    <p-columnFilter type="text" field="Starts" display="menu"></p-columnFilter>
+                   </th>
+                   <th pSortableColumn="Expires" class="ui-resizable-column" pResizableColumn width="15%">                   
+                      Expires On
+                      <p-columnFilter type="text" field="Expires" display="menu"></p-columnFilter>
+                   </th>
+                 
+                   <th pSortableColumn="Status" class="ui-resizable-column" pResizableColumn width="10%">                   
+                      Status
+                      <p-columnFilter type="text" field="Zip" display="menu"></p-columnFilter>
+                   </th>               
+                   <th width="10%"></th>
+                </tr>
+             </ng-template>
+             <ng-template pTemplate="body" let-promoCode>
+                <tr class="maxTableRow">
+                   <td>
+                    {{promoCode.code}}
+                   </td>
+                    <td>
+                    {{promoCode.description}}
+                   </td>
+                   <td *ngIf="promoCode.discountType==0">
+                    {{promoCode.discount}}%
+                   </td>
+                   <td *ngIf="promoCode.discountType==1">
+                    ${{promoCode.discount}}
+                   </td>
+                   <td *ngIf="promoCode.discountType==2">
+                    % - TBD
+                   </td>
+                   <td>
+                    {{promoCode.startDate | date:'MM/dd/yyyy'}}
+                   </td>
+                   <td>
+                    {{promoCode.expirationDate | date:'MM/dd/yyyy'}}
+                   </td>
+                   <td>
+                    <div *ngIf="promoCode.status; else elseStatusBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+                    <ng-template #elseStatusBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+                  </td>
+                   <td style="text-align: center;">
+                    <div #pMenu></div>
+                    <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+                      <button type="button" pButton icon="pi pi-ellipsis-v" (click)="setActiveRow(promoCode); menu.toggle($event)"></button>
+                   </td>
+                </tr>
+             </ng-template>
+             </p-table>
+          </div>
+       </div>
+       </div>
+    </div>
+    <form [formGroup]="promoCodeForm">
+        <p-dialog [(visible)]="promoCodeDialog" [style]="{ width: '750px' }" [header]="headerName" [modal]="true" styleClass="p-fluid" (onHide)="hideDialog()">
+          <ng-template pTemplate="content">
+            <div class="p-fluid p-formgrid p-grid">
+              <input type="hidden" formControlName="PromoCodeId">
+              <div class="p-field p-col-12" [ngClass]="errorIconCss('Code')">
+                <label for="Code">Code</label>
+                <div class="p-inputgroup">
+                  <input type="text" pInputText formControlName="Code" [readonly] = "editRecord"  [ngClass]="errorFieldCss('Code')" (click) = "resetSubmitted('Code')"
+                  onkeypress="return (event.charCode > 47 && event.charCode < 123) || (event.charCode==32)"               
+                  (paste)="matcher($event, 'Name')" maxlength="100"/>
+                    <app-field-error-display [displayError]="isFieldValid('Code')" [addErrorMessages]="addErrorMessages">
+                    </app-field-error-display>
+                    <button type="button" [disabled] = "editRecord" pButton pRipple icon="pi pi-refresh" styleClass="p-button-warn" (click) = "getPromoCode()"></button>      
+                </div>
+              </div>
+              <div class="p-field p-col-12"[ngClass]="errorIconCss('Description')">
+                <label for="Description">Description</label>
+                <textarea [rows]="2" pInputTextarea formControlName="Description" autoResize="autoResize" 
+                onkeypress="return (event.charCode >31 && event.charCode < 123)" maxlength="200" (paste)="matcher($event, 'Description')"
+                [ngClass]="errorFieldCss('Description')" (click) = "resetSubmitted('Description')"></textarea>
+                  <app-field-error-display [displayError]="isFieldValid('Description')" [addErrorMessages]="addErrorMessages">
+                  </app-field-error-display>
+              </div>
+              <div class="p-field p-col-6"[ngClass]="errorIconCss('Type')">
+                <label for="Type">Type</label>
+                <p-dropdown [options]="discountTypes" formControlName="Type" optionLabel="name" optionValue="code" 
+                appendTo="body" [ngClass]="errorFieldCss('Type')" (click) = "resetSubmitted('Type')" (onChange)="changeDiscountType()">
+                </p-dropdown>
+                <app-field-error-display [displayError]="isFieldValid('Type')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+              </div>
+              <div class="p-field p-col-6"[ngClass]="errorIconCss('Discount')">
+                <label for="Type">Discount</label>
+                <div class="p-inputgroup">
+                  <span class="p-inputgroup-addon" *ngIf="discountTypeAmount">$</span>
+                  <span class="p-inputgroup-addon" *ngIf="discountTypeAmount == false">%</span>
+                  <input type="text" pInputText formControlName="Discount" [readonly]="premiumDiscount"  [ngClass]="errorFieldCss('Discount')" (click) = "resetSubmitted('Discount')"  onkeypress="return (event.charCode >45 && event.charCode < 58)"  (paste)="matcher($event, 'Discount')"/>
+                </div>
+                  <app-field-error-display [displayError]="isFieldValid('Discount')" [addErrorMessages]="addErrorMessages">
+                  </app-field-error-display>
+              </div>
+              <div class="p-field p-col-6"[ngClass]="errorIconCss('GlAccount')">
+                <label for="GlAccount">GL Account</label>
+                <p-dropdown [options]="glAccountsList" formControlName="GlAccount" placeholder="Select a GL Account" optionLabel="name" optionValue="code" 
+                appendTo="body" [ngClass]="errorFieldCss('GlAccount')" (click) = "resetSubmitted('GlAccount')" >
+                </p-dropdown>
+                <app-field-error-display [displayError]="isFieldValid('GlAccount')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+              </div>
+              <div class="p-field p-col-3">
+                <div>
+                  <label for="Status">Active</label>
+                  <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                    <p-inputSwitch formControlName='Status'></p-inputSwitch>
+                  </div>
+                </div>
+              </div>
+              <div class="p-field p-col-12">
+                <p-fieldset [collapsed]="true" legend="More Options" [toggleable]="true">
+                  <div class="p-fluid p-formgrid p-grid">
+                 
+                        <div class="p-field p-col-6" [ngClass]="errorIconCss('StartDate')">
+                          <label for="StartDate">Start Date</label> 
+                          <p-calendar formControlName="StartDate"  class="p-inputtext-sm" dateFormat="mm/dd/yy" 
+                          [ngClass]="errorFieldCss('StartDate')" (click) = "resetSubmitted('StartDate')" [maxDate]="currentDate"   
+                          onkeypress="return (event.charCode > 47 && event.charCode < 58) || (event.charCode == 45)"                
+                          (paste)="matcher($event, 'StartDate')" maxlength="10" ></p-calendar>
+                          <app-field-error-display [displayError]="isFieldValid('StartDate')" [addErrorMessages]="addErrorMessages">
+                          </app-field-error-display>
+                      </div>
+                      <div class="p-field p-col-6" [ngClass]="errorIconCss('EndDate')">
+                        <label for="EndDate">End Date</label>
+                        <p-calendar formControlName="EndDate"  class="p-inputtext-sm" dateFormat="mm/dd/yy" 
+                        [ngClass]="errorFieldCss('EndDate')" (click) = "resetSubmitted('EndDate')"    
+                        onkeypress="return (event.charCode > 47 && event.charCode < 58) || (event.charCode == 45)"                
+                        (paste)="matcher($event, 'EndDate')" maxlength="10" ></p-calendar>
+                        <app-field-error-display [displayError]="isFieldValid('EndDate')" [addErrorMessages]="addErrorMessages">
+                        </app-field-error-display>
+                      </div>
+
+                      <div class="p-field p-col-6" [ngClass]="errorIconCss('TransactionType')">
+                        <label for="TransactionType" class="p-sr-only"></label>
+                        <p-dropdown [options]="transactionTypes" formControlName="TransactionType" placeholder="Select a Transaction Type" optionLabel="name" optionValue="code" 
+                        appendTo="body" [ngClass]="errorFieldCss('TransactionType')" (click) = "resetSubmitted('TransactionType')" >
+                        </p-dropdown>
+                    </div>
+                    </div>
+                </p-fieldset>
+              </div>
+            </div>
+          </ng-template>
+  
+          <ng-template pTemplate="footer">
+            <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="savePromoCode()"></button>
+            <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideDialog()"></button>
+          </ng-template>
+        </p-dialog>
+      </form>
+      <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

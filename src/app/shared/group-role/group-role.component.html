@@ -1,0 +1,44 @@
+<HR>
+  <ng-container [formGroup]="roleFormGroup">
+  <div>
+    <input type="hidden" formControlName="GroupMemberRoleId" value=0>
+    <div class="p-fluid p-grid">
+      <div class="p-field p-col-12 p-sm-12 p-md-6 p-lg-3 p-jc-center" [ngClass]="errorIconCss('GroupRoleId')"> 
+        <label for="Role">Position</label>
+        <p-dropdown [options]="roleList" class="p-inputtext-sm" formControlName="GroupRoleId" optionLabel="groupRoleName" optionValue="groupRoleId" [ngClass]="errorFieldCss('GroupRoleId')"
+        placeholder="Select Position" appendTo="body" (onChange)="roleChanged()">
+        </p-dropdown>
+        <app-field-error-display [displayError]="isFieldValid('GroupRoleId')" [addErrorMessages]="addErrorMessages">
+        </app-field-error-display>
+      </div>
+      <div class="p-field p-col-1 p-jc-center">
+        <div>
+          <label for="IsMandatory">Term ?</label>
+          <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+            <p-inputSwitch (onChange)="toggleTerm($event)" formControlName="Term"></p-inputSwitch>
+          </div>       
+        </div>        
+      </div>
+      <div class="p-field p-col-3 p-jc-center">
+        <label  *ngIf="enableTerm" for="StartDate">Start Date</label>
+          <p-calendar  *ngIf="enableTerm" formControlName="StartDate" [minDate]="minDate"  [showIcon]="true" appendTo="body" [readonlyInput]="true" (onSelect)="setMinEndDate($event)"></p-calendar>
+      </div>
+      
+      <div class="p-field p-col-3 p-jc-center" *ngIf="enableTerm">
+        <label  *ngIf="enableTerm" for="EndDate">End Date</label>
+        <p-calendar  *ngIf="enableTerm" formControlName="EndDate" [minDate]="minEndDate"  [showIcon]="true" appendTo="body"  [readonlyInput]="true"></p-calendar>
+      </div>
+      <div class="p-field p-col-1 p-jc-center">
+        <label for="GlAccount">Status</label>
+        <div class="p-field p-col-3 p-d-flex"  style="padding-top: 5px;" >
+          <p-toggleButton #tb formControlName="IsActive" onLabel="Active" offLabel="Inactive" styleClass="p-button-danger">
+          </p-toggleButton>
+        </div>
+      </div>
+      <div class="p-field p-col-1 p-jc-center" *ngIf="newItem">
+        <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text p-mr-2 p-mb-2 button-icon-cancel  p-button-sm" 
+        (click)="_removeControl()"  pTooltip="Remove Position" tooltipPosition="top" ></button>            
+      </div>
+    </div>
+  </div>
+</ng-container>

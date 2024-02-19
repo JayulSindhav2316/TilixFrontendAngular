@@ -1,0 +1,236 @@
+<p-toast></p-toast>
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+<div class="card" *ngIf="showReportTab">
+    <p-tabView  id="tabReport"  [(activeIndex)]="reportTabIndex">
+        <p-tabPanel header="My Reports" [cache]="false">
+            <ng-template pTemplate="content">
+                <app-my-report  [userId]="userId" (activeTabEvent)='setActiveTab($event)' (createReport)="createNewReport($event)" (runReport)="runReport($event)" (editReport)="editReport($event)"></app-my-report>
+            </ng-template>
+        </p-tabPanel>
+        <p-tabPanel header="Standard" [cache]="false">
+            <ng-template pTemplate="content">
+                <app-standard-report  [userId]="userId" [reportType]=reportType (activeTabEvent)='setActiveTab($event)'></app-standard-report>
+            </ng-template>
+        </p-tabPanel>
+        <p-tabPanel header="Shared Reports" [cache]="false">
+            <ng-template pTemplate="content">
+                <app-shared-report  [userId]="userId" (activeTabEvent)='setActiveTab($event)' (runReport)="runReport($event)"></app-shared-report>
+            </ng-template>
+        </p-tabPanel>
+    </p-tabView>
+</div>
+<div class="card" *ngIf="showReportFormTab">
+    <h5>Membership Report</h5>
+    <p-tabView  id="tabReportForm"  [(activeIndex)]="reportFormTabindex">
+        <p-tabPanel header="Parameters" [cache]="false">
+            <ng-template pTemplate="content">
+                <div class="card">
+                    <div class="p-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-4">
+                            <label for="title"> Title</label>
+                            <input id="Title" type="text" placeholder="Enter Title" [(ngModel)]="reportTitle" pInputText> 
+                            <app-field-error-display [displayError]="isFieldValid('Title')" [addErrorMessages]="addErrorMessages"></app-field-error-display>
+                        </div>
+                        <div class="p-field p-col-8">
+                            <label for="description"> Description</label>
+                            <input id="Description" type="text" placeholder="Enter Description" [(ngModel)]="reportDescription" pInputText>
+                            <app-field-error-display [displayError]="isFieldValid('Description')" [addErrorMessages]="addErrorMessages"></app-field-error-display> 
+                        </div>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col">
+                        <label for="membershipCategory"> Category</label>
+                        <p-multiSelect id='membershipCategory' placeholder="Select Categories" [options]="categoryList" [(ngModel)]="selectedCategory" optionLabel="name"  (ngModelChange)='categoryChanged($event)' [selectedItemsLabel]="'{0} items selected'"></p-multiSelect>
+                    </div>
+                    <div class="p-field p-col">
+                        <label for="membershipType">Type</label>
+                        <p-multiSelect id='membershipType' placeholder="Select Types" [options]="membershipTypeList" [(ngModel)]="selectedMembershipType" optionLabel="name"  (ngModelChange)='membershipTypeChanged($event)' [selectedItemsLabel]="'{0} items selected'"></p-multiSelect>
+                    </div>
+                    <div class="p-field p-col">
+                        <label for="membershipStatus">Status</label>
+                        <p-multiSelect id='membershipStatus' placeholder="Select Status" [options]="statusList" [(ngModel)]="selectedStatus" optionLabel="name"  (ngModelChange)='membershipStatusChanged($event)' [selectedItemsLabel]="'{0} items selected'"></p-multiSelect>
+                    </div>
+                </div>
+            </ng-template>
+        </p-tabPanel>
+        <p-tabPanel header="Columns" [cache]="false">
+            <ng-template pTemplate="content">
+                <div class="card-header profile-title">
+                    <h5>Columns</h5>
+                    <hr>
+                    <div class="header-buttons">
+                        <button  *ngIf="!showColumnSelection" pButton pRipple type="button" icon="pi pi-angle-down" class="p-button-rounded p-mr-2" (click)="showColumns()" pTooltip="Show Column Selection"  tooltipPosition="left"></button>
+                        <button  *ngIf="showColumnSelection" pButton pRipple type="button" icon="pi pi-angle-up" class="p-button-rounded p-mr-2" (click)="HideColumns()" pTooltip="Hide Column Selection"  tooltipPosition="left"></button>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid" *ngIf="showColumnSelection">
+                   <div class="p-field p-col-6">
+                        <p-tree [value]="reportColumns"  [(selection)]="selectedFields" selectionMode="checkbox" (onNodeSelect)="nodeSelect($event)" (onNodeUnselect)="nodeUnselect($event)"></p-tree>
+                    </div>
+                    <div class="p-field p-col-6">
+                        <p-orderList [value]="fieldList" [dragdrop]="true" [(selection)]="selectedFieldList">
+                            <ng-template let-col pTemplate="item">
+                                <div>
+                                    <div style="font-size:14px;margin:5px 5px 0 0">{{col.columnName}}</div>
+                                </div>
+                            </ng-template>
+                        </p-orderList>
+                    </div>
+                </div>
+            </ng-template>
+        </p-tabPanel>
+        <p-tabPanel header="Filters & Sorting" [cache]="false">
+            <ng-template pTemplate="content">
+                <div class="card-header profile-title">
+                    <h5>Filters</h5>
+                    <hr>
+                    <div class="header-buttons">
+                        <button  pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2" (click)="addFilter()" pTooltip="Add Filter"  tooltipPosition="left"></button>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-12">
+                        <form [formGroup]="reportForm" (ngSubmit)="onSubmit()">
+                        <div formArrayName="Filters">
+                            <div *ngFor="let filter of Filters.controls; let i=index">
+                                <!-- The repeated alias template -->
+                                <div> 
+                                    <app-report-filter [formControlName]="i"  [filterId]="i"  (removeControl)="removeFilter($event)"  (filterChanged)="filterChanged($event)"></app-report-filter>
+                                </div>
+                            </div>
+                        </div>
+                        </form>
+                    </div>
+                </div>  
+                <div class="card-header profile-title">
+                    <h5>Sort Order</h5>
+                    <hr>
+                    <div class="header-buttons">
+                        <button  pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2" (click)="addSortColumn()" pTooltip="Add Sort column"  tooltipPosition="left"></button>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-12">
+                        <form [formGroup]="reportSortForm" (ngSubmit)="onSubmit()">
+                        <div formArrayName="SortOrders">
+                            <div *ngFor="let sortOrder of SortOrders.controls; let i=index">
+                                <!-- The repeated alias template -->
+                                <div> 
+                                    <app-report-sort [formControlName]="i"  [reportSortId]="i"  [columns]="sortFieldList" (removeControl)="removeSortOrder($event)"  (sortOrderChanged)="sortOrderChanged($event)"></app-report-sort>
+                                </div>
+                            </div>
+                        </div>
+                        </form>
+                    </div>
+                </div>  
+            </ng-template>
+        </p-tabPanel>
+        <p-tabPanel header="Share" [cache]="false">
+            <ng-template pTemplate="content">
+                <h5>Share Report with other Users</h5>
+                <hr>
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-col-2" *ngFor ="let user of users; let i = index">
+                        <span style="margin: 10px;" *ngIf="user.userId != currentUser.id"><p-checkbox name="shared" value="user" [value]="user"  [inputId]="user.userId" type="checkbox"  [(ngModel)]="sharedUsers" ></p-checkbox></span> 
+                        <span *ngIf="user.userId != currentUser.id">{{user.firstName}} {{user.lastName}}</span>
+                    </div>
+                </div>
+            </ng-template>
+        </p-tabPanel>
+    </p-tabView>
+</div>
+<div class="card" *ngIf="showReportFormTab">
+    <div class="center">
+        <button pButton pRipple label="Preview" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"  type="submit" (click)="previewMembershipReport()" ></button>
+        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"  type="submit" (click)="saveMembershipReport()" ></button>
+        <button pButton pRipple label="Save & Run" icon="pi pi-list" class="p-button-information p-mr-2 p-mb-2"  type="submit" (click)="runMembershipReport()" ></button>
+        <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="cancelReport()" ></button>
+    </div>
+</div>
+<div class="card" *ngIf="showReport">
+    <h5>Membership Report</h5>
+    <div class="card">
+        <p-toolbar styleClass="p-mb-4">
+            <ng-template pTemplate="left">
+                <div class="p-formgroup-inline">
+                    {{reportTitle}}
+                </div>
+            </ng-template>
+            <ng-template pTemplate="right">
+                <button pButton type="button" label="Close"  icon="pi pi-cross" class="p-button-primary p-mr-2 p-mb-2"  (click)="closeNewReport()"></button>
+            </ng-template>
+        </p-toolbar>
+    </div>
+    <div class="card">
+        <p-table #dt [columns]="report.columns" [value]="report.rows" columnResizeMode="expand"  [resizableColumns]="true" [reorderableColumns]="true" selectionMode="multiple" [(selection)]="selectedItems" responsiveLayout="scroll" [rows]="10" [paginator]="true"styleClass="p-datatable-sm" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+        [showCurrentPageReport]="true" [autoLayout]="true" >
+            <ng-template pTemplate="caption">
+                <div class="p-d-flex">
+                    <button type="button" pButton pRipple icon="pi pi-file" (click)="dt.exportCSV()" class="p-mr-2" pTooltip="CSV" tooltipPosition="bottom"></button>
+                    <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()" class="p-button-success p-mr-2"  pTooltip="XLS" tooltipPosition="bottom"></button>
+                    <button type="button" pButton pRipple icon="pi pi-file-pdf" (click)="exportPdf()" class="p-button-warning p-mr-2" pTooltip="PDF" tooltipPosition="bottom"></button>
+                   
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns" pReorderableColumn pResizableColumn>
+                        {{col.header}}
+                        <p-columnFilter type="text" field="{{col.field}}" display="menu"></p-columnFilter>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <tr [pSelectableRow]="rowData">
+                    <td *ngFor="let col of columns">
+                        {{rowData[col.field]}}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+<div class="card" *ngIf="showPreview">
+    <h5>Membership Report Preview</h5>
+    <div class="card">
+        <p-toolbar styleClass="p-mb-4">
+            <ng-template pTemplate="left">
+                <div class="p-formgroup-inline">
+                    {{reportTitle}}
+                </div>
+            </ng-template>
+            <ng-template pTemplate="right">
+                <button pButton type="button" label="Close"  icon="pi pi-cross" class="p-button-primary p-mr-2 p-mb-2"  (click)="closePreviewReport()"></button>
+            </ng-template>
+        </p-toolbar>
+    </div>
+    <div class="card">
+        <p-table #dtPreview [columns]="report.columns" [value]="report.rows" columnResizeMode="expand"  [resizableColumns]="true" [reorderableColumns]="true" selectionMode="multiple" [(selection)]="selectedItems" responsiveLayout="scroll" [rows]="10" [paginator]="true"styleClass="p-datatable-sm" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+        [showCurrentPageReport]="true" [autoLayout]="true">
+            <ng-template pTemplate="caption">
+                <div class="p-d-flex">
+                    <button type="button" pButton pRipple icon="pi pi-file" (click)="dtPreview.exportCSV()" class="p-mr-2" pTooltip="CSV" tooltipPosition="bottom"></button>
+                    <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()" class="p-button-success p-mr-2"  pTooltip="XLS" tooltipPosition="bottom"></button>
+                    <button type="button" pButton pRipple icon="pi pi-file-pdf" (click)="exportPdf()" class="p-button-warning p-mr-2" pTooltip="PDF" tooltipPosition="bottom"></button>
+                   
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns" pReorderableColumn pResizableColumn>
+                        {{col.header}}
+                        <p-columnFilter type="text" field="{{col.field}}" display="menu"></p-columnFilter>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <tr [pSelectableRow]="rowData">
+                    <td *ngFor="let col of columns">
+                        {{rowData[col.field]}}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

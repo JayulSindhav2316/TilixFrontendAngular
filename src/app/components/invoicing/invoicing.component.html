@@ -1,0 +1,8 @@
+<p-toast></p-toast>
+<div *ngIf="showSearchControl"> 
+	<app-search  [parentControl]='parentControl'  [parentEntityId]='entityId' (closeEvent)='closeSearchControl($event)' (createInvoiceEvent)="createInvoice($event)"></app-search>
+</div>
+<div *ngIf="showInvoiceForm">
+  <app-general-edit-invoice [entity]="companyInvoice ? company : person" [invoiceId]="0" (closeEvent)='closeItemInvoice($event)'></app-general-edit-invoice>
+</div>
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

@@ -1,0 +1,44 @@
+<div class="p-grid" style="margin-top: 50px;" *ngIf="showReceipt">
+    <div class="p-col-3"></div>
+    <div class="p-col-6 p-md-6 p-xl-6">
+        <div class="card">
+            <div class="card-header profile-title">
+               <h4>Payment Successful</h4> 
+                <div class="header-buttons">
+                    <button pButton  type="button" icon="pi pi-check" class="p-button-rounded" styleClass="p-button-sm"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="p-col-3"></div>
+    <div class="p-col-3"></div>
+    <div class="p-col-6 p-md-6 p-xl-6">
+        <div class="card">
+            <div class="p-grid">
+                <div class="p-col-6 profile-label">Reference:</div>
+                <div class="p-col-6 profile-data">{{paymentResponse.authorizationCode}} </div>
+                <div class="p-col-6 profile-label">Transaction ID:</div>
+                <div class="p-col-6 profile-data">{{paymentResponse.transactionId}} </div>
+                <div class="p-col-6 profile-label">Amount:</div>
+                <div class="p-col-6 profile-data">{{paymentResponse.receipt.totalDueAmount | currency}}</div>
+                <div class="p-col-6 profile-label">Payment Mode:</div>
+                <div class="p-col-6 profile-data">{{paymentResponse.receipt.paymentMode}}</div>
+                <div class="p-col-6 profile-label">Date & Time:</div>
+                <div class="p-col-6 profile-data">{{paymentResponse.receipt.date | date:'MM/dd/yyyy hh:mm'}}</div>
+            </div>
+        </div>
+    </div>
+    <div class="p-col-3"></div>
+    <div class="p-col-3"></div>
+    <div class="p-col-6 p-md-6 p-xl-6">
+        <div class="card">
+            <div class="card-header profile-title">
+            <h4>Download Receipt</h4>
+                <div class="header-buttons">
+                    <button pButton  type="button" icon="pi pi-cloud-download" class="p-button-rounded" styleClass="p-button-sm" (click)="showPdf()"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="p-col-3"></div>
+</div>

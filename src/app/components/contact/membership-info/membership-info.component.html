@@ -1,0 +1,597 @@
+<p-toast></p-toast>
+<div class="p-grid" *ngIf="!editMembership">
+    <div class="p-col-12">
+        <div class="card">
+            <div class="p-grid">
+                <div class="p-col-2 profile-label"></div>
+                <div class="p-col-2 profile-label">Current Balance:</div>
+                <div class="p-col-2 profile-data">
+                    {{ membershipBalnce | currency }}
+                </div>
+                <div class="p-col-2 profile-data"></div>
+                <div class="p-col-2 profile-label">Available Credit:</div>
+                <div class="p-col-2 profile-data">
+                    {{ creditAmount | currency }}
+                </div>
+            </div>
+        </div>
+        <div class="card" *ngIf="!hasMembershipHistory">
+            <div class="center">
+                <h6>No Membership History.</h6>
+            </div>
+        </div>
+        <div class="card" *ngIf="hasMembershipHistory">
+            <h6>Membership</h6>
+            <p-table #dt [value]="memberships" [rows]="5" [paginator]="true" [rowHover]="true" dataKey="membershipId"
+                resizableColumns="true" styleClass="p-datatable-sm" rowExpandMode="single">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th width="5%"></th>
+                        <th pSortableColumn="code" class="ui-resizable-column" pResizableColumn width="15%">
+                            Category<p-columnFilter class="table-header-left" type="text" field="code"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="category" class="ui-resizable-column" pResizableColumn width="15%">
+                            Type<p-columnFilter class="table-header-left" type="text" field="category"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="name" pResizableColumn width="15%">
+                            Billable Party<p-columnFilter class="table-header-left" type="text" field="name"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="period" pResizableColumn width="15%">
+                            Member Name<p-columnFilter class="table-header-left" type="text" field="period"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="startDate" pResizableColumn width="10%">
+                            Start<p-columnFilter class="table-header-left" type="text" field="startDate"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="nextBillDate" pResizableColumn width="10%">
+                            Next Bill<p-columnFilter class="table-header-left" type="text" field="nextBillDate"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="endDate" pResizableColumn width="10%">
+                            End<p-columnFilter class="table-header-left" type="text" field="endDate"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="currentStatus" pResizableColumn width="15%">
+                            Status<p-columnFilter class="table-header-left" type="text" field="currentStatus"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th width="5%">Edit</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-membership let-expanded="expanded">
+                    <tr class="maxTableRow">
+                        <td>
+                            <button *ngIf="membership.additionalMembers.length>0" type="button" pButton pRipple
+                                [pRowToggler]="membership" class="p-button-text p-button-rounded p-button-plain"
+                                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                            </button>
+                        </td>
+                        <td>
+                            {{ membership.category }}
+                        </td>
+                        <td>{{ membership.name }}-{{ membership.period }}</td>
+                        <td>
+                            {{ membership.billableEntityName }}
+                        </td>
+                        <td>
+                            {{ membership.memberName }}
+                        </td>
+                        <td>
+                            {{ membership.startDate | date : "MM/dd/yyyy" }}
+                        </td>
+                        <td pEditableColumn>
+                            <p-cellEditor>
+                                <ng-template pTemplate="input">
+                                    <p-calendar *ngIf="
+                                            membership.currentStatus == 'Active'
+                                        " [ngModel]="
+                                            membership.nextBillDate
+                                                | date : 'MM/dd/yyyy'
+                                        " (ngModelChange)="
+                                            membership.nextBillDate = $event
+                                        " appendTo="body" (onSelect)="
+                                            onEditComplete($event, membership)
+                                        " [readonlyInput]="true" (onShow)="
+                                            preNextBillDateValue(
+                                                $event,
+                                                membership.nextBillDate
+                                            )
+                                        "></p-calendar>
+                                </ng-template>
+                                <ng-template pTemplate="output">
+                                    {{
+                                    membership.currentStatus != "Active"
+                                    ? ""
+                                    : (membership.nextBillDate
+                                    | date : "MM/dd/yyyy")
+                                    }}
+                                </ng-template>
+                            </p-cellEditor>
+                        </td>
+                        <td>
+                            {{
+                            membership.currentStatus != "Active"
+                            ? ""
+                            : (membership.endDate | date : "MM/dd/yyyy")
+                            }}
+                        </td>
+                        <td>
+                            {{ membership.currentStatus }}
+                        </td>
+                        <td *ngIf="membership.currentStatus === 'Active'" style="text-align: center">
+                            <button pButton type="button" icon="pi pi-ellipsis-v" (click)="
+                                    setActiveRow(membership);
+                                    menu.toggle($event)
+                                " class="p-button-rounded" styleClass="p-button-sm p-mr-0"></button>
+                            <div #pMenu></div>
+                            <p-menu #menu [popup]="true" [model]="terminateMenu" position="left"
+                                appendTo="body"></p-menu>
+                        </td>
+                        <td *ngIf="membership.currentStatus != 'Active'" style="text-align: center">
+                            <button pButton type="button" icon="pi pi-ellipsis-v" (click)="
+                                    setActiveRow(membership);
+                                    menu.toggle($event)
+                                " class="p-button-rounded" styleClass="p-button-sm p-mr-0"></button>
+                            <div #pMenu></div>
+                            <p-menu #menu [popup]="true" [model]="activateMenu" position="left"
+                                appendTo="body"></p-menu>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-membership>
+                    <tr>
+                        <td colspan="1">
+                        </td>
+                        <td colspan="8">
+                            <div *ngIf="membership.additionalMembers.length > 0">
+                                <p-table [value]="membership.additionalMembers" dataKey="entityId"
+                                    resizableColumns="true">
+                                    <ng-template pTemplate="header">
+                    <tr>
+                        <th width="40%">Name # <p-columnFilter type="text" display="menu"></p-columnFilter>
+                        </th>
+
+                        <th width="30%">Age <p-columnFilter type="text" display="menu"></p-columnFilter>
+                        </th>
+                        <th width="30%">Gender <p-columnFilter type="text" display="menu"></p-columnFilter>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-additionalMember>
+                    <tr>
+                        <td>{{additionalMember.firstName}} {{additionalMember.lastName}}</td>
+                        <td>{{additionalMember.dateOfBirth | date:'MM/dd/yyyy' }}</td>
+                        <td>{{additionalMember.gender}}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+        </td>
+        </tr>
+        </ng-template>
+
+        </p-table>
+    </div>
+    <div *ngIf="showBillingNotes" class="card">
+        <h6>Billing Notes</h6>
+        <p-table #dtBilling [value]="billingNotes" [rows]="5" [paginator]="false" [rowHover]="true" dataKey="Invoice_No"
+            resizableColumns="true" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="from" class="ui-resizable-column" pResizableColumn width="15%">
+                        From<p-columnFilter class="table-header-left" type="from" field="createdDate"
+                            display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="date" class="ui-resizable-column" pResizableColumn width="15%">
+                        Date<p-columnFilter class="table-header-left" type="date" field="createdDate"
+                            display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="subject" pResizableColumn width="15%">
+                        Subject<p-columnFilter class="table-header-left" type="subject" field="createdDate"
+                            display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="notes" pResizableColumn width="15%">
+                        Notes<p-columnFilter class="table-header-left" type="notes" field="createdDate"
+                            display="menu"></p-columnFilter>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-note>
+                <tr class="maxTableRow">
+                    <td>
+                        {{ note.from }}
+                    </td>
+                    <td>
+                        {{ note.date | date : "MM/dd/yyyy" }}
+                    </td>
+                    <td>
+                        {{ note.subject }}
+                    </td>
+                    <td>
+                        {{ note.notes }}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <div class="card" *ngIf="showBillingSchedule && hasMembershipHistory">
+        <h6>Scheduled Billing</h6>
+        <p-table #dtScheduledBilling [value]="scheduledBilling" [rows]="5" [paginator]="true" [rowHover]="true"
+            dataKey="Invoice_No" resizableColumns="true" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="membership" class="ui-resizable-column" pResizableColumn width="15%">
+                        Membership<p-columnFilter class="table-header-left" type="text" field="membership"
+                            display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="payMethod" class="ui-resizable-column" pResizableColumn width="15%">
+                        Payment Method<p-columnFilter class="table-header-left" type="text" field="payMethod"
+                            display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="billingFrequency" class="ui-resizable-column" pResizableColumn width="15%">
+                        Frequency<p-columnFilter class="table-header-left" type="text" field="billingFrequency"
+                            display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="billAmount" class="ui-resizable-column" pResizableColumn width="15%">
+                        Amount<p-columnFilter class="table-header-left" type="text" field="billAmount"
+                            display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="startDate" class="ui-resizable-column" pResizableColumn width="15%">
+                        Start<p-columnFilter class="table-header-left" type="text" field="startDate"
+                            display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="nextBillDate" class="ui-resizable-column" pResizableColumn width="15%">
+                        Next Bill<p-columnFilter class="table-header-left" type="text" field="nextBillDate"
+                            display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="endDate" class="ui-resizable-column" pResizableColumn width="15%">
+                        End<p-columnFilter class="table-header-left" type="text" field="endDate"
+                            display="menu"></p-columnFilter>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row>
+                <tr class="maxTableRow">
+                    <td>
+                        {{ row.membershipName }}
+                    </td>
+                    <td>
+                        {{ row.paymentMethod }}
+                    </td>
+                    <td>
+                        {{ row.billingFrequency }}
+                    </td>
+                    <td>
+                        {{ row.amount | currency }}
+                    </td>
+                    <td>
+                        {{ row.startDate | date : "MM/dd/yyyy" }}
+                    </td>
+                    <td>
+                        {{ row.nextBillDate | date : "MM/dd/yyyy" }}
+                    </td>
+                    <td>
+                        {{ row.endDate | date : "MM/dd/yyyy" }}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <div class="card" *ngIf="showBillingHistory">
+        <h6>Billing History</h6>
+        <p-table #dtHistory [value]="billingHistory" [rows]="5" [paginator]="true" [rowHover]="true"
+            dataKey="Invoice_No" resizableColumns="true" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="type" class="ui-resizable-column" pResizableColumn width="15%">
+                        Type<p-columnFilter class="table-header-left" type="text" field="type"
+                            display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="invoiceId" class="ui-resizable-column" pResizableColumn width="15%">
+                        Invoice #<p-columnFilter class="table-header-left" type="text" field="invoiceId"
+                            display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="membership" class="ui-resizable-column" pResizableColumn width="15%">
+                        Membership<p-columnFilter class="table-header-left" type="text" field="membership"
+                            display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="transactionDate" class="ui-resizable-column" pResizableColumn width="15%">
+                        Created Date<p-columnFilter class="table-header-left" type="text" field="transactionDate"
+                            display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="totalAmount" class="ui-resizable-column" pResizableColumn width="15%">
+                        Total Amount
+                    </th>
+                    <th pSortableColumn="paidAmount" class="ui-resizable-column" pResizableColumn width="15%">
+                        Paid Amount
+                    </th>
+                    <th pSortableColumn="balance" class="ui-resizable-column" pResizableColumn width="15%">
+                        Balance Due
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row>
+                <tr class="maxTableRow">
+                    <td>
+                        {{ row.invoiceType }}
+                    </td>
+                    <td>
+                        {{ row.invoiceId }}
+                    </td>
+                    <td>
+                        {{ row.membershipType }}
+                    </td>
+                    <td>
+                        {{ row.date | date : "MM/dd/yyyy" }}
+                    </td>
+                    <td>
+                        {{ row.total | currency }}
+                    </td>
+                    <td>
+                        {{ row.paid | currency }}
+                    </td>
+                    <td>
+                        {{ row.balance | currency }}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <p-dialog [(visible)]="showTerminationDialog" [style]="{ width: '650px' }" [header]="terminationTitle"
+        [modal]="true" styleClass="p-fluid" [contentStyle]="{ minHeight: '150px' }">
+        <ng-template pTemplate="content">
+            <form [formGroup]="membershipTerminationForm" (ngSubmit)="onCancel()">
+                <div class="card">
+                    <div class="p-field p-grid">
+                        <label for="reasonTermination" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">Reason</label>
+                        <div class="p-col-12 p-md-10">
+                            <textarea formControlName="reason" pInputTextarea rows="3" id="reasonTermination"
+                                type="text">
+                                </textarea>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit"
+                (click)="terminateMembership()"></button>
+            <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+                (click)="cancelTermination()"></button>
+        </ng-template>
+    </p-dialog>
+
+    <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+</div>
+</div>
+
+<div *ngIf="editMembership">
+    <div class="p-grid">
+        <div class="p-col-6 p-md-6 p-xl-6">
+            <div class="card" style="height: 250px">
+                <div class="card-header profile-title">Membership</div>
+                <hr class="profile-ruler" />
+                <div class="p-grid">
+                    <div class="p-col-4 profile-label">Membership Type:</div>
+                    <div class="p-col-8 profile-data">
+                        {{ selectedMembership.name }} -
+                        {{ selectedMembership.period }}
+                    </div>
+                    <div class="p-col-4 profile-label">Start:</div>
+                    <div class="p-col-8 profile-data">
+                        <p-calendar [(ngModel)]="startDate" [showIcon]="true" inputId="icon"></p-calendar>
+                    </div>
+                    <div class="p-col-4 profile-label">End:</div>
+                    <div class="p-col-8 profile-data">
+                        <p-calendar [(ngModel)]="endDate" [showIcon]="true" inputId="icon"></p-calendar>
+                    </div>
+                    <div class="p-col-4 profile-label">Next Bill:</div>
+                    <div class="p-col-8 profile-data">
+                        <p-calendar [(ngModel)]="nextBillDate" [showIcon]="true" inputId="icon"></p-calendar>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-col-6 p-md-6 p-xl-6">
+            <div class="card" style="height: 250px">
+                <div class="card-header profile-title">Billable Member</div>
+                <hr class="profile-ruler" />
+                <div class="p-grid">
+                    <div class="p-col-4 profile-label">Name:</div>
+                    <div class="p-col-8 profile-data">
+                        <p-dropdown [options]="relationsList" [(ngModel)]="billableEntityId" optionLabel="name"
+                            optionValue="code" (onChange)="billableMemberChangeEvent($event)"></p-dropdown>
+                    </div>
+                    <!--   <div *ngIf="isPerson && billableEntity.person" class="p-col-4 profile-label">
+                        Gender:
+                    </div>
+                   <div *ngIf="isPerson && billableEntity.person" class="p-col-8 profile-data">
+                        {{ billableEntity.person.gender }}
+                    </div>
+                    <div *ngIf="isPerson && billableEntity.person" class="p-col-4 profile-label">
+                        Age:
+                    </div>
+                    <div *ngIf="isPerson && billableEntity.person" class="p-col-8 profile-data">
+                        {{ billableEntity.person.age }}
+                    </div> -->
+                    <div *ngIf="isPerson && billableMemberGender" class="p-col-4 profile-label">
+                        Gender:
+                    </div>
+                    <div *ngIf="isPerson && billableMemberGender" class="p-col-8 profile-data">
+                        {{ billableMemberGender }}
+                    </div>
+                    <div *ngIf="isPerson && billableMemberAge " class="p-col-4 profile-label">
+                        Age:
+                    </div>
+                    <div *ngIf="isPerson && billableMemberAge" class="p-col-8 profile-data">
+                        {{ billableMemberAge }}
+                    </div>
+                    <div class="p-col-4 profile-label">Invoice Preference:</div>
+                    <div class="p-col-8 profile-data">
+                        <p-dropdown [options]="notificationList" [(ngModel)]="billingNotificationPreference.code"
+                        (onChange)="changeInvoicePreference($event)"  optionLabel="name" optionValue="code"></p-dropdown>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <h6>Member(s)</h6>
+        <p-table [value]="members" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="firstName" class="ui-resizable-column" pResizableColumn width="30%">
+                        Name
+                        <p-columnFilter type="text" field="firstName" display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="gender" pResizableColumn width="15%">
+                        Gender
+                        <p-columnFilter type="text" field="gender" display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="age" pResizableColumn width="15%">
+                        Age
+                        <p-columnFilter type="text" field="age" display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="billable" pResizableColumn width="15%" style="text-align: center">
+                        Remove
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-member>
+                <tr class="maxTableRow">
+                    <td>
+                        {{ member.name }}
+                    </td>
+                    <td>
+                        {{ member.gender }}
+                    </td>
+                    <td>
+                        {{ member.age }}
+                    </td>
+                    <td style="text-align: center">
+                        <button pButton pRipple type="button" icon="pi pi-trash"
+                            class="p-button-rounded p-button-danger" [disabled]="(member.entityId==this.entityId)"
+                            (click)="removeMember(member)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <div class="card" *ngIf="hasRelations && addAdditionalMembers">
+        <h6>Related Contact(s)</h6>
+        <p-table [value]="relations" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="firstName" class="ui-resizable-column" pResizableColumn width="30%">
+                        Name
+                        <p-columnFilter type="text" field="firstName" display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="gender" pResizableColumn width="15%">
+                        Gender
+                        <p-columnFilter type="text" field="gender" display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="age" pResizableColumn width="15%">
+                        Age
+                        <p-columnFilter type="text" field="age" display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="billable" pResizableColumn width="15%" style="text-align: center">
+                        Add
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-member>
+                <tr class="maxTableRow">
+                    <td>
+                        {{ member.firstName + " " + member.lastName }}
+                    </td>
+                    <td>
+                        {{ member.gender }}
+                    </td>
+                    <td>
+                        {{ member.age }}
+                    </td>
+                    <td style="text-align: center">
+                        <button pButton pRipple type="button" icon="pi pi-plus"
+                            class="p-button-rounded p-button-success" (click)="addRelationalContact(member)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <div *ngIf="addAdditionalMembers">
+        <h6>You can add {{ slotLeft }} more member(s)</h6>
+        <p-toolbar>
+            <ng-template pTemplate="left">
+                <button pButton pRipple label="Add Additional Members" class="p-button-success p-mr-2 p-mb-2"
+                    (click)="addMember()"></button>
+            </ng-template>
+        </p-toolbar>
+    </div>
+    <div *ngIf="showSearchControl && addAdditionalMembers">
+        <app-search [parentControl]="'additionalMembersControl'" (addMemberEvent)="addAdditionalMember($event)"
+            (closeEvent)="closeSearchFunction()"></app-search>
+    </div>
+    <div class="card">
+        <h6>Membership Fees</h6>
+        <p-table #dt [value]="membershipFees" [rows]="5" [paginator]="false" [rowHover]="true" dataKey="feeId"
+            resizableColumns="true" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="description" class="ui-resizable-column" pResizableColumn width="50%">
+                        Name
+                        <p-columnFilter type="text" field="description" display="menu"></p-columnFilter>
+                    </th>
+                    <th pSortableColumn="feeAmount" class="ui-resizable-column" pResizableColumn width="25%">
+                        Fee
+                    </th>
+                    <th pSortableColumn="billingFrequency" class="ui-resizable-column" pResizableColumn width="25%">
+                        Billing Frequency
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-fee>
+                <tr class="maxTableRow">
+                    <td>{{ fee.membershipFee.description }}</td>
+                    <td pEditableColumn>
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <p-inputNumber [(ngModel)]="fee.fee" [showButtons]="true" [min]="0.0"
+                                    buttonLayout="horizontal" spinnerMode="horizontal" [step]="0.25"
+                                    decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success"
+                                    incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" mode="currency"
+                                    currency="USD" (onBlur)="updateFee(fee)" (keydown.enter)="updateFee(fee)">
+                                </p-inputNumber>
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                <a>{{ fee.fee | currency : "USD" }}</a>
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <td>
+                        {{
+                        fee.membershipFee.billingFrequency === 1
+                        ? "Once"
+                        : fee.membershipFee.billingFrequency === 2
+                        ? "On Renewal"
+                        : "Every Billing Cycle"
+                        }}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <div style="height: 10px"></div>
+        <div class="center">
+            <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit"
+                (click)="saveEditedMembership()"></button>
+            <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+                (click)="cancelMembershipEdit()"></button>
+        </div>
+    </div>
+</div>
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

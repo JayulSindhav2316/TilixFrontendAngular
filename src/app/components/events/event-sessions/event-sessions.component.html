@@ -1,0 +1,371 @@
+
+<div class="p-grid">
+  <div class="p-col-12">
+    <p-toast></p-toast>
+    <div *ngIf="showTable">
+      <div class="card">
+        <p-toolbar styleClass="p-mb-4">
+          <ng-template pTemplate="left">
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')"
+                placeholder="Search..." />
+            </span>
+          </ng-template>
+          <ng-template pTemplate="right">
+            <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="addNewSession()"></button>
+          </ng-template>
+        </p-toolbar>      
+        <p-table #dt [value]="sessionsList" [columns]="cols" [rows]="10" [paginator]="true"
+          [globalFilterFields]="['code','name','maxCapacity']" [rowHover]="true" dataKey="sessionId" styleClass="p-datatable-sm"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [showCurrentPageReport]="true" resizableColumns="true">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 5%;"></th>
+              <th pSortableColumn="code" class="item-header" width="15%" pResizableColumn>  
+                <span class="table-header">Session Code</span> 
+              </th>
+              <th pSortableColumn="name" class="item-header" width="20%" pResizableColumn>  
+                <span class="table-header">Session Name</span>  
+              </th>
+              <th pSortableColumn="location" class="item-header" width="10%" pResizableColumn>  
+                <span class="table-header">Location</span>  
+              </th>
+              <th pSortableColumn="startDatetime" class="ui-resizable-column" width="10%" pResizableColumn>             
+                Start
+                <p-columnFilter type="date" field="startDatetime" display="menu"></p-columnFilter>
+              </th>
+              <th pSortableColumn="endDateTime" class="ui-resizable-column" width="10%" pResizableColumn>             
+                End
+                <p-columnFilter type="date" field="endDateTime" display="menu"></p-columnFilter>
+              </th>
+              <th pSortableColumn="maxCapacity" class="ui-resizable-column" width="10%" pResizableColumn style="text-align: center;">             
+                Capacity
+              </th>
+              <th style="width: 5%; background-color: #EFEFEF;">&nbsp;</th>
+              <th style="width: 5%; background-color: #EFEFEF;">&nbsp;</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-session>
+            <tr class="maxTableRow">
+              <td>
+                <button type="button" pButton pRipple [pRowToggler]="session" class="p-button-text p-button-rounded p-button-plain" 
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" (click)="editSession(session)" pTooltip="Edit / View Session">
+                </button>
+              </td>
+              <td>
+                {{session.code}}
+              </td>
+              <td>
+                {{session.name}}
+              </td>
+              <td>
+                {{session.location}}
+              </td>
+              <td>
+                {{session.startDatetime | date:'short'}}
+              </td>
+              <td>
+                {{session.endDateTime | date:'short' }}
+              </td>
+              <td style="text-align: center;">
+                {{session.maxCapacity}}
+              </td>
+              <td style="text-align: center;">              
+                <button (click)="cloneSession(session)" pButton pRipple type="button" icon="pi pi-copy" class="p-button-rounded p-button-warning p-mr-2 p-mb-2" 
+                  pTooltip="Clone Session"  tooltipPosition="left">
+                </button>
+              </td>
+              <td>
+                <button (click)="deleteSession(session)" pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-mr-2 p-mb-2" 
+                  pTooltip="Delete Session"  tooltipPosition="left">
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div class="p-col-12 p-d-flex p-jc-center">      
+        <button pButton pRipple label="Back" icon="pi pi-arrow-left" class="p-button-warning p-mr-2 p-mb-2" (click)="goBack()"></button>
+        <button pButton pRipple label="Summary" icon="pi pi-arrow-right" class="p-button-success p-mr-2 p-mb-2" (click)="finish()"></button>
+        <button pButton pRipple label="Close" icon="pi pi-times" class="p-button-danger p-mb-2" [routerLink]="['/events/events']"></button>
+      </div> 
+    </div>
+    <div class="card">
+      <p-toolbar styleClass="p-mb-4" *ngIf="showSessionDetails && !addNewSessionRecord">
+        <ng-template pTemplate="left">
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..."  disabled/>
+          </span>
+        </ng-template>
+        <ng-template pTemplate="right">
+          <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" disabled></button>
+        </ng-template>
+      </p-toolbar>
+      <div>
+        <p-table #dt [value]="alteredSessionsList" [rowHover]="true" dataKey="sessionId" styleClass="p-datatable-sm" *ngIf="showSessionDetails && !addNewSessionRecord">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 5%;"></th>
+              <th pSortableColumn="code" class="item-header" width="15%" pResizableColumn>  
+                <span class="table-header">Session Code</span>          
+                <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+              </th>
+              <th pSortableColumn="name" class="item-header" width="35%" pResizableColumn>  
+                <span class="table-header">Session Name</span>          
+                <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+              </th>
+              <th pSortableColumn="description" class="ui-resizable-column" width="10%" pResizableColumn>             
+                Start
+                <p-columnFilter type="text" field="description" display="menu"></p-columnFilter>
+              </th>
+              <th pSortableColumn="status" class="ui-resizable-column" width="10%" pResizableColumn>             
+                End
+              </th>
+              <th pSortableColumn="maxCapacity" class="ui-resizable-column" width="10%" pResizableColumn style="text-align: center;">             
+                Capacity
+              </th>
+              <th style="width: 5%; background-color: #EFEFEF;">&nbsp;</th>
+              <th style="width: 5%; background-color: #EFEFEF;">&nbsp;</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-session>
+            <tr class="maxTableRow">
+              <td>
+                <button pButton pRipple type="button" icon="pi pi-chevron-down" class="p-button-rounded p-button-text" (click)="closeSession()" pTooltip="Close Session"></button>
+              </td>
+              <td>
+                {{session.code}}
+              </td>
+              <td>
+                {{session.name}}
+              </td>
+              <td>
+                 <div *ngIf="session.event.eventTypeId != 3">
+                  {{session.startDatetime | date:'short'}}
+                </div>
+              </td>
+              <td>
+                <div *ngIf="session.event.eventTypeId != 3">
+                  {{session.endDateTime | date:'short' }}
+                </div>
+              </td>
+              <td style="text-align: center;">
+                {{session.maxCapacity}}
+              </td>
+              <td style="text-align: center;">              
+                <button (click)="cloneSession(session)" pButton pRipple type="button" icon="pi pi-copy" class="p-button-rounded p-button-warning p-mr-2 p-mb-2" 
+                  pTooltip="Clone Session"  tooltipPosition="left">
+                </button>
+              </td>
+              <td>
+                <button (click)="deleteSession(session)" pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-mr-2 p-mb-2" 
+                  pTooltip="Delete Session"  tooltipPosition="left">
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        <div *ngIf="showSessionDetails">
+          <p-button [icon]="expandAllTabs ? 'pi pi-minus' : 'pi pi-plus'" (click)="clickExpandAll(expandAllTabs)" styleClass="p-button-text" label="Expand All"></p-button>
+          <!-- <div class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-1">
+              <div style="text-align: start;">
+                <label >Expand All</label>
+                <div style="padding-top: 15px;">
+                  <p-inputSwitch [(ngModel)]="expandAllTabs" (onChange)="clickExpandAll($event)"></p-inputSwitch>
+                </div>
+              </div>
+            </div>
+          </div> -->
+          <p-accordion>
+            <p-accordionTab header="Details" [selected]="expandAllTabs" >
+              <form [formGroup]="sessionDetailForm">
+                <div class="p-col-12">
+                  <div class="p-fluid p-formgrid p-grid" *ngIf="displayCode == 1">
+                    <div class="p-field p-col-2">
+                      <label for="Code">Event Code</label>
+                      <input type="text" formControlName="EventCode" pInputText disabled/>                  
+                    </div>
+                    <div class="p-field p-col-2" [ngClass]="errorIconCss('SessionCode')">
+                      <label for="SessionCode">Session Code</label>
+                      <input type="text" formControlName="SessionCode" pInputText [ngClass]="errorFieldCss('SessionCode')" autofocus maxlength="10" 
+                        (input)="enableSave('SessionCode')"/>
+                      <app-field-error-display [displayError]="isFieldValid('SessionCode')" [addErrorMessages]="addErrorMessages">
+                      </app-field-error-display>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-8" [ngClass]="errorIconCss('SessionName')">
+                      <label for="SessionName">Session Name</label>
+                      <input type="text" formControlName="SessionName" pInputText [ngClass]="errorFieldCss('SessionName')" maxlength="100"
+                        (input)="enableSave('SessionName')"/>
+                      <app-field-error-display [displayError]="isFieldValid('SessionName')" [addErrorMessages]="addErrorMessages">
+                      </app-field-error-display>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid" *ngIf="session.event.fromDate && session.event.toDate">
+                    <div class="p-field p-col-4" [ngClass]="errorIconCss('StartDate')">
+                      <label for="StartDate">Start Date & Time</label>
+                      <p-calendar formControlName="StartDate"  [showIcon]="true" inputId="icon" appendTo="body" [showTime]="true" [hourFormat]="12" 
+                        [ngClass]="errorFieldCss('StartDate')" (onBlur)="enableSave('StartDate')"></p-calendar>
+                      <app-field-error-display [displayError]="isFieldValid('StartDate')" [addErrorMessages]="addErrorMessages">
+                      </app-field-error-display>
+                    </div>
+                    <div class="p-field p-col-4" [ngClass]="errorIconCss('EndDate')">
+                      <label for="EndDate">End Date & Time</label>
+                      <p-calendar formControlName="EndDate" [showIcon]="true" inputId="icon" appendTo="body" [showTime]="true" [hourFormat]="12" 
+                        [ngClass]="errorFieldCss('EndDate')" (onBlur)="enableSave('EndDate')"></p-calendar>
+                      <app-field-error-display [displayError]="isFieldValid('EndDate')" [addErrorMessages]="addErrorMessages">
+                      </app-field-error-display>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-8">
+                      <label for="SessionLeader">Session Leader(s)</label>
+                      <p-autoComplete [suggestions]="filteredPersons" (completeMethod)="getPeopleByName($event)" formControlName="SessionLeader"
+                      [dropdown]="false"  datakey="name" (onSelect)="selectContactPerson($event); enableSave('SessionLeader')" placeholder="Search Person by First/Last Name">
+                        <ng-template let-person pTemplate="item">
+                          <div>{{person.firstName}} {{person.lastName}}
+                            <br>
+                            <i class="pi pi-phone p-mr-2"><small class="p-mr-2">&nbsp;{{person.formattedPhoneNumber}}</small></i>
+                            <i class="pi pi-envelope p-mr-2"><small class="p-mr-2">&nbsp;{{person.primaryEmail}}</small></i>
+                          </div>
+                        </ng-template>
+                      </p-autoComplete>
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field" *ngFor="let leader of sessionLeadersList">
+                      <span class="p-buttonset" >
+                          <button styleClass="p-button-sm" pButton pRipple [label]="leader.entityName" (click)="showLeaderDetails(leader)"></button>
+                          <button class="p-mr-2" styleClass="p-button-sm" pButton pRipple icon="pi pi-trash" (click)="removeLeader(leader)" style="flex: 0.2;"></button>
+                      </span> 
+                    </div>
+                  </div>
+                  <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-1">
+                      <div style="text-align: start;">
+                        <label for="Status">Status</label>
+                        <div style="padding-top: 15px;">
+                          <p-inputSwitch formControlName="Status" (onChange)="enableSave('Status')"></p-inputSwitch>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="p-field p-col-2" *ngIf="session.event.eventTypeId == 1 || session.event.eventTypeId == 2">
+                      <label for="MaxCapacity">Max Capacity</label>
+                      <input type="number" formControlName="MaxCapacity" pInputText maxlength="3" (change)="capacityChanged($event)"/>                  
+                    </div>
+                    <div class="p-field p-col-4" [ngClass]="errorIconCss('GlAccount')">
+                      <label for="GLAccount">GL Account</label>
+                      <p-dropdown [options]="glAccountsList" placeholder="Select a GL Account" optionLabel="name" optionValue="code" appendTo="body" 
+                        formControlName="GlAccount" [ngClass]="errorFieldCss('GlAccount')" (onChange)="enableSave('GlAccount')"></p-dropdown>
+                      <app-field-error-display [displayError]="isFieldValid('GlAccount')" [addErrorMessages]="addErrorMessages">
+                      </app-field-error-display>               
+                    </div>
+                    <div class="p-field p-col-3" [ngClass]="errorIconCss('Location')">
+                      <label for="Location">Location</label>
+                      <input type="text" formControlName="Location" pInputText [ngClass]="errorFieldCss('Location')" maxlength="100"
+                        (input)="enableSave('Location')"/>
+                      <app-field-error-display [displayError]="isFieldValid('Location')" [addErrorMessages]="addErrorMessages">
+                      </app-field-error-display>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </p-accordionTab>
+            <hr>
+            <p-accordionTab header="Pricing" [selected]="expandAllTabs">
+              <div>
+                <p-table [value]="linkedGroups" responsiveLayout="scroll" [rows]="10" [paginator]="true" styleClass="p-datatable-sm" 
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [showCurrentPageReport]="true">
+                  <ng-template pTemplate="header">
+                      <tr>
+                          <th style="padding: 1rem;" class="p-col-1">Group Name</th>                      
+                          <th class="p-col-1" style="padding: 1rem;" *ngFor="let period of linkedFeeTypes">                        
+                            {{period.registrationFeeTypeName}}
+                          </th>
+                      </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-group>
+                      <tr >
+                        <td>{{group.groupName}}</td>
+                        <td *ngFor="let pricing of group.groupPriorityFeeSettings">
+                          <div class="p-inputgroup" style="width: fit-content;">              
+                            <span class="p-inputgroup-addon">$</span>
+                            <input type = "number" size = "10" min="0.00" placeholder="0.00" pInputText [(ngModel)]="pricing.price" (change)="priceChanged(pricing)"/>
+                          </div>
+                        </td>
+                      </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </p-accordionTab>
+            <hr>
+            <!-- <p-accordionTab header="CEU">
+                <div class="card">CEU related details</div>
+            </p-accordionTab> -->
+            <p-accordionTab header="Questions" [selected]="expandAllTabs">
+              <div class="p-col-12">
+                <div class="p-fluid p-formgrid p-grid">
+                  <div class="p-field p-col-12">
+                    <p-pickList [source]="questionList" [target]="selectedQuestionList" sourceHeader="Available Questions" targetHeader="Linked Questions" [dragdrop]="true"
+                        [responsive]="true" [sourceStyle]="{ 'height':'30rem'}" [targetStyle]="{'border' : 'dashed', 'border-color' : 'limegreen', 'height':'30rem'}" 
+                        [showSourceControls]="false" [showTargetControls]="false" filterBy="question"
+                        sourceFilterPlaceholder="Search available questions" targetFilterPlaceholder="Search linked questions" (onMoveToTarget)="formValueChangedEvent()"
+                        (onMoveToSource)="formValueChangedEvent()" (onMoveAllToTarget)="formValueChangedEvent()" (onMoveAllToSource)="formValueChangedEvent()">
+                        <ng-template let-question pTemplate="item">                
+                          <div class="product-item">
+                            <div class="mr-5">
+                              <button *ngIf="question.answerOptions.length > 0; else elseBlock" type="button" pButton pRipple class="p-button-text p-button-rounded p-button-plain" 
+                                (click)="setActiveQuestionRow(question.questionBankId)" [icon]="question.questionBankId == selectedQuestionId ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                              </button>
+                              <ng-template #elseBlock>
+                                <button type="button" class="p-button-text p-button-plain" pButton style="cursor: all-scroll;"></button>
+                              </ng-template>
+                            </div>
+                            <div class="product-list-detail">
+                                <h6 style="margin: 0;">{{question.question}}</h6>
+                            </div>
+                            <div class="product-list-action">
+                              <h6 style="margin: 0;">{{question.answerTypeLookUp.answerType}}</h6>
+                            </div>
+                          </div>
+                          <div class="product-item" *ngIf="question.questionBankId == selectedQuestionId">
+                            <ul>
+                              <li *ngFor="let option of question.answerOptions">{{option.option}}</li>
+                            </ul>
+                          </div>
+                        </ng-template>
+                    </p-pickList>
+                  </div>
+                </div>
+              </div>
+            </p-accordionTab>
+          </p-accordion>
+          <div class="p-col-12 p-d-flex p-jc-center"> 
+            <button pButton pRipple label="Save" id="SessionSave" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="saveSession()" [disabled]="submitted && !hasErrors"></button>
+            <button pButton pRipple label="Close" icon="pi pi-times" class="p-button-danger p-mb-2" (click)="closeSession()"></button>
+          </div>
+        </div>
+      </div> 
+    </div>
+    
+  </div>
+  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+  <p-dialog [header]="selectedLeaderEntity ? selectedLeaderEntity.name : ''" [(visible)]="displayLeaderDetails" [breakpoints]="{'960px': '30vw', '640px': '30vw'}" [style]="{width: '30vw'}" [modal]="true">
+    <div class="p-grid">
+      <div class="p-xl-4 p-sm-12"> 
+        <img [src]="selectedLeaderProfileImage" style="width: 125px; height: 125px;">
+      </div>
+      <div class="p-xl-8 p-sm-12" *ngIf="selectedLeaderEntity != null">
+        <span>{{selectedLeaderEntity.person.title}}</span><br>
+        <span>{{selectedLeaderEntity.person.age}}</span>,&nbsp;<span>{{selectedLeaderEntity.person.gender}}</span><br>
+        <span>{{selectedLeaderEntity.membershipStatus}}</span> <br>
+        <span>{{selectedLeaderEntity.person.primaryEmail}}</span><br>
+        <span>{{selectedLeaderEntity.person.formattedPhoneNumber}}</span>          
+      </div>
+    </div>
+  </p-dialog>
+</div>

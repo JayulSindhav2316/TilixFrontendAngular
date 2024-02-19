@@ -1,0 +1,29 @@
+<p-toast></p-toast>
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+<p-toolbar styleClass="p-mb-4">
+    <ng-template pTemplate="left">
+        <div class="p-formgroup-inline">
+        </div>
+    </ng-template>
+  
+</p-toolbar>
+<p-table [value]="reports" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="width:20%">Name</th>
+            <th style="width:30%">Description</th>
+            <th style="width:20%">Shared By</th>
+            <th style="width:15%">Run</th>
+            <th style="width:15%">Clone</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-report>
+        <tr>
+            <td>{{report.title}}</td>
+            <td>{{report.description}}</td>
+            <td>{{report.user.firstName}} {{report.user.lastName}}</td>
+            <td><p-button  class="p-button-rounded" icon="pi pi-check-circle" iconPos="left" (click)="_runReport(report)"></p-button></td>
+            <td><p-button  class="p-button-rounded p-button-warning" icon="pi pi-copy" iconPos="left" (click)="cloneReport(report)"></p-button></td>
+        </tr>
+    </ng-template>
+</p-table>

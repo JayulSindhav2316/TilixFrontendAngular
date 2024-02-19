@@ -1,0 +1,107 @@
+<div class="p-grid" *ngIf="loadHTML">  
+  <p-toast></p-toast>  
+  <div class="p-col-6">
+    <p-fieldset legend="Basic Information" [toggleable]="true" [collapsed]="true">
+      <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-6 p-d-flex p-jc-right"  style="justify-content: right; border: none;">
+          <label class="p-mr-5" for="AllowWaitlist">Allow Waitlist&nbsp;?</label> 
+        </div> 
+        <div class="p-field p-col-6 p-d-flex p-jc-left">  
+          <p-inputSwitch [(ngModel)]="allowWaitlist" (onChange)="enableWaitlist($event)"></p-inputSwitch>
+        </div> 
+      </div>
+      <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-6 p-d-flex p-jc-right"  style="justify-content: right; border: none;">
+          <label class="p-mr-5" for="AllowMultipleRegistration">Allow Multiple Registration&nbsp;?</label> 
+        </div> 
+        <div class="p-field p-col-6 p-d-flex p-jc-left">  
+          <p-inputSwitch [(ngModel)]="allowMultipleRegistration" (onChange)="enableMultipleRegistration($event)"></p-inputSwitch>
+        </div> 
+      </div>
+    </p-fieldset>
+  </div>
+  <div class="p-col-6">
+    <p-fieldset legend="Registration Periods" [toggleable]="true" [collapsed]="true">
+      <p-table [value]="feeTypes" selectionMode="multiple" [(selection)]="selectedFeeTypes" dataKey="registrationFeeTypeId" responsiveLayout="scroll" >
+        <!-- <ng-template pTemplate="header">
+          <tr>
+            <th style="padding: 1rem; width: 5%;">
+                <p-tableHeaderCheckbox (click)="onAllFeeSelect()"></p-tableHeaderCheckbox>
+            </th>
+            <th style="padding: 1rem; width: 25%;">Fee Name</th>
+          </tr>
+        </ng-template> -->
+        <ng-template pTemplate="body" let-fee>
+          <tr>
+            <td>
+              <p-tableCheckbox [value]="fee" (click)="onFeeSelect(fee)" [disabled]="fee.registrationFeeTypeName=='Regular'"></p-tableCheckbox>
+            </td>
+            <td>{{fee.registrationFeeTypeName}}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-fieldset>
+  </div>
+  <div class="p-col-12">
+    <div class="card">
+      <div class="card-header profile-title">
+        <h6  *ngIf="event.regStartDate != null && event.regEndDate != null; else elseBlock">
+          {{event.regStartDate | date : 'longDate' }} {{event.regStartDate | date : 'shortTime' }}&nbsp;-&nbsp;
+          {{event.regEndDate | date : 'longDate' }} {{event.regEndDate | date : 'shortTime' }}&nbsp;<b>({{event.timeZone}})</b>
+        </h6>
+        <ng-template #elseBlock><h6 *ngIf="event.regStartDate == null || event.regEndDate == null">Registration Groups</h6></ng-template>
+      </div>
+      <hr class="profile-ruler">
+        <p-table [value]="sourceGroups" selectionMode="multiple" [(selection)]="linkedGroups" dataKey="registrationGroupId" responsiveLayout="scroll"
+        [rows]="10" [paginator]="true" styleClass="p-datatable-sm p-datatable-gridlines" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+        [showCurrentPageReport]="true" [autoLayout]="true" [scrollable]="true">
+          <ng-template pTemplate="header">
+              <tr>
+                <th style="padding: 1rem; min-width:50px; max-width: 50px;">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th style="padding: 1rem; min-width:100px; width: 150px; max-width: 150px;">Group Name</th>
+                <th style="padding: 1rem; min-width:100px; max-width:100px">
+                  <p-checkbox [binary]="true" inputId="ol" [(ngModel)]="chkEnableOnlineRegistrationForAll" (onChange)="enableOnlineRegistrationForAll($event)" pTooltip="Enable All"></p-checkbox>
+                  <label class="p-ml-2" for="ol">Online?</label>
+                </th>
+                <th style="padding: 1rem; min-width:400px; justify-content: center;" *ngFor="let fee of selectedFeeTypes">
+                  {{fee.registrationFeeTypeName}}
+                </th>
+              </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-group>
+              <tr >
+                <td style="padding: 1rem; min-width:50px; max-width: 50px;">
+                  <p-tableCheckbox [value]="group" (click)="onGroupSelect(group)"></p-tableCheckbox>
+                </td>
+                <td style="padding: 1rem; min-width:100px; max-width: 150px; word-break: break-all;" [pTooltip]="group.groupName">{{group.groupName}}</td>
+                <td style="padding: 1rem; min-width:100px; max-width:100px" >
+                  <p-toggleButton *ngIf="isSelected(group)"  [(ngModel)]="group.enableOnlineRegistration"  onLabel="Yes" offLabel="No" styleClass="p-button-danger" (onChange)="toggleStatus($event, group)"></p-toggleButton>
+                </td >
+                <td style="padding: 1rem; min-width:400px ;justify-content: center" *ngFor="let fee of group.groupPriorityDateSettings">
+                  <p-calendar *ngIf="isSelected(group) && (event.eventTypeId == 1 || event.eventTypeId == 2)" [showTime]="true" [minDate]="regStartDate"  [maxDate]="regEndDate" [readonlyInput]="true"
+                    [hourFormat]="12" appendTo="body"  [(ngModel)]="fee.registrationGroupDateTime" (onSelect)="enableSave()" pTooltip="Start" tooltipPosition="top">
+                  </p-calendar>
+                  <p-calendar *ngIf="isSelected(group) && event.eventTypeId == 3" [showTime]="true" [readonlyInput]="true"
+                    [hourFormat]="12" appendTo="body"  [(ngModel)]="fee.registrationGroupDateTime" (onSelect)="enableSave()" pTooltip="Start" tooltipPosition="top">
+                  </p-calendar>
+                  <label *ngIf="isSelected(group)"><b>&nbsp;To&nbsp;</b></label> 
+                  <p-calendar *ngIf="isSelected(group) && (event.eventTypeId == 1 || event.eventTypeId == 2)" [showTime]="true" [minDate]="regStartDate"  [maxDate]="regEndDate" [readonlyInput]="true"
+                    [hourFormat]="12" appendTo="body"  [(ngModel)]="fee.registrationGroupEndDateTime" (onSelect)="enableSave()" pTooltip="End" tooltipPosition="top">
+                  </p-calendar>
+                  <p-calendar *ngIf="isSelected(group) && event.eventTypeId == 3" [showTime]="true" [readonlyInput]="true"
+                    [hourFormat]="12" appendTo="body"  [(ngModel)]="fee.registrationGroupEndDateTime" (onSelect)="enableSave()" pTooltip="End" tooltipPosition="top">
+                  </p-calendar>
+                </td>
+              </tr>
+          </ng-template>
+        </p-table>
+    </div>
+  <div class="p-col-12 p-d-flex p-jc-center">
+    <button pButton pRipple label="Back" icon="pi pi-arrow-left" class="p-button-warning p-mr-2 p-mb-2" (click)="goBack()"></button>
+    <button id="settingContinue" pButton pRipple label="Save & Continue" icon="pi pi-arrow-right" class="p-button-success p-mr-2 p-mb-2" (click)="continue()"></button>
+    <button pButton pRipple label="Close" icon="pi pi-times" class="p-button-danger p-mb-2" (click)="cancel()"></button>
+  </div> 
+</div>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

@@ -1,0 +1,197 @@
+<div class="p-grid">
+    <div class="p-col-12">
+        <p-toast></p-toast>
+        <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+        <h5>General Ledger</h5>
+        <div class="card">
+            <p-toolbar styleClass="p-mb-4">
+                <ng-template pTemplate="left">
+                    <div class="p-formgroup-inline">
+                        <div class="p-field">
+                            <label for="serachSelection" class="p-sr-only">Report By:</label>
+                            <p-dropdown id='serachSelection' [options]="searchList" [(ngModel)]="selectedSearch"
+                                optionLabel="name" name="search"
+                                (ngModelChange)='searchSelectChanged($event)'></p-dropdown>
+                        </div>
+                        <div *ngIf="selectedSearch.name=='Day'">
+                            <form [formGroup]="searchByDayForm">
+                                <div class="p-input-icon-left">
+                                    <div class="p-field ">
+                                        <label for="day">Day</label>
+                                        <p-calendar formControlName='Day' [inputStyle]="{'width':'100px'}"
+                                            [minDate]="minDate" [maxDate]="maxDate" dateFormat="mm/dd/yy"
+                                            [showIcon]="true"></p-calendar>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div *ngIf="selectedSearch.name=='Month'">
+                            <form [formGroup]="searchByMonthForm">
+                                <div class="p-field">
+                                    <label for="month">Month</label>
+                                    <p-calendar formControlName='Month' view="month" [inputStyle]="{'width':'100px'}"
+                                        dateFormat="mm/yy" [yearNavigator]="true" yearRange="2000:2030"
+                                        [readonlyInput]="true" [showIcon]="true"></p-calendar>
+                                </div>
+                            </form>
+                        </div>
+                        <div *ngIf="selectedSearch.name=='Date Range'">
+                            <form [formGroup]="searchByDateRangeForm">
+                                <div class="p-input-icon-left">
+                                    <div class="p-field">
+                                        <label for="startDate">From Date</label>
+                                        <p-calendar [inputStyle]="{'width':'100px'}" formControlName='FromDate'
+                                            [minDate]="minDate" [maxDate]="maxDate" [showIcon]="true"
+                                            dateFormat="mm/dd/yy"></p-calendar>
+                                    </div>
+                                </div>
+                                <div class="p-input-icon-right">
+                                    <div class="p-field">
+                                        <label for="Phone">To Date</label>
+                                        <p-calendar formControlName='ToDate' this.value=''
+                                            [inputStyle]="{'width':'100px'}" [minDate]="minDate" [maxDate]="maxDate"
+                                            [showIcon]="true" dateFormat="mm/dd/yy"></p-calendar>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div>
+                            <div class="p-field">
+                                <label for="glAccount">GL Account</label>
+                                <p-dropdown id='glAccount' [options]="glAccountList" [(ngModel)]="selectedGL"
+                                    optionLabel="name" name="glAccount"></p-dropdown>
+                            </div>
+                        </div>
+                        <button pButton type="button" label="Search" icon="pi pi-search"
+                            class="p-button-primary p-mr-2 p-mb-2" type="submit"
+                            (click)="getGeneralLedger(false)"></button>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="right">
+                    <div class="p-d-flex">
+                        <button type="button" [disabled]="showExport" pButton pRipple icon="pi pi-file-excel"
+                            (click)="exportExcel()" class="p-button-success p-mb-3 p-mr-2" pTooltip="XLS"
+                            tooltipPosition="bottom"></button>
+                        <button type="button" [disabled]="showExport" pButton pRipple icon="pi pi-file-pdf"
+                            (click)="exportPdf()" class="p-button-danger p-mb-3 p-mr-2" pTooltip="PDF"
+                            tooltipPosition="bottom"></button>
+                        <button type="button" [disabled]="showExport" pButton pRipple icon="pi pi-file-o"
+                            (click)="exportQuickbooks()" class="p-button-warning p-mb-3" pTooltip="Quickbooks"
+                            tooltipPosition="bottom"></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+        </div>
+        <div class="card" *ngIf="showTable">
+            <p-table #dt [value]="generalLedger" [columns]="cols" [rows]="10" [paginator]="true" resizableColumns="true"
+                [showCurrentPageReport]="true" styleClass="p-datatable-sm"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="receiptId" class="ui-resizable-column" pResizableColumn width="15%">
+                            Transaction#
+                            <p-columnFilter class="table-header-left" type="text" field="receiptId"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="transactionDate" class="ui-resizable-column" pResizableColumn width="15%">
+                            Date
+                            <p-columnFilter class="table-header-left" type="text" field="transactionDate"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="itemDescription" class="ui-resizable-column" pResizableColumn width="15%">
+                            Item
+                            <p-columnFilter class="table-header-left" type="text" field="itemDescription"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="glAccount" class="ui-resizable-column" pResizableColumn width="15%">
+                            Gl Account
+                            <p-columnFilter class="table-header-left" type="text" field="glAccount"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="paymentMode" class="ui-resizable-column" pResizableColumn width="15%">
+                            Payment Mode
+                            <p-columnFilter class="table-header-left" type="text" field="paymentMode"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="transactionType" class="ui-resizable-column" pResizableColumn width="15%">
+                            Transaction Type
+                            <p-columnFilter class="table-header-left" type="text" field="transactionType"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="entryType" class="ui-resizable-column" pResizableColumn width="15%">
+                            Entry Type
+                            <p-columnFilter class="table-header-left" type="text" field="entryType"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="amount" class="ui-resizable-column" pResizableColumn width="15%"
+                            style="text-align:center">
+                            Amount
+                            <p-columnFilter class="table-header-left" type="text" field="amount"
+                                display="menu"></p-columnFilter>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                    <tr class="maxTableRow">
+                        <td *ngIf="item.receiptId > 0">
+                            {{item.receiptId}}
+                        </td>
+                        <td *ngIf="item.receiptId === 0">
+                            Write Off
+                        </td>
+
+                        <td>
+                            {{item.transactionDate }}
+                        </td>
+                        <td>
+                            {{item.itemDescription}}
+                        </td>
+
+                        <td>
+                            {{item.glAccount}}
+                        </td>
+                        <td>
+                            {{item.paymentMode}}
+                        </td>
+                        <td>
+                            {{item.transactionType}}
+                        </td>
+                        <td>
+                            {{item.entryType}}
+                        </td>
+                        <td style="text-align:right" *ngIf="item.amount>=0">
+                            {{item.amount | currency}}
+                        </td>
+                        <td style="text-align:right" *ngIf="item.amount<0">
+                            ({{item.amount*-1 | currency}})
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <tr>
+                        <td colspan="5"></td>
+                        <td>Total</td>
+                        <td>{{totalReceipt | currency}}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+        <div class="card" *ngIf="showReport">
+            <tr-viewer #glReportViewer [containerStyle]="viewerContainerStyle" [serviceUrl]="reportApiUrl"
+                [reportSource]="{
+                report: 'GLReport.trdp',
+                parameters: { 
+                  Url:maxApiUrl, 
+                  token: authService.currentUserValue.token,
+                  tenantid:authService.currentUserValue.tenantId,
+                  glAccount: selectedGL.name,
+                  searchBy: selectedSearch.name,
+                  fromDate: fromReportDate,
+                  ToDate : toReportDate
+                }
+            }" [viewMode]="'INTERACTIVE'" [scaleMode]="'FIT_PAGE_WIDTH'" [ready]="ready"
+                [viewerToolTipOpening]="viewerToolTipOpening" [enableAccessibility]="false" [scale]="1.0">
+            </tr-viewer>
+        </div>
+    </div>
+</div>

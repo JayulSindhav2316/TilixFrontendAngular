@@ -1,0 +1,73 @@
+<HR>
+<div [formGroup]="addressFormGroup">
+    <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-12 p-md-2" [ngClass]="errorIconCss('addressType')">
+            <input formControlName="addressId" type="hidden">
+            <label for="city">Address Type</label>
+            <p-dropdown [options]="labels" placeholder="Select a Type" class="p-dropdown-sm" optionLabel="name"
+                optionValue="code" appendTo="body" formControlName='addressType'
+                [ngClass]="errorFieldCss('addressType')" (click)="resetSubmitted('addressType')"
+                (onChange)="enableSave($event, 'addressType')"></p-dropdown>
+            <app-field-error-display [displayError]="isFieldValid('addressType')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+        </div>
+        <div class="p-field p-col-12 p-md-6">
+        </div>
+        <div class="p-field p-col-12  p-md-2" [ngClass]="errorIconCss('isPrimary')">
+            <p>Primary?</p>
+            <p-inputSwitch formControlName="isPrimary" (onChange)="handleChange($event)"></p-inputSwitch>
+            <app-field-error-display [displayError]="isFieldValid('isPrimary')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+        </div>
+        <div class="p-field p-col-12 p-md-2">
+            <button pButton pRipple type="button" icon="pi pi-times"
+                class="p-button-rounded p-button-danger p-button-text p-mr-2 p-mb-2 button-icon-cancel  p-button-sm"
+                (click)="_removeControl()" pTooltip="Remove Address" tooltipPosition="top"></button>
+        </div>
+        <div class="p-field p-col-12" [ngClass]="errorIconCss('streetAddress')">
+            <label for="address">Address</label>
+            <textarea class="p-inputtext-sm" type="text" rows="2" pInputTextarea autocomplete="new-password"
+                formControlName="streetAddress" [ngClass]="errorFieldCss('streetAddress')"
+                (click)="resetSubmitted('streetAddress')" (input)="enableSave($event, 'streetAddress')"
+                maxlength="100"></textarea>
+            <app-field-error-display [displayError]="isFieldValid('streetAddress')"
+                [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+        </div>
+
+        <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('country')">
+            <label for="Country">Country</label>
+            <p-dropdown [options]="countryList" class="country-dropdown p-dropdown-sm" placeholder="Select Country" optionLabel="name"
+                optionValue="name" appendTo="" formControlName='country' [ngClass]="errorFieldCss('country')"
+                (click)="resetSubmitted('country')" (onChange)="countryFieldChangeEvent($event)"></p-dropdown>
+            <app-field-error-display [displayError]="isFieldValid('country')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+        </div>
+        <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('city')">
+            <label for="city">City</label>
+            <input type="text" class="p-inputtext-sm" pInputText autocomplete="new-password" formControlName="city"
+                [ngClass]="errorFieldCss('city')" (click)="resetSubmitted('city')"
+                onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) 
+                || (event.charCode==32) || (event.charCode==45) || (event.charCode==44) || (event.charCode==46) || (event.charCode > 47 && event.charCode < 58)"
+                (paste)="matcher($event, 'city')" (input)="enableSave($event, 'city')">
+            <app-field-error-display [displayError]="isFieldValid('city')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+        </div>
+        <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('state')">
+            <label for="state">State</label>
+            <p-dropdown [options]="stateList" class="state-dropdown p-dropdown-sm" placeholder="Select State" optionLabel="name"
+                optionValue="name" appendTo="" formControlName='state' [ngClass]="errorFieldCss('state')"
+                (click)="resetSubmitted('state')" (onChange)="stateFieldChangeEvent($event)"></p-dropdown>
+            <app-field-error-display [displayError]="isFieldValid('state')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+        </div>
+        <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('zip')">
+            <label for="zip">Zip</label>
+            <p-inputMask formControlName='zip' [mask]="zipFormat" class="p-inputtext-sm" autocomplete="new-password"
+                [ngClass]="errorFieldCss('zip')" (onBlur)="zipBlurEvent($event,controlId)" (click)="resetSubmitted('zip')"
+                (keyup)="enableSave($event,'zip')" [autoClear]="false"></p-inputMask>
+            <app-field-error-display [displayError]="isFieldValid('zip')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+        </div>
+    </div>
+</div>

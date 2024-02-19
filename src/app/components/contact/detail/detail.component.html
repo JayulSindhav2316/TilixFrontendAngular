@@ -1,0 +1,475 @@
+<p-toast></p-toast>
+<div *ngIf="showCompany">
+    <form [formGroup]="companyForm" (ngSubmit)="onSubmit()">
+        <div class="p-col-12" *ngIf="showForm">
+            <div class="card">
+              <div class="card-header profile-title">
+                  <h5>{{currentUser.accountName}} Info</h5>
+              </div>
+              <div class="p-fluid p-formgrid p-grid">
+                  <input formControlName="CompanyId" type="hidden">
+                  <div class="p-field p-col-12 p-md-12" [ngClass]="errorIconCss('CompanyName')">
+                      <label for="CompanyName">Name</label>
+                      <input formControlName="CompanyName" type="text" pInputText autocomplete="new-password" class="p-inputtext-sm" (input) = "enableSave($event, 'CompanyName')" 
+                      [ngClass]="errorFieldCss('CompanyName')">
+                      <app-field-error-display [displayError]="isFieldValid('CompanyName')" [addErrorMessages]="addErrorMessages">
+                      </app-field-error-display>
+                  </div>
+                 
+                  <div class="p-field p-col-12 p-md-12">
+                      <label for="CompanyWebsite">Web  Site</label>
+                      <input formControlName="CompanyWebsite" type="text" pInputText  autocomplete="new-password" class="p-inputtext-sm" (input) = "enableSave($event, 'CompanyWebsite')">
+                  </div>
+                  
+              </div>
+            </div>
+            <div class="card">
+                <div class="card-header profile-title">
+                    <h5>Phone Numbers</h5>
+                    <div class="header-buttons">
+                        <button  pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2" (click)="addCompanyPhone()" pTooltip="Add another Phone"  tooltipPosition="left"></button>
+                        <div *ngIf="enablePhoneInfoSave">
+                            <button pButton type="button" icon="pi pi-check" iconPos="left" class="p-button-rounded p-button-warning p-mr-2" (click)="saveCompany()" pTooltip="Save changes"  tooltipPosition="top"></button>
+                            <button pButton type="button" icon="pi pi-times" iconPos="left" class="p-button-rounded p-button-danger" (click)="cancelCompanyEdit()" pTooltip="Cancel changes"  tooltipPosition="top"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-12">
+                        <div formArrayName="CompanyPhones">
+                            <div *ngFor="let phone of CompanyPhones.controls; let i=index">
+                            <!-- The repeated alias template -->
+                            <div *ngIf="!submitted"> 
+                                <app-phone [formControlName]="i" [controlId]="i" [isCompany]="showCompany" (removeControl)="removeCompanyPhone($event)" (setPrimaryPhone)="checkCompanyPrimaryPhone($event)" (phoneChanged)="phoneChanged($event)"></app-phone>
+                                </div>
+                                <div *ngIf="submitted"> 
+                                <app-phone [formControlName]="i" [controlId]="i"  (removeControl)="removeCompanyPhone($event)"  (setPrimaryPhone)="checkCompanyPrimaryPhone($event)" (otherFormClicked)="otherFormClicked($event)" 
+                                [profileFormSubmitted]=true></app-phone>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                  
+                </div>  
+            </div>
+            <div class="card">
+                <div class="card-header profile-title">
+                    <h5>Email Addresses</h5>
+                    <div class="header-buttons">
+                        <button  pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2" (click)="addCompanyEmail()" pTooltip="Add another Email"  tooltipPosition="left"></button>
+                        <div *ngIf="enableEmailInfoSave">
+                            <button pButton type="button" icon="pi pi-check" iconPos="left" class="p-button-rounded p-button-warning p-mr-2" (click)="saveCompany()" pTooltip="Save changes"  tooltipPosition="top"></button>
+                            <button pButton type="button" icon="pi pi-times" iconPos="left" class="p-button-rounded p-button-danger" (click)="cancelCompanyEdit()" pTooltip="Cancel changes"  tooltipPosition="top"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-12">
+                        <div formArrayName="CompanyEmails">
+                            <div *ngFor="let email of CompanyEmails.controls; let i=index">
+                            <!-- The repeated alias template -->
+                            <div *ngIf="!submitted"> 
+                                <app-email [formControlName]="i"  [controlId]="i"  [isCompany]="showCompany" (removeControl)="removeCompanyEmail($event)" (setPrimaryEmail)="checkCompanyPrimaryEmail($event)" (emailChanged)="emailChanged($event)"></app-email>
+                                </div>
+                                <div *ngIf="submitted"> 
+                                <app-email [formControlName]="i"  [controlId]="i"  [isCompany]="showCompany" (removeControl)="removeCompanyEmail($event)"  (setPrimaryEmail)="checkCompanyPrimaryEmail($event)" [profileFormSubmitted]=true (otherFormClicked)="otherFormClicked($event)"></app-email>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+            <div class="card">
+                <div class="card-header profile-title">
+                    <h5>Addresses</h5>
+                    <div class="header-buttons">
+                        <button  pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2" (click)="addCompanyAddress()"  pTooltip="Add another address"  tooltipPosition="left"></button>
+                        <div *ngIf="enableAddressInfoSave">
+                            <button pButton type="button" icon="pi pi-check" iconPos="left" class="p-button-rounded p-button-warning p-mr-2" (click)="saveCompany()" pTooltip="Save changes"  tooltipPosition="top"></button>
+                            <button pButton type="button" icon="pi pi-times" iconPos="left" class="p-button-rounded p-button-danger" (click)="cancelCompanyEdit()" pTooltip="Cancel changes"  tooltipPosition="top"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-12">
+                        <div formArrayName="CompanyAddresses">
+                            <div *ngFor="let address of CompanyAddresses.controls; let i=index">
+                            <!-- The repeated alias template -->
+                            <div *ngIf="!submitted"> 
+                                <app-address [formControlName]="i" [countries]="countryList"  [controlId]="i" [isCompany]="showCompany" (removeControl)="removeCompanyAddress($event)" (setPrimaryAddress)="checkCompanyPrimaryAddress($event)" (addressChanged)="addressChanged($event)"></app-address>
+                                </div>
+                                <div *ngIf="submitted"> 
+                                <app-address [formControlName]="i" [countries]="countryList" [controlId]="i"  [isCompany]="showCompany" (removeControl)="removeCompanyAddress($event)"  (setPrimaryAddress)="checkCompanyPrimaryAddress($event)" [profileFormSubmitted]=true (otherFormClicked)="otherFormClicked($event)"></app-address>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+            <div class="card">
+                <div class="card-header profile-title">
+                        <h5>Billable Contact Info</h5>
+                    </div>
+                    <div *ngIf="showBillableContactSearch"> 
+                        <app-search  [parentControl]='parentControl'  [parentEntityId]='entityId' (closeEvent)='closeSearchControl($event)' (addBillableContactEvent)="addBillableMember($event)"></app-search>
+                    </div>
+                    <div class="card"  *ngIf="!showBillableContactSearch">
+                        <div> 
+                        <p-toolbar styleClass="p-mb-4">
+                            <ng-template pTemplate="left">
+                                               
+                            </ng-template>
+                            <ng-template pTemplate="right">
+                                <div class="p-formgroup-inline">		
+                                    <button pButton type="button" label="Add"  icon="pi pi-plus" class="p-button-primary p-mr-2 p-mb-2"  (click)="addBillableContact()"></button>
+                                </div>
+                            </ng-template>
+                        </p-toolbar>
+                    </div>
+                    <div class="p-fluid p-formgrid p-grid" >
+                        <input formControlName="BillableContactId" type="hidden">
+                        <div class="p-field p-col-12 p-md-6">
+                            <label for="billableFirstName">First Name</label>
+                            <input formControlName="BillableFirstName" type="text" pInputText readonly="true"  autocomplete="new-password" class="p-inputtext-sm" >
+                        </div>
+                        <div class="p-field p-col-12 p-md-6" >
+                            <label for="billableLastName">Last Name</label>
+                            <input formControlName="BillableLastName" type="text" pInputText readonly="true"  autocomplete="new-password" class="p-inputtext-sm" (input) = "showBillableSearchControl()">
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <label for="BillablePhone">Phone</label>
+                            <p-inputMask formControlName="BillablePhone" [(ngModel)]="companyPh"  mask="(999) 999-9999? x99999"   readonly="true" autocomplete="new-password" class="p-inputtext-sm" ></p-inputMask>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <label for="BillableEmail">Email</label>
+                            <input formControlName="BillableEmail"  [(ngModel)]="companyEm" type="text" pInputText  readonly="true" autocomplete="new-password" class="p-inputtext-sm" autocomplete="new-password" class="p-inputtext-sm">
+                        </div>
+                        <div class="p-field p-col-6 p-md-6">
+                            <label for="Title">Title</label>
+                            <input formControlName="Title" type="text" pInputText   autocomplete="new-password" class="p-inputtext-sm" autocomplete="new-password" class="p-inputtext-sm">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="center" *ngIf="showBillableContactSearch===false">
+            <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"  type="submit" [disabled]="disableSave" (click)="saveCompany()"></button>
+            <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="cancelCompanyEdit()"></button>
+        </div>
+    </form>
+</div>   
+<div *ngIf="showPerson">
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <div class="p-col-12"  *ngIf="showForm">
+            <div class="card">
+                <div class="card-header profile-title">
+                    <h5>Personal Info</h5>
+                    <div class="header-buttons" *ngIf="enablePersonalInfoSave">
+                        <button pButton type="button" icon="pi pi-check" iconPos="left" class="p-button-rounded p-button-warning p-mr-2" (click)="saveContactPerson()" pTooltip="Save changes"  tooltipPosition="top"></button>
+                        <button pButton type="button" icon="pi pi-times" iconPos="left" class="p-button-rounded p-button-danger" (click)="cancelEdit()" pTooltip="Cancel changes"  tooltipPosition="top"></button>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid" *ngIf="contactToRelation > 0">
+                    <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('RelationType')">
+                        <label for="Relation">Relation</label>
+                        <p-dropdown  [options]="relations"  formControlName='RelationType' required placeholder="Select Relationship" optionLabel="name" optionValue="code" appendTo="body"  class="p-inputtext-sm" [ngClass]="errorFieldCss('RelationType')" (click) = "resetSubmitted('RelationType')" (onChange) = "enableSave($event, 'RelationType')"></p-dropdown>
+                        <app-field-error-display [displayError]="isFieldValid('RelationType')" [addErrorMessages]="addErrorMessages">
+                        </app-field-error-display>
+                    </div>
+                </div>
+                <hr class="profile-ruler">
+                <div class="p-fluid p-formgrid p-grid">
+                 
+                    <BR/>
+                    <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('Prefix')">
+                        <label for="Prefix">Prefix</label>                  
+                        <p-dropdown [options]="prefixList" formControlName="Prefix" editable="false" optionLabel="name" optionValue="code" appendTo="body" 
+                        class="p-inputtext-sm" [ngClass]="errorFieldCss('Prefix')" (click) = "resetSubmitted('Prefix')" (onChange) = "enableSave($event, 'Prefix')"></p-dropdown>
+                        <app-field-error-display [displayError]="isFieldValid('Prefix')" [addErrorMessages]="addErrorMessages">
+                        </app-field-error-display>
+                    </div>
+                    <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('FirstName')">
+                        <label for="firstname">First Name</label>
+                        <input formControlName="FirstName" type="text" pInputText autocomplete="new-password" class="p-inputtext-sm" [ngClass]="errorFieldCss('FirstName')" 
+                        (click) = "resetSubmitted('FirstName')"  maxlength = "30"  (input) = "enableSave($event, 'FirstName')">
+                        <app-field-error-display [displayError]="isFieldValid('FirstName')" [addErrorMessages]="addErrorMessages">
+                        </app-field-error-display>
+                    </div>
+                    <div class="p-field p-col-12 p-md-3">
+                        <label for="middleName">Middle Name</label>
+                        <input formControlName="MiddleName" type="text"  maxlength = "30" pInputText autocomplete="new-password" class="p-inputtext-sm" (input) = "enableSave($event, 'MiddleName')"  >
+                    </div>
+                    <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('LastName')">
+                        <label for="lastName">Last Name</label>
+                        <input formControlName="LastName" type="text" maxlength = "30" pInputText  autocomplete="new-password" class="p-inputtext-sm" [ngClass]="errorFieldCss('LastName')" 
+                        (click) = "resetSubmitted('LastName')" 
+                          (input) = "enableSave($event, 'LastName')"  >
+                        <app-field-error-display [displayError]="isFieldValid('LastName')" [addErrorMessages]="addErrorMessages">
+                        </app-field-error-display>
+                    </div>
+                    <div class="p-field p-col-12 p-md-3">
+                        <label for="casualName">Casual Name</label>
+                        <input formControlName="CasualName" type="text" maxlength = "30" pInputText autocomplete="new-password" class="p-inputtext-sm" (input) = "enableSave($event, 'CasualName')"  (click) = "resetSubmitted('CasualName')" >
+                    </div>
+                    <div class="p-field p-col-12 p-md-3">
+                        <label for="suffix">Suffix</label>
+                        <input formControlName="Suffix" type="text" pInputText autocomplete="new-password" class="p-inputtext-sm" (input) = "enableSave($event, 'Suffix')"   >
+                    </div>
+                    <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('DateOfBirth')">
+                        <label for="DateOfBirth">Birth Date <small>(mm/dd/yyyy)</small></label>
+                        <p-calendar inputId="basic" formControlName="DateOfBirth" (onSelect) = "enableSave($event, 'DateOfBirth')" class="p-inputtext-sm" 
+                        [ngClass]="errorFieldCss('DateOfBirth')" (click) = "resetSubmitted('DateOfBirth')" [maxDate]="currentDate" 
+                        (paste)="matcher($event, 'DateOfBirth','profileForm')"></p-calendar>
+                        <app-field-error-display [displayError]="isFieldValid('DateOfBirth')" [addErrorMessages]="addErrorMessages">
+                        </app-field-error-display>
+                    </div>
+                    <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('Gender')">
+                        <label for="gender">Gender</label>
+                        <p-dropdown [options]="genders" formControlName="Gender" placeholder="Select Gender" optionLabel="name" optionValue="code" appendTo="body" 
+                        class="p-inputtext-sm" [ngClass]="errorFieldCss('Gender')" (click) = "resetSubmitted('Gender')" (onChange) = "enableSave($event, 'Gender')" ></p-dropdown>
+                        <app-field-error-display [displayError]="isFieldValid('Gender')" [addErrorMessages]="addErrorMessages">
+                        </app-field-error-display>
+                    </div>
+                   
+                    <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('PreferredContact')">
+                        <label for="PreferredContact">Preferred Contact</label>
+                        <p-dropdown [options]="preferredContact" formControlName="PreferredContact" placeholder="Select Preferred Contact" optionLabel="name" optionValue="code" appendTo="body" 
+                        class="p-inputtext-sm" [ngClass]="errorFieldCss('PreferredContact')" (click) = "resetSubmitted('PreferredContact')" (onChange) = "enableSave($event, 'PreferredContact')" ></p-dropdown>
+                        <app-field-error-display [displayError]="isFieldValid('PreferredContact')" [addErrorMessages]="addErrorMessages">
+                        </app-field-error-display>
+                    </div>
+                    <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('Designation')">
+                        <label for="Designation">Designation</label>
+                        <p-dropdown (onChange) = "enableSave($event, 'Designation')" [options]="designationList" [ngClass]="errorFieldCss('Designation')" formControlName="Designation" placeholder="Select Preferred Designation" optionLabel="name" optionValue="code" appendTo="body" 
+                    class="p-inputtext-sm"></p-dropdown>
+                        <app-field-error-display [displayError]="isFieldValid('Designation')" [addErrorMessages]="addErrorMessages">
+                        </app-field-error-display>
+                    </div>
+                   
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header profile-title">
+                    <h5>Phone Numbers</h5>
+                    <div class="header-buttons">
+                        <button  pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2" (click)="addPhone()" pTooltip="Add another Phone"  tooltipPosition="left"></button>
+                        <div *ngIf="enablePhoneInfoSave">
+                            <button pButton type="button" icon="pi pi-check" iconPos="left" class="p-button-rounded p-button-warning p-mr-2" (click)="saveContactPerson()" pTooltip="Save changes"  tooltipPosition="top"></button>
+                            <button pButton type="button" icon="pi pi-times" iconPos="left" class="p-button-rounded p-button-danger" (click)="cancelEdit()" pTooltip="Cancel changes"  tooltipPosition="top"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-12">
+                        <div formArrayName="Phones">
+                            <div *ngFor="let phone of Phones.controls; let i=index">
+                            <!-- The repeated alias template -->
+                            <div *ngIf="!submitted"> 
+                                <app-phone [formControlName]="i" [controlId]="i" (removeControl)="removePhone($event)" (setPrimaryPhone)="checkPrimaryPhone($event)" (phoneChanged)="phoneChanged($event)"></app-phone>
+                                </div>
+                                <div *ngIf="submitted"> 
+                                <app-phone [formControlName]="i" [controlId]="i"  (removeControl)="removePhone($event)"  (setPrimaryPhone)="checkPrimaryPhone($event)" (otherFormClicked)="otherFormClicked($event)" 
+                                [profileFormSubmitted]=true></app-phone>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                  
+                </div>  
+            </div>
+            <div class="card">
+                <div class="card-header profile-title">
+                    <h5>Email Addresses</h5>
+                    <div class="header-buttons">
+                        <button  pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2" (click)="addEmail()" pTooltip="Add another Email"  tooltipPosition="left"></button>
+                        <div *ngIf="enableEmailInfoSave">
+                            <button pButton type="button" icon="pi pi-check" iconPos="left" class="p-button-rounded p-button-warning p-mr-2" (click)="saveContactPerson()" pTooltip="Save changes"  tooltipPosition="top"></button>
+                            <button pButton type="button" icon="pi pi-times" iconPos="left" class="p-button-rounded p-button-danger" (click)="cancelEdit()" pTooltip="Cancel changes"  tooltipPosition="top"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-12">
+                        <div formArrayName="Emails">
+                            <div *ngFor="let email of Emails.controls; let i=index">
+                            <!-- The repeated alias template -->
+                            <div *ngIf="!submitted"> 
+                                <app-email [formControlName]="i"  [controlId]="i"  (removeControl)="removeEmail($event)" (setPrimaryEmail)="checkPrimaryEmail($event)" (emailChanged)="emailChanged($event)"></app-email>
+                                </div>
+                                <div *ngIf="submitted"> 
+                                <app-email [formControlName]="i"  [controlId]="i"  (removeControl)="removeEmail($event)"  (setPrimaryEmail)="checkPrimaryEmail($event)" [profileFormSubmitted]=true (otherFormClicked)="otherFormClicked($event)"></app-email>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+            <div class="card">
+                <div class="card-header profile-title">
+                    <h5>Addresses</h5>
+                    <div class="header-buttons">
+                        <button  pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2" (click)="addAddress()"  pTooltip="Add another address"  tooltipPosition="left"></button>
+                        <div *ngIf="enableAddressInfoSave">
+                            <button pButton type="button" icon="pi pi-check" iconPos="left" class="p-button-rounded p-button-warning p-mr-2" (click)="saveContactPerson()" pTooltip="Save changes"  tooltipPosition="top"></button>
+                            <button pButton type="button" icon="pi pi-times" iconPos="left" class="p-button-rounded p-button-danger" (click)="cancelEdit()" pTooltip="Cancel changes"  tooltipPosition="top"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-12">
+                        <div formArrayName="Addresses">
+                            <div *ngFor="let address of Addresses.controls; let i=index">
+                            <!-- The repeated alias template -->
+                            <div *ngIf="!submitted"> 
+                                <app-address [formControlName]="i" [countries]="countryList"  [controlId]="i"  (removeControl)="removeAddress($event)" (setPrimaryAddress)="checkPrimaryAddress($event)" (addressChanged)="addressChanged($event)"></app-address>
+                                </div>
+                                <div *ngIf="submitted"> 
+                                <app-address [formControlName]="i" [countries]="countryList" [controlId]="i"  (removeControl)="removeAddress($event)"  (setPrimaryAddress)="checkPrimaryAddress($event)" [profileFormSubmitted]=true (otherFormClicked)="otherFormClicked($event)"></app-address>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+            <div class="card">
+                <div class="card-header profile-title">
+                    <h5>{{currentUser.accountName}} Info</h5>
+                    <div class="header-buttons" *ngIf="enableCompanyInfoSave">
+                        <button pButton type="button" icon="pi pi-check" iconPos="left" class="p-button-rounded p-button-warning p-mr-2" (click)="saveContactPerson()" pTooltip="Save changes"  tooltipPosition="top"></button>
+                        <button pButton type="button" icon="pi pi-times" iconPos="left" class="p-button-rounded p-button-danger" (click)="cancelEdit()" pTooltip="Cancel changes"  tooltipPosition="top"></button>
+                    </div>
+                </div>
+                <hr class="profile-ruler">
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-6">
+                        <!-- <input formControlName="CompanyId" type="hidden"> -->
+                        <label for="CompanyName">Name</label>
+                        <p-dropdown id="dd" [editable]="true" [options]="companyList" class="organization-dropdown p-dropdown-sm"  placeholder="Select {{currentUser.accountName}}" optionLabel="name" optionValue="code" appendTo=""
+                        [filter]="true" filterBy="name" formControlName='CompanyId' [ngClass]="errorFieldCss('CompanyId')" (click) = "resetSubmitted('CompanyId')" (onChange) = "enableSave($event, 'CompanyId','name', dd);setCompanyValue($event, 'CompanyId','name', dd)">
+                          <ng-template pTemplate="selectedItem" let-item>
+                              <div class="country-item country-item-value">
+                                  <div>{{item.name}}</div>
+                              </div>
+                          </ng-template>
+                          <ng-template let-company pTemplate="item">
+                              <div class="country-item">
+                                  <div>{{company.name}}</div>
+                              </div>
+                          </ng-template>
+                        </p-dropdown>
+                    </div>
+                    <div class="p-field p-col-12 p-md-6" *ngIf="configuration.displayRoles===0">
+                        <label for="Title">Title</label>
+                        <input formControlName="Title" type="text" pInputText autocomplete="new-password" class="p-inputtext-sm" (input) = "enableSave($event, 'Title')" (blur)="validateTitle($event)" maxlength="150">
+                    </div>
+                    <div class="p-field p-col-12 p-md-12" *ngIf="configuration.displayRoles===1">
+                        <label for="CompanyRole">Roles</label>
+                    </div>
+                    <div class="p-field p-col-12 p-md-12" *ngIf="configuration.displayRoles===1">
+                        <app-edit-contact-role  [parentCompanyId]="companyId" [parentEntityId]="entityId" [firstName]="contact.firstName" [lastName]="contact.lastName" (addNewContactRoleEvent)="setContactRoles($event)" [searchEnabled]="false"></app-edit-contact-role>
+                    </div>
+                   
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header profile-title">
+                    <h5>Social Network</h5>
+                    <div class="header-buttons" *ngIf="enableSocialInfoSave">
+                        <button pButton type="button" icon="pi pi-check" iconPos="left" class="p-button-rounded p-button-warning p-mr-2" (click)="saveContactPerson()" pTooltip="Save changes"  tooltipPosition="top"></button>
+                        <button pButton type="button" icon="pi pi-times" iconPos="left" class="p-button-rounded p-button-danger" (click)="cancelEdit()" pTooltip="Cancel changes"  tooltipPosition="top"></button>
+                    </div>
+                </div>
+                <hr class="profile-ruler">
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-6">
+                        <label for="faceBook">Facebook</label>
+                        <input id="faceBook" formControlName="FacebookName" type="text" pInputText autocomplete="new-password" class="p-inputtext-sm" (input) = "enableSave($event, 'FacebookName')">
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <label for="twitter">Twitter</label>
+                        <input id="twitter" formControlName="TwitterName" type="text" pInputText  autocomplete="new-password" class="p-inputtext-sm"(input) = "enableSave($event, 'TwitterName')">
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <label for="linkedIn">Linked IN</label>
+                        <input id="linkedIn" formControlName="LinkedinName" type="text" pInputText autocomplete="new-password" class="p-inputtext-sm"(input) = "enableSave($event, 'LinkedinName')">
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <label for="webSite">Web  Site</label>
+                        <input id="webSite" formControlName="Website" type="text" pInputText autocomplete="new-password" class="p-inputtext-sm"(input) = "enableSave($event, 'Website')">
+                    </div>
+                </div>
+            </div>
+            <form *ngIf="showAdditionalBlock" [formGroup]="group1">
+                <div>
+                    <div class="card">
+                        <div class="card-header profile-title">
+                            <h5>Additional Information</h5>
+                        </div>
+                        <!-- <div class="header-buttons" *ngIf="enableAddtionalFieldSave">
+                            <button pButton type="button" icon="pi pi-check" iconPos="left" class="p-button-rounded p-button-warning p-mr-2" (click)="saveContactPerson()" pTooltip="Save changes"  tooltipPosition="top"></button>
+                            <button pButton type="button" icon="pi pi-times" iconPos="left" class="p-button-rounded p-button-danger" (click)="cancelEdit()" pTooltip="Cancel changes"  tooltipPosition="top"></button>
+                        </div> -->
+                        <!-- <hr class="profile-ruler"> -->
+                        <div #customFieldControl class="p-fluid p-formgrid p-grid">
+                            <div *ngFor="let field of controls" class="p-field p-col-12 p-md-6">
+                                <label>{{field.label}}</label>
+                                <input *ngIf="field.type=='Input'" id={{field.label}}+67 attr.fid="{{field.fieldId}}" placeholder={{field.placeholder}}
+                                    maxlength={{field.limit}} formControlName={{field.label}} type="text" pInputText
+                                    class="p-inputtext-sm">
+                                <p-calendar id={{field.label}}+67 formControlName={{field.label}} attr.fid="{{field.fieldId}}" *ngIf="field.type=='Date'" dateFormat="mm/dd/yy"></p-calendar>
+                                <p-calendar id={{field.label}}+67 attr.fid="{{field.fieldId}}"*ngIf="field.type=='Time'" [timeOnly]="true"></p-calendar>
+                                <input id={{field.label}}+67 attr.fid="{{field.fieldId}}" *ngIf="field.type=='Number'" placeholder={{field.placeholder}}
+                                    formControlName={{field.label}} type="number" pInputText class="p-inputtext-sm">
+
+                                <textarea id={{field.label}}+67 formControlName={{field.label}} attr.fid="{{field.fieldId}}" *ngIf="field.type=='TextArea'" rows="5" cols="30"
+                                    pInputTextarea></textarea>
+                                <p-dropdown optionValue="option" optionLabel="option" id={{field.label}}+67 attr.fid="{{field.fieldId}}" [(ngModel)]="selectedDropValue" formControlName={{field.label}} *ngIf="field.type=='Dropdown' && field.multiselect!=1"
+                                    placeholder="Select" [options]="field.options"
+                                    optionLabel="option"></p-dropdown>
+                                    <!-- multiselect -->
+                                
+                                <p-multiSelect [options]="field.options" formControlName={{field.label}} [(ngModel)]="selectedDropValueMulti" optionLabel="option" optionValue="option" *ngIf="field.type=='Dropdown' && field.multiselect==1"></p-multiSelect>
+                                <!-- <div *ngIf="field.type=='Radio'" class="flex flex-column gap-3">
+                                    <div *ngFor="let category of field.options" class="field-checkbox">
+                                        <p-radioButton id={{field.label}}+67 attr.fid="{{field.fieldId}}" [inputId]="category.optionId" name="category.option"
+                                            [value]="category.option"></p-radioButton>
+                                        <label class="ml-2">{{category.option}}</label>
+                                    </div>
+                                </div>
+                                <div *ngIf="field.type=='Checkbox'" class="flex flex-column gap-3">
+                                    <div *ngFor="let category of field.options" class="field-checkbox">
+                                        <p-checkbox name="group" [value]="category"
+                                            [inputId]="category.optionId"></p-checkbox>
+                                        <label [for]="category.optionId">{{ category.option }}</label>
+                                    </div>
+                                </div> -->
+                                <!-- <app-field-error-display [displayError]="isCustomFieldValid(field.label)"
+                                    [addErrorMessages]="addErrorMessages">
+                                </app-field-error-display> -->
+
+
+                                <div *ngIf="group1.controls[field.label].invalid && (group1.controls[field.label].dirty || group1.controls[field.label].touched)"
+                                    class="alert">
+                                    <div class="p-invalid" *ngIf="group1.controls[field.label].errors.required">
+                                        <!-- <span _ngcontent-vmp-c271="" class="pi pi-times form-control-feedback error-icon"></span> -->
+                                        {{field.label}} is required
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+        <div class="center" *ngIf="showForm">
+            <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"  type="submit" (click)="saveContactPerson()" 
+            [disabled] = "disallowSave" *ngIf="editProfile"></button>
+            <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="cancelEdit()" [disabled] = "disallowSave" 
+            *ngIf="editProfile"></button>
+            <button pButton pRipple label="Save" [disabled]="disableSaveButton" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"  type="submit" (click)="saveContactPerson()" 
+            *ngIf="!editProfile"></button>
+            <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="cancelEdit()" *ngIf="!editProfile"></button>
+        </div>
+        </form>
+</div>

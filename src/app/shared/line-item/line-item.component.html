@@ -1,0 +1,59 @@
+
+    <ng-container [formGroup]="lineItmeFormGroup">
+      <input type="hidden" formControlName="LineItemId" value=0>
+      <input type="hidden" formControlName="InvoiceDetailId" value=0>
+      <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2">
+          <p-dropdown [disabled]="status == 3" formControlName="BillableEntityId" [options]="relationsList" optionValue="code" optionLabel="name"></p-dropdown>
+        </div>
+        <div *ngIf="showItemSearch"  #item class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2"> 
+          <p-autoComplete formControlName="ItemCodeSearch" [suggestions]="$filtered | async" (completeMethod)="getItemsByCode($event)" (focusout)="itemSearchValidation($event)" (blur)="itemSearchValidation($event)"
+          [appendTo]="item" [dropdown]="false" dataKey="itemCode" field="itemCode" (onSelect)="setItems($event)" placeholder="Enter Item Code">
+            <ng-template let-invoiceItem pTemplate="item">
+              <div style="font-size:15px;float:left;margin:10px 10px 0 0">{{invoiceItem.itemCode}} - {{invoiceItem.description}}</div>
+          </ng-template>
+          </p-autoComplete>
+        </div>
+        <div *ngIf="showItemCode" class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2"> 
+          <input formControlName="ItemCode" type="text" pInputText readonly="true">
+        </div>
+        <div *ngIf="showDescriptionSearch" [pTooltip]="lineItmeFormGroup.controls.DescriptionSearch?.value?.name" #description class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2" > 
+            <p-autoComplete formControlName="DescriptionSearch" [suggestions]="$filtered | async" (completeMethod)="getItemsByName($event)" (focusout)="itemSearchValidation($event)" (blur)="itemSearchValidation($event)" 
+            [appendTo]="description" [dropdown]="false" datakey="name" field="name" (onSelect)="setItems($event)" placeholder="Enter Description">
+              <ng-template let-invoiceItem pTemplate="item">
+                <div style="font-size:15px;float:left;margin:10px 10px 0 0">{{invoiceItem.itemCode}} - {{invoiceItem.description}}</div>
+            </ng-template>
+            </p-autoComplete>
+        </div>
+        <div *ngIf="showDescription" class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2"> 
+          <input formControlName="Description" #itemDescription [pTooltip]="itemDescription.value" type="text" pInputText readonly="true">
+          <app-field-error-display [displayError]="isFieldValid('Description')" [addErrorMessages]="addErrorMessages">
+          </app-field-error-display>
+        </div>
+        <div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2" [ngClass]="errorIconCss('Quantity')" >
+            <input type = "number" size = "10" onKeyDown="if(this.value.length==10 && event.keyCode!=8) return false;" min="1" placeholder="1"
+            pInputText formControlName="Quantity"  [ngClass]="errorFieldCss('Quantity')" (click) = "resetSubmitted('Quantity')" (change)="quantityChanged($event)" [readonly] = "status == 3"/>
+          <app-field-error-display [displayError]="isFieldValid('Quantity')" [addErrorMessages]="addErrorMessages">
+          </app-field-error-display>
+          <small *ngIf="enableStock && stockCount > 10" style="color: rgb(17, 189, 74);">{{stockCount}} item(s) left in stock</small>
+          <small *ngIf="enableStock && stockCount > 0 && stockCount <= 10" style="color: red;">{{stockCount}} item(s) left in stock</small>
+        </div>
+       
+        <div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2" [ngClass]="errorIconCss('Rate')" >
+            <div class="p-inputgroup">              
+              <span class="p-inputgroup-addon">$</span>
+              <input type = "number" size = "10" onKeyDown="if(this.value.length==10 && event.keyCode!=8) return false;" min="0.00" placeholder="0.00"
+              pInputText formControlName="Rate"  [ngClass]="errorFieldCss('Rate')" (click) = "resetSubmitted('Rate')" (change)="rateChanged($event)" [readonly] = "status == 3"/>
+            </div>
+            <app-field-error-display [displayError]="isFieldValid('Rate')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+          <div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2">
+            <div class="p-inputgroup">              
+              <span class="p-inputgroup-addon">$</span>
+              <input type = "number" size = "10" placeholder="0.00" pInputText formControlName="Amount" (change)="amountChanged($event)" [readonly] = "status == 3"/>
+            </div>
+          </div>
+      </div>
+  </ng-container>
+  

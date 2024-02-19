@@ -1,0 +1,111 @@
+<div class="p-grid">
+  <div class="p-col-1 p-md-1 p-xl-1"></div>
+  <div class="p-col-10 p-md-10 p-xl-10">
+    <p-toast></p-toast>
+    <div *ngIf="showTable">
+    <div class="card">
+      <p-toolbar styleClass="p-mb-4">
+        <ng-template pTemplate="left">
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+          </span>
+        </ng-template>
+        <ng-template pTemplate="right">
+          <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="openNew()"></button>         
+        </ng-template>
+      </p-toolbar>
+      
+      <p-table #dt [value]="departments" [columns]="cols" [rows]="10" [paginator]="true" [rowHover]="true" 
+      [globalFilterFields]="['name','description','costCenterCode']"
+      dataKey="departmentId" styleClass="p-datatable-sm" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" 
+      [showCurrentPageReport]="true">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="name" class="ui-resizable-column" pResizableColumn style="width:20%;">
+               Name
+              <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+            <th pSortableColumn="description" class="ui-resizable-column" pResizableColumn style="width:40%;">
+              Description
+              <p-columnFilter type="text" field="description" display="menu"></p-columnFilter>
+            </th>
+            <th pSortableColumn="costCenterCode" class="ui-resizable-column" pResizableColumn style="width:20%;">
+              Cost Center Code
+              <p-columnFilter type="text" field="costCenterCode" display="menu"></p-columnFilter>
+            </th>
+            <th pSortableColumn="status" class="ui-resizable-column" pResizableColumn style="width:10%;">
+              Status
+            </th>
+            <th style="width: 5rem">
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-department>
+          <tr>
+            <td >
+              {{department.name}}
+            </td>
+            <td>
+              {{department.description}}
+            </td>
+            <td >
+              {{department.costCenterCode}}
+            </td>
+            <td style="text-align: center;">
+              <div *ngIf="department.status; else elseStatusBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+              <ng-template #elseStatusBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+              <!-- <p-inputSwitch readonly=true [ngModel]="department.status"></p-inputSwitch> -->
+              <div #pMenu></div>
+              <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+            </td>
+            <td>
+              <button type="button" pButton icon="pi pi-ellipsis-v" (click)="setActiveRow(department);menu.toggle($event)"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+    </div>
+    <form [formGroup]="departmentForm">
+      <p-dialog [(visible)]="departmentDialog" [style]="{ width: '450px' }" header="Department Details" [modal]="true" styleClass="p-fluid" (onHide)="hideDialog()">
+        <ng-template pTemplate="content">
+          <div class="p-field" [ngClass]="errorIconCss('departmentName')">
+            <label for="name">Name</label>
+            <input type="text" pInputText formControlName="departmentName" autofocus pInputText formControlName="departmentName" maxlength = "45" [ngClass]="errorFieldCss('departmentName')" autofocus (click) = "resetSubmitted('departmentName')" 
+            onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode == 32) " 
+            (paste)="matcher($event, 'departmentName')"/>
+            <app-field-error-display [displayError]="isFieldValid('departmentName')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+          <div class="p-field" [ngClass]="errorIconCss('Description')">
+            <label for="lastName">Description</label>
+            <textarea [rows]="5" pInputTextarea formControlName="Description" autoResize="autoResize" [ngClass]="errorFieldCss('Description')" maxlength = "100" 
+            (click) = "resetSubmitted('Description')"></textarea>
+            <app-field-error-display [displayError]="isFieldValid('Description')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+          <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field  p-col-8">
+            <label for="lastName">Cost Center Code</label>
+            <input type="text" pInputTextarea formControlName="costCenterCode" autoResize="autoResize" maxlength="10" >
+          </div>
+          <div class="p-field p-col-4 p-d-flex p-jc-center">
+            <div>
+              <label for="Available">Active</label>   
+              <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                <p-inputSwitch formControlName="Status"></p-inputSwitch>
+              </div>       
+            </div>        
+          </div> 
+        </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="saveDepartment()"></button>
+          <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideDialog()"></button>
+        </ng-template>
+      </p-dialog>
+    </form>
+    <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+  </div>
+  <div class="p-col-1 p-md-1 p-xl-1"></div>
+</div>

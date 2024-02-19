@@ -1,0 +1,21 @@
+<HR>
+    <div [formGroup]="sortFormGroup">
+        <input type="hidden" formControlName="reportSortOrderId" value=0>
+        <div class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-md-3">               
+                <label for="label">Column</label>
+                <p-dropdown id="column" [options]="columns" placeholder="Select a Column" class="p-inputtext-sm"  optionLabel="columnName" optionValue="columnName" appendTo="body"  formControlName='fieldName' (onChange) = "setSortOrder($event)"> </p-dropdown>
+            </div>
+            <div class="p-field p-col-12  p-md-3">
+                <label for="value">Order</label>
+                <p-dropdown id="order" [options]="sortOrders" placeholder="Select an Order" class="p-inputtext-sm"  optionLabel="name" optionValue="code" appendTo="body"  formControlName='order' > </p-dropdown>
+            </div>
+         
+            <div class="p-field p-col-12 p-md-2">
+                <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text p-mr-2 p-mb-2 button-icon-cancel  p-button-sm" (click)="_removeControl()"  pTooltip="Remove Sort order" tooltipPosition="top"></button>
+            </div>
+        </div>
+    </div>
+
+
+

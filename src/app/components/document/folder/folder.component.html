@@ -1,0 +1,478 @@
+<div class="p-fluid p-formgrid p-grid">
+	<div class="p-field p-col-12">
+		<p-toast></p-toast>
+		<p-toolbar styleClass="p-mb-4">
+			<ng-template pTemplate="left">
+				<div class="route-bar-breadcrumb">
+					<i class="pi pi-folder"></i>
+					&nbsp;
+					<a class="p-link">
+						<!-- {{currentFolder}} -->
+						<span *ngFor="let link of folderArr; let last = last" (click)="selectedPath(link)">{{link}}<span
+								*ngIf="!last"> / </span></span>
+					</a>
+				</div>
+			</ng-template>
+			<ng-template pTemplate="right">
+				<span *ngIf="showSearchBox">
+					<label for="searchTypeSelection" class="p-sr-only">Search Filter:</label>
+					<p-dropdown id='searchFilterSelection' placeholder="Select Filter" [options]="filterList"
+						[(ngModel)]="selectedFilter" optionLabel="name" name="search"
+						(ngModelChange)='filterSelectionChanged($event)'></p-dropdown>
+				</span>
+				<span class="folder-tag-dropdown" style="margin-left: 5px;" *ngIf="selectedFilter.code ==='Tag'">
+					<p-multiSelect [options]="tagList" [(ngModel)]="selectedFilterTags" defaultLabel="Select Tags   "
+						optionLabel="name" resetFilterOnHide=true optionValue="code" display="chip"></p-multiSelect>
+				</span>
+				<span style="margin-left: 5px;" *ngIf="selectedFilter.code ==='DateRange'">
+					<p-calendar inputId="fromDate" [(ngModel)]="fromDate" class="p-inputtext-sm"></p-calendar>
+				</span>
+				<span style="margin-left: 5px; width:150px" *ngIf="selectedFilter.code ==='DateRange'">
+					<p-calendar inputId="toDate" [(ngModel)]="toDate" class="p-inputtext-sm"></p-calendar>
+				</span>
+				<span style="margin-left: 5px;" *ngIf="showSearchBox">
+					<input id="searchTextBox" pInputText [(ngModel)]="searchText" type="text"
+						placeholder="Search text..." (keydown.enter)="searchDocuments(1)" />
+				</span>
+				<span style="margin-left: 5px;" *ngIf="showSearchBox && showSearchResults">
+					<label for="searchTypeSelection" class="p-sr-only">Sort By:</label>
+					<p-dropdown id='sortBySelection' placeholder="Select Sort By" [options]="sortList"
+						[(ngModel)]="sortBy" optionLabel="name" name="sortOrder"></p-dropdown>
+				</span>
+				<span style="margin-left: 5px;" *ngIf="showSearchBox">
+					<p-button icon="pi pi-search" (click)="searchDocuments(1);">
+					</p-button>
+				</span>
+			</ng-template>
+		</p-toolbar>
+	</div>
+</div>
+
+<div class="card" *ngIf="showFolders">
+	<p-splitter [style]="{'height': '600px'}" [panelSizes]="[25,75]" styleClass="p-mb-5" [gutterSize]="10">
+		<ng-template pTemplate>
+			<div class="card" [style]="{'width': '100%','height':'100%'}">
+				<p-toolbar>
+					<div class="p-toolbar-group-left">
+						<p-button *ngIf="!addingNode" label="New" icon="pi pi-plus" (click)="AddNode()"
+							[disabled]="!containerSelected"></p-button>
+						<input pInputText type="text" placeholder="Folder name" *ngIf="addingNode" size="30"
+							[(ngModel)]="nodeName" (keypress)="keyPressAlphanumeric($event)" />
+						<p-button *ngIf="addingNode" icon="pi pi-save" (click)="SaveNode()"
+							class="p-button-primary p-ml-2" pTooltip="Save" tooltipPosition="top"></p-button>
+						<p-button *ngIf="addingNode" icon="pi pi-times" (click)="CancelNode()"
+							class="p-button-danger p-ml-2" pTooltip="Cancel" tooltipPosition="top"></p-button>
+					</div>
+				</p-toolbar>
+				<p-tree [value]="directories" [(selection)]="selectedNode" selectionMode="single"
+					(onNodeSelect)="nodeSelect($event)" (onNodeUnselect)="nodeUnselect($event)" scrollHeight="450px">
+				</p-tree>
+			</div>
+		</ng-template>
+		<ng-template pTemplate>
+			<div class="card" [style]="{'width': '100%','height':'100%'}" *ngIf="!uploadFiles">
+				<p-toolbar>
+					<div class="p-toolbar-group-left">
+						<p-button label="Upload" icon="pi pi-upload" styleClass="p-button-success"
+							[disabled]="!containerSelected" (click)="containerSelected && fileUpload.click()"
+							[ngStyle]="{'margin-right':'5px'}"></p-button>
+						<p-button label="Edit" icon="pi pi-pencil" styleClass="p-button-warning"
+							(click)="EditNodeLabel()" [disabled]="!folderSelected" [ngStyle]="{'margin-right':'5px'}">
+						</p-button>
+						<p-button label="Delete" icon="pi pi-trash" styleClass="p-button-danger" (click)="DeleteNode()"
+							[disabled]="!folderSelected"></p-button>
+					</div>
+				</p-toolbar>
+				<p-table #dt [value]="documents" [columns]="cols" [rows]="8" [paginator]="true" [rowHover]="true"
+					[globalFilterFields]="['fileName','createdDate']" dataKey="containerId" styleClass="p-datatable-sm"
+					currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+					[showCurrentPageReport]="true" rowExpandMode="single" resizableColumns="true">
+					<ng-template pTemplate="header">
+						<tr>
+							<th pSortableColumn="fileName" class="ui-resizable-column" pResizableColumn
+								style="width:25%;padding:2px !important">
+								Document
+								<p-columnFilter type="text" field="fileName" display="menu"></p-columnFilter>
+							</th>
+							<th pSortableColumn="documentTags" class="ui-resizable-column" pResizableColumn
+								style="width:25%;max-width:200px;padding:2px !important">
+								Tags
+							</th>
+							<th pSortableColumn="createdByName" class="ui-resizable-column" pResizableColumn
+								style="width:15%;;padding:2px !important">
+								Uploaded By
+								<p-columnFilter type="text" field="createdByNavigation.firstName"
+									display="menu"></p-columnFilter>
+							</th>
+							<th pSortableColumn="createdDate" class="ui-resizable-column" pResizableColumn
+								style="width:15%;;padding:2px !important">
+								Created Date
+								<p-columnFilter type="text" field="createdDate" display="menu">
+								</p-columnFilter>
+							</th>
+							<th pSortableColumn="fileSize" style="width:15%;padding:2px !important">
+								Size
+							</th>
+							<th style="width:5%;padding:2px !important">
+							</th>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="body" let-document>
+						<tr class="maxTableRow">
+							<td style="max-width:240px;" [pTooltip]="document.fileName">
+								{{document.fileName}}
+							</td>
+							<td  style="max-width:150px;" [pTooltip]="getAllTagNames(document.documentTags)">
+								<span *ngFor="let tag of document.documentTags; let i=index" style="margin-left:5px">
+									<p-tag styleClass="mr-2" value="{{ tag.tag.tagName }}"></p-tag>
+								</span>
+							</td>
+							<td>
+								{{document.createdByName}}
+							</td>
+							<td>
+								{{document.createdDate | date:'MM/dd/yyyy'}}
+							</td>
+
+							<td style="text-align: left;">
+								{{document.fileSize | filesize}}
+								<div #pMenu></div>
+								<p-menu #menu [popup]="true" [model]="menuItems" position="left" appendTo="body">
+								</p-menu>
+							</td>
+							<td>
+								<button type="button" pButton icon="pi pi-ellipsis-v"
+									(click)="setActiveRow(document);menu.toggle($event)"></button>
+							</td>
+						</tr>
+					</ng-template>
+				</p-table>
+			</div>
+
+			<p-dialog [(visible)]="showAccessControlDialog" [style]="{ width: '750px' }" header="Access Control"
+				[modal]="true" styleClass="p-fluid" [contentStyle]="{minHeight: '350px'}" (onHide)="hideDialog()">
+				<ng-template pTemplate="content">
+
+					<!-- tabview -->
+					<p-tabView id="tabContact" [(activeIndex)]="index">
+						<p-tabPanel header="Contact's Access" [cache]="false">
+							<!-- <div *ngIf="showGroupTable"> -->
+							<ng-template pTemplate="content">
+								<div class="card" *ngIf="accessControl==='Membership' && showAccessList">
+									<p-panel header="Select Access Control" [toggleable]="true" [collapsed]="true">
+										<p-table #dt [value]="membershipAccessList" [columns]="cols" [rows]="10"
+											[paginator]="false" [(selection)]="selectedAccessList" [rowHover]="true"
+											dataKey="membershipTypeId" resizableColumns="true"
+											styleClass="p-datatable-sm" [showCurrentPageReport]="true"
+											selectionMode="single">
+											<ng-template pTemplate="header">
+												<tr>
+													<th style="width: 5%">
+													</th>
+													<th pSortableColumn="categoryName" class="ui-resizable-column"
+														pResizableColumn style="width:25%;">
+														Category
+													</th>
+													<th pSortableColumn="name" class="ui-resizable-column"
+														pResizableColumn style="width:70%;">
+														Name
+													</th>
+												</tr>
+											</ng-template>
+											<ng-template pTemplate="body" let-item>
+												<tr class="maxTableRow">
+													<td style='text-align: center;'>
+														<p-tableCheckbox [value]="item"></p-tableCheckbox>
+													</td>
+													<td>
+														{{ item.membershipType.categoryName }}
+													</td>
+													<td>
+														{{ item.membershipType.name }}
+													</td>
+												</tr>
+											</ng-template>
+										</p-table>
+									</p-panel>
+								</div>
+								<div class="card" *ngIf="accessControl==='Group' && showAccessList">
+									<p-panel header="Select Access Control" [toggleable]="false" [collapsed]="false">
+										<p-table #dt [value]="groupAccessList" [columns]="cols" [rows]="10"
+											[paginator]="false" [(selection)]="selectedAccessList" [rowHover]="true"
+											dataKey="groupId" resizableColumns="true" styleClass="p-datatable-sm"
+											[showCurrentPageReport]="true" selectionMode="single">
+											<ng-template pTemplate="header">
+												<tr>
+													<th style="width: 5%">
+													</th>
+													<th pSortableColumn="categoryName" class="ui-resizable-column"
+														pResizableColumn style="width:25%;">
+														Name
+													</th>
+													<th pSortableColumn="name" class="ui-resizable-column"
+														pResizableColumn style="width:70%;">
+														Description
+													</th>
+												</tr>
+											</ng-template>
+											<ng-template pTemplate="body" let-item>
+												<tr class="maxTableRow">
+													<td style='text-align: center;'>
+														<p-tableCheckbox [value]="item"></p-tableCheckbox>
+													</td>
+													<td>
+														{{ item.groupName }}
+													</td>
+													<td>
+														{{ item.groupDescription }}
+													</td>
+												</tr>
+											</ng-template>
+										</p-table>
+									</p-panel>
+								</div>
+							</ng-template>
+						</p-tabPanel>
+						<p-tabPanel header="Staff Access" [cache]="false">
+							<ng-template pTemplate="content">
+								<p-table #dt [value]="staffAccessList" [columns]="cols" [rows]="10" [paginator]="false"
+									[(selection)]="selectedStaffList" [rowHover]="true" dataKey="staffRoles"
+									resizableColumns="true" styleClass="p-datatable-sm" [showCurrentPageReport]="true"
+									selectionMode="single">
+									<ng-template pTemplate="header">
+										<tr>
+											<th style="width: 5%">
+											</th>
+											<th pSortableColumn="categoryName" class="ui-resizable-column"
+												pResizableColumn style="width:25%;">
+												Name
+											</th>
+											<th pSortableColumn="name" class="ui-resizable-column" pResizableColumn
+												style="width:70%;">
+												Description
+											</th>
+										</tr>
+									</ng-template>
+									<ng-template pTemplate="body" let-item>
+										<tr class="maxTableRow">
+											<td style='text-align: center;'>
+												<p-tableCheckbox [value]="item"></p-tableCheckbox>
+											</td>
+											<td>
+												{{ item.groupName }}
+											</td>
+											<td>
+												{{ item.groupDescription }}
+											</td>
+										</tr>
+									</ng-template>
+								</p-table>
+							</ng-template>
+						</p-tabPanel>
+					</p-tabView>
+					<!-- tabviewend -->
+
+
+
+
+
+				</ng-template>
+				<!-- <ng-template pTemplate="footer">
+					<div class="center">
+						<p-button label="Save" icon="pi pi-save" styleClass="p-button-success"
+							(click)="saveAccessControl()"></p-button>
+						<p-button label="Cancel" icon="pi pi-cancel" styleClass="p-button-danger"
+							(click)="cancelAccessControl()" [ngStyle]="{'margin-left':'5px'}"></p-button>
+					</div>
+				</ng-template> -->
+			</p-dialog>
+			<p-dialog [(visible)]="showTagDialog" [style]="{ width: '750px' }" [modal]="true" styleClass="p-fluid"
+				[contentStyle]="{minHeight: '350px'}" (onHide)="hideDialog()">
+				<ng-template pTemplate="content">
+					<div class="card" *ngIf="uploadingDocument">
+						<span><B>Upload File: {{uploadFileName}} - {{uploadFileSize | filesize}}</B></span>
+					</div>
+					<div class="card">
+						<p-panel header="Manage Tags" [toggleable]="true" [collapsed]="!editingTag">
+							<h6>Add New</h6>
+							<div>
+								<p-toolbar>
+									<div class="p-toolbar-group-left">
+										<input pInputText type="text" placeholder="Tag" size="30" maxlength="20"
+											[(ngModel)]="tagName" (keypress)="keyPressAlphanumeric($event)"
+											(input)="EnableNewTag()" />
+										<p-button *ngIf="addingTag" icon="pi pi-save" (click)="SaveTag()"
+											class="p-button-primary p-ml-2" pTooltip="Save"
+											tooltipPosition="top"></p-button>
+										<p-button *ngIf="addingTag" icon="pi pi-times" (click)="CancelTag()"
+											class="p-button-danger p-ml-2" pTooltip="Cancel"
+											tooltipPosition="top"></p-button>
+									</div>
+								</p-toolbar>
+							</div>
+							<hr />
+							<div class="p-fluid p-formgrid p-grid">
+								<div *ngFor="let tag of tagList" class="p-field p-col-4">
+									<span>
+										<p-checkbox name="tagGroup" [value]="tag" [(ngModel)]="selectedTags"
+											[inputId]="tag.code" label="{{tag.name}}"></p-checkbox>
+									</span>
+								</div>
+							</div>
+							<hr />
+
+						</p-panel>
+					</div>
+				</ng-template>
+				<ng-template pTemplate="footer">
+					<div class="center">
+						<p-button label="Upload" icon="pi pi-upload" styleClass="p-button-success"
+							(click)="saveTags()"></p-button>
+						<p-button label="Cancel" icon="pi pi-cancel" styleClass="p-button-danger"
+							(click)="cancelTags()"></p-button>
+					</div>
+				</ng-template>
+			</p-dialog>
+		</ng-template>
+	</p-splitter>
+</div>
+<div style="display: none;">
+	<input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
+</div>
+<div class="card" *ngIf="showSearchResults">
+	<div><b>{{displaySearchMessage}}</b></div>
+	<div class="card" style="height:200px" *ngIf="paginating"></div>
+	<div class="card" style="height:200px" *ngIf="paginating"></div>
+	<ul *ngFor="let document of searchedDocuments">
+		<li *ngIf="!paginating">
+			<div class="card">
+				<div class="product-info">
+
+					<span><b>{{document.fileName}}</b></span>
+					<span style="margin-left: 15px;"><button pButton type="button" icon="pi pi-cloud-download"
+							iconPos="left" (click)="downlaod(document)"></button></span>
+					<span style="margin-left: 5px;"><button pButton type="button" icon="pi pi-copy"
+							iconPos="left" (click)="copyDocumentUrl(document)"></button></span>
+					<span style="float:right ">
+						<file-icon type="{{getFileType(document.fileName)}}" size="md"></file-icon>
+					</span>
+				</div>
+				<div class="product-info">
+					<span style="font-style:italic">
+						{{document.pathName}}
+					</span>
+				</div>
+				<div class="product-info">
+					<span style="font-style:italic">
+						Created on:{{document.createdDate | date:"MM/dd/yyyy"}}
+					</span>
+				</div>
+				<div>
+					<span *ngFor="let tag of document.documentTags; let i=index" style="margin-left:5px">
+						<p-tag styleClass="mr-2" value="{{ tag.tag.tagName }}"></p-tag>
+					</span>
+				</div>
+				<hr />
+				<span [innerHTML]="document.highlightText">
+				</span>
+				<span style="margin-left:5px;"><p-tag styleClass="ml-5" severity="success"
+						value="{{document.score*100 |number}}"></p-tag></span>
+			</div>
+
+		</li>
+	</ul>
+	<div class="card">
+		<div class="center">
+			<p-paginator #pp [rows]="10" [totalRecords]="totalRecords" (onPageChange)="paginate($event)"
+				[(first)]="startPage"></p-paginator>
+		</div>
+	</div>
+	<div class="card">
+		<div class="center">
+			<p-button label="Close" styleClass="p-button-success" (click)="closeSearch()"></p-button>
+		</div>
+	</div>
+</div>
+<div class="p-grid" *ngIf="showAuditTrail">
+	<div class="p-col-12 p-md-12 p-xl-12">
+		<div>
+			<h5>Audit Trail: {{selectedDocument.pathName }} / {{selectedDocument.fileName}}</h5>
+			<div class="card">
+				<p-toolbar styleClass="p-mb-12">
+					<ng-template pTemplate="left">
+						
+						<span class="p-input-icon-left">
+							<i class="pi pi-search"></i>
+							<input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')"
+								placeholder="Search..." />
+						</span>
+					
+					</ng-template>
+					<ng-template pTemplate="right">
+              <span class="p-input-icon-left" style="margin-right:5px">
+								<label for="icon" style="margin-right:5px">From</label>
+								<p-calendar [(ngModel)]="auditTrailFormDate" (ngModelChange)="filterAuditTrails()"
+									[showIcon]="true" inputId="icon"></p-calendar>
+							</span>
+							<span class="p-input-icon-left" style="margin-right:5px">
+								<label for="icon" style="margin-right:5px">To</label>
+								<p-calendar [(ngModel)]="auditTrailToDate" (ngModelChange)="filterAuditTrails()"
+									[showIcon]="true" inputId="icon"></p-calendar>
+							</span>
+				  </ng-template>
+				</p-toolbar>
+
+				<p-table #dt [value]="filteredAuditTrail" [rows]="10" [paginator]="true" [rowHover]="true"
+					[globalFilterFields]="['memberName']" dataKey="accessId" styleClass="p-datatable-sm"
+					currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+					[showCurrentPageReport]="true" rowExpandMode="single">
+					<ng-template pTemplate="header">
+						<tr>
+
+							<th pSortableColumn="memberName" class="ui-resizable-column" pResizableColumn
+								style="width:40%;">
+								Member
+								<p-columnFilter type="text" field="memberName" display="menu"></p-columnFilter>
+							</th>
+							<th pSortableColumn="download" style="width:30%;">
+								Access Type
+							</th>
+							<th pSortableColumn="userType" style="width:30%;">
+								User Type
+							</th>
+							<th pSortableColumn="accessDate" style="width:30%;">
+								Date Time
+							</th>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="body" let-access>
+						<tr class="maxTableRow">
+							<td>
+								{{access.memberName}}
+							</td>
+							<td>
+								Download
+							</td>
+							<td>
+								{{access.userType}}
+							</td>
+							<td style="text-align: left;">
+								{{access.accessDate | date:'MM/dd/yyyy hh:mm a'}}
+							</td>
+						</tr>
+					</ng-template>
+				</p-table>
+			</div>
+			<div class="card">
+				<div class="center">
+					<p-button label="Close" styleClass="p-button-success" (click)="closeAudit()"></p-button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div>
+	<ng2-pdfjs-viewer #externalPdfViewer [pdfSrc]="fileUrl" [externalWindow]="true"></ng2-pdfjs-viewer>
+</div>
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

@@ -1,0 +1,75 @@
+<div *ngIf="showMembershipChart">
+    <div class="p-grid p-fluid">
+        <div class="p-col-12 p-md-6">
+            <div class="card clsDailySaleByMonthCard">
+                <h5 class="centerText">Daily Sales By Month</h5>
+                <p-chart
+                    type="line"
+                    [data]="salesData"
+                    [options]="salesOptions"
+                    width="auto"
+                    height="30vh"
+                ></p-chart>
+            </div>
+            <div class="card clsTotalMembershipsCard">
+                <h5 class="centerText">Total Memberships [By Type]</h5>
+                <p-chart
+                    type="pie"
+                    [data]="membershipsData"
+                    [options]="membershipsByTypeOptions"
+                    width="auto"
+                    height="30vh"
+                ></p-chart>
+            </div>
+        </div>
+        <div class="p-col-12 p-md-6">
+            <div class="card clsMemberDueExpireCard">
+                <h5 class="centerText">Total Members Due Expire - in Next:</h5>
+                <p-chart
+                    type="bar"
+                    [data]="expirationData"
+                    [options]="expirationOptions"
+                    width="auto"
+                    height="30vh"
+                ></p-chart>
+            </div>
+            <!-- clsTerminationCard, -->
+            <div class="card clsTerminationCard">
+                <h5 class="centerText">Terminations</h5>
+                <p-chart
+                    type="doughnut"
+                    [data]="terminationData"
+                    [options]="terminationsOptions"
+                    width="auto"
+                    height="30vh"
+                ></p-chart>
+            </div>
+        </div>
+    </div>
+</div>
+<div *ngIf="showDocumentChart">
+    <div class="p-grid p-fluid">
+        <div class="p-col-12 p-md-6">
+            <div class="card clsDocumentDownloadsCard">
+                <h5 class="centerText">Top Document Downloads</h5>
+                <p-chart
+                    type="bar"
+                    [data]="documentSearchData"
+                    [options]="documentSearchOptions"
+                    width="auto"
+                    height="30vh"
+                ></p-chart>
+            </div>
+            <div class="card clsMostActiveUserCard">
+                <h5 class="centerText">Most Active Users</h5>
+                <p-chart
+                    type="bar"
+                    [data]="activeUserData"
+                    [options]="activeUserOptions"
+                    width="auto"
+                    height="30vh"
+                ></p-chart>
+            </div>
+        </div>
+    </div>
+</div>

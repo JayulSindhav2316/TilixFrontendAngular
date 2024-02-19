@@ -1,0 +1,12 @@
+:host ::ng-deep .p-chip.custom-chip {
+    background: var(--primary-color);
+    color: var(--primary-color-text);
+}
+
+:host ::ng-deep .p-toolbar {
+    flex-wrap: nowrap !important;
+}
+
+:host ::ng-deep .folder-tag-dropdown .p-multiselect .p-multiselect-panel {
+    min-width: 150% !important;
+}

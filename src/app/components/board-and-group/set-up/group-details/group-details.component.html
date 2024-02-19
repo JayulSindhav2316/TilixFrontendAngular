@@ -1,0 +1,163 @@
+ 
+  <p-toast></p-toast>
+<form [formGroup]="groupForm" (ngSubmit)="saveGroups()" (keydown.enter)="$event.preventDefault()"> 
+  <div class="p-grid">  
+    <div class="p-xl-1"></div>
+    <div class="p-col-12 p-xl-10">
+      <p-toolbar styleClass="p-mb-4">
+        <ng-template pTemplate="left">
+          <h5>{{addNewGroupRecord ? "Add New Group" : group.groupName}}</h5>
+        </ng-template>
+        <ng-template pTemplate="right">
+        </ng-template>
+      </p-toolbar> 
+      <p-accordion>
+        <p-accordionTab [selected]="addNewGroupRecord">
+          <ng-template pTemplate="header">
+            <h5>Details</h5>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <div class="card">
+              <div class="p-fluid p-formgrid p-grid">
+                <div class="p-field p-col-12" [ngClass]="errorIconCss('Name')">
+                    <label for="Name">Name</label>
+                    <input type="text" pInputText formControlName="Name" autocomplete="new-password" autofocus [ngClass]="errorFieldCss('Name')"
+                    placeholder="Name of the Board / Group / Committee" (focusout) = "nameValidation($event)" (blur) = "nameValidation($event)" maxlength="100" />
+                    <app-field-error-display [displayError]="isFieldValid('Name')" [addErrorMessages]="addErrorMessages">
+                    </app-field-error-display>
+                </div>
+              </div>
+              <div class="p-fluid p-formgrid p-grid">
+                <div class="p-field p-col-12" [ngClass]="errorIconCss('Description')">
+                  <label for="Description">Description</label>
+                  <textarea [rows]="2" pInputTextarea formControlName="Description" autoResize="autoResize" [ngClass]="errorFieldCss('Description')" maxlength = "500"
+                  placeholder="Purpose of the Board / Group / Committee"></textarea>
+                </div>
+              </div>
+              <div class="p-fluid p-formgrid p-grid">          
+                <div class="p-field p-col-2" [ngClass]="errorIconCss('Units')">
+                  <label for="Units">Target Size</label>
+                  <p-inputNumber formControlName="Units" [min]="1" [step]="1"  mode="decimal" [showButtons]="true"></p-inputNumber>
+                </div>
+                <div class="p-field p-col-1 p-d-flex p-jc-center">
+                  <div>
+                      <label for="Status">Active</label>
+                      <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                        <p-inputSwitch formControlName='Status'></p-inputSwitch>
+                      </div>
+                  </div>
+                </div>
+                <div class="p-field p-col-1 p-d-flex p-jc-center">
+                  <div>
+                      <label for="Status">Sync ?</label>
+                      <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                        <p-inputSwitch formControlName='Sync'></p-inputSwitch>
+                      </div>
+                  </div>
+                </div>
+                <div class="p-field p-col-1 p-d-flex p-jc-center">
+                  <div>
+                    <label for="Term">Term</label>
+                    <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                      <p-inputSwitch formControlName='Term' (onChange)="enableTermFields($event)"></p-inputSwitch>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="termEnabled" class="p-field p-col-3" [ngClass]="errorIconCss('StartDate')">
+                  <label for="StartDate">Start Date</label>
+                  <p-calendar formControlName="StartDate" [minDate]="minDate"  [showIcon]="true" appendTo="body" [readonlyInput]="true" (onSelect)="setMinEndDate($event)"></p-calendar>
+                </div>
+                <div *ngIf="termEnabled" class="p-field p-col-3" [ngClass]="errorIconCss('EndDate')">
+                  <label for="EndDate">End Date</label>
+                  <p-calendar formControlName="EndDate" [minDate]="minEndDate"  [showIcon]="true" appendTo="body"  [readonlyInput]="true"></p-calendar>
+                </div>
+              </div> 
+            </div>
+          </ng-template>
+        </p-accordionTab>
+      </p-accordion>
+      
+      <div class="card p-mt-5">
+        <div class="card-header profile-title">
+          <h5>Positions</h5>
+          <div class="header-buttons">
+              <button  pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2 p-mb-2" (click)="addRole()"
+              pTooltip="Add Position"  tooltipPosition="left"></button>
+          </div>
+        </div>      
+        <hr class="profile-ruler">
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-xl-1"></div>
+          <div class="p-xl-10"  *ngIf="roleList.length>0">
+            <p-table #dt [value]="roleList" [rows]="10" [paginator]="true" styleClass="p-datatable" [rowHover]="true" dataKey="roleId"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [showCurrentPageReport]="true" resizableColumns="true">
+              <!-- (onEditInit)="enableSave($event)" (onEditComplete)="complete()" (onEditCancel)="cancel()"> -->
+              <ng-template pTemplate="header">
+                <tr>
+                  <th width="50%">  
+                    <span class="table-header">Position Name</span> 
+                  </th>
+                  <th width="10%" style="text-align: center;">             
+                    Status
+                  </th>
+                  <th width="10%">
+                  </th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-role let-rowIndex="rowIndex">
+                <tr class="maxTableRow">
+                  <td>
+                    <input type="text" pInputText [(ngModel)]="role.groupRoleName" maxlength = "64" [ngModelOptions]="{standalone: true}" 
+                    [disabled]="role.isDefault" (keyup.esc)="resetExistingRole()" (input)="setActiveRole($event, role, rowIndex)"
+                    (focusout)="saveExistingRole(role, rowIndex)" (keyup.enter)="saveExistingRole(role, rowIndex)"
+                     required="true"/>
+                  </td>
+                  <td style="text-align: center;">
+                    <p-toggleButton [(ngModel)]="role.isLinked" [ngModelOptions]="{standalone: true}" onLabel="Active" offLabel="Inactive" 
+                      [disabled]="role.groupRoleName == 'Member' || role.groupRoleName.trim() == ''"
+                      (onChange)="toggleStatus($event, role, rowIndex)" styleClass="p-button-danger" >
+                    </p-toggleButton>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>           
+          </div>
+          <div class="p-xl-10 p-d-flex p-jc-center"  *ngIf="roleList.length==0"><h5>No positions created</h5></div>
+          <div class="p-xl-1"></div>          
+        </div> 
+      </div>  
+      <hr class="profile-ruler">         
+      <div class="p-col-12 p-d-flex p-jc-center"> 
+        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" [disabled]="groupForm.invalid"></button>
+        <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="cancelGroup()"></button>
+      </div> 
+    </div> 
+    <div class="p-xl-1"></div>
+  </div>
+</form>
+
+<form [formGroup]="roleForm">
+  <p-dialog [(visible)]="roleDialog" [style]="{ width: '450px' }" header="Position Details" [modal]="true" styleClass="p-fluid" (onHide)="hideRoleDialog()">
+    <ng-template pTemplate="content">
+      <input type="hidden" formControlName="RoleId">
+      <div class="p-field" [ngClass]="errorRoleIconCss('PositionName')">
+        <label for="name">Name</label>
+        <input type="text" pInputText formControlName="PositionName" maxlength = "64" [ngClass]="errorRoleFieldCss('PositionName')" autofocus
+        (focusout) = "roleNameValidation($event)" (blur) = "roleNameValidation($event)"/>
+        <app-field-error-display [displayError]="isRoleFieldValid('PositionName')" [addErrorMessages]="addErrorMessages">
+        </app-field-error-display>
+      </div>
+      <div>
+        <label for="Term">Active</label>
+        <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+          <p-inputSwitch formControlName='Status'></p-inputSwitch>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="saveRole()" [disabled]="roleForm.invalid"></button>
+      <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideRoleDialog()"></button>
+    </ng-template>
+  </p-dialog>
+</form>

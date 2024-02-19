@@ -1,0 +1,115 @@
+<form [formGroup]="membershipDetailForm" (ngSubmit)="saveMembership()">
+  <div class="p-grid">
+    <p-toast></p-toast>
+    <div class="p-xl-1"></div>
+    <div class="p-col-12 p-xl-10">
+      <div class="card">
+        <div class="card-header profile-title">
+          <h5>Details</h5>
+        </div>
+        <hr class="profile-ruler">
+        <input type="hidden" formControlName="MembershipTypeId">
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-8" [ngClass]="errorIconCss('Name')">
+            <label for="Name">Name</label>
+            <input type="text" pInputText formControlName="Name" [ngClass]="errorFieldCss('Name')" autofocus
+              (click)="resetSubmitted('Name')" maxlength="30" onkeypress="return (event.charCode > 31 && event.charCode < 94) || (event.charCode > 96 && event.charCode < 125) || (event.charCode==32) 
+            || (event.charCode==39)" (paste)="matcher($event, 'Name')" />
+            <app-field-error-display [displayError]="isFieldValid('Name')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+          <div class="p-field p-col-4" [ngClass]="errorIconCss('Code')">
+            <label for="Code">Code</label>
+            <input type="text" pInputText formControlName="Code" [ngClass]="errorFieldCss('Code')"
+              (click)="resetSubmitted('Code')" maxlength="20"
+              onkeypress="return (event.charCode > 31 && event.charCode < 94) || (event.charCode > 96 && event.charCode < 125) || (event.charCode==45) || (event.charCode > 47 && event.charCode < 58)"
+              (paste)="matcher($event, 'Code')" />
+            <app-field-error-display [displayError]="isFieldValid('Code')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+        </div>
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-12" [ngClass]="errorIconCss('Description')">
+            <label for="Description">Description</label>
+            <textarea [rows]="2" pInputTextarea formControlName="Description" autoResize="autoResize"
+              [ngClass]="errorFieldCss('Description')" maxlength="500" (click)="resetSubmitted('Description')"
+              onKeyDown="if(this.value.length==500 && event.keyCode!=8) return false;"></textarea>
+            <app-field-error-display [displayError]="isFieldValid('Description')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+        </div>
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-3" [ngClass]="errorIconCss('Category')">
+            <label for="Category">Membership Category</label>
+            <p-dropdown [options]="categoryList" formControlName="Category" placeholder="Select a Membership Category"
+              optionLabel="name" optionValue="code" appendTo="body" [ngClass]="errorFieldCss('Category')"
+              (click)="resetSubmitted('Category')"></p-dropdown>
+            <app-field-error-display [displayError]="isFieldValid('Category')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+          <div class="p-field p-col-3" [ngClass]="errorIconCss('Period')">
+            <label for="Period">Period</label>
+            <p-dropdown [options]="periodList" formControlName="Period" placeholder="Select a Period" optionLabel="name"
+              optionValue="code" appendTo="body" [ngClass]="errorFieldCss('Period')" (click)="resetSubmitted('Period')"
+              (onChange)="getPaymentFrequencyList($event)"></p-dropdown>
+            <app-field-error-display [displayError]="isFieldValid('Period')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+          <div class="p-field p-col-3" [ngClass]="errorIconCss('Frequency')">
+            <label for="Frequency">Payment Frequency</label>
+            <p-dropdown [options]="frequencyList" formControlName="Frequency" placeholder="Select a Payment Frequency"
+              optionLabel="name" optionValue="code" appendTo="body" [ngClass]="errorFieldCss('Frequency')"
+              (click)="resetSubmitted('Frequency')"></p-dropdown>
+            <app-field-error-display [displayError]="isFieldValid('Frequency')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+
+          <div class="p-field p-col-3" [ngClass]="errorIconCss('Units')">
+            <label for="Units">Max. Units</label>
+            <p-inputNumber formControlName="Units" [min]="1" [max]="100" mode="decimal"
+              [showButtons]="true"></p-inputNumber>
+            <app-field-error-display [displayError]="isFieldValid('Units')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+          <div class="p-field p-col-4 p-d-flex p-jc-left">
+            <div>
+              <label for="Active">Active</label>
+              <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                <p-inputSwitch formControlName="Status"></p-inputSwitch>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header profile-title">
+          <h5>Fees</h5>
+          <div class="header-buttons">
+            <!-- <button  pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2 p-mb-2" (click)="addFee()" pTooltip="Add Fee"  tooltipPosition="left" 
+            [disabled]="membershipDetailForm.get('Fees').invalid"></button> -->
+            <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2 p-mb-2"
+              (click)="addFee()" pTooltip="Add Fee" tooltipPosition="left"></button>
+          </div>
+        </div>
+        <hr class="profile-ruler">
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-12 p-md-12">
+            <div formArrayName="Fees">
+              <div *ngFor="let fee of Fees.controls; let i=index">
+                <app-fees [formControlName]="i" [controlId]="i" (removeControl)="removeFee($event)"
+                  (otherFormClicked)="otherFormClicked($event)" [membershipDetailsFormSubmitted]='submitted'></app-fees>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-col-12 p-d-flex p-jc-center">
+        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"
+          type="submit"></button>
+        <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+          [routerLink]="['/setup/membership']"></button>
+      </div>
+    </div>
+    <div class="p-xl-1"></div>
+  </div>
+</form>

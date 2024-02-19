@@ -1,0 +1,25 @@
+<HR>
+    <div [formGroup]="filterFormGroup">
+        <input type="hidden" formControlName="reportFilterId" value=0>
+        <div class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-md-3">               
+                <label for="label">Parameter</label>
+                <p-dropdown id="parameter" [options]="parameters" placeholder="Select a parameter" class="p-inputtext-sm"  optionLabel="parameter" optionValue="reportParameterId" appendTo="body"  formControlName='parameterId' (onChange) = "setParameter($event)"> </p-dropdown>
+            </div>
+            <div class="p-field p-col-12  p-md-3">
+                <label for="value">Condition</label>
+                <p-dropdown id="value" [options]="conditions" placeholder="Select a condition" class="p-inputtext-sm"  optionLabel="name" optionValue="code" appendTo="body"  formControlName='operator' > </p-dropdown>
+            </div>
+            <div class="p-field p-col-12  p-md-3">
+                <label for="value">Value</label>
+                <span *ngIf="showText"><input type="text"  class="p-inputtext-sm"  pInputText autocomplete="new-password" formControlName='value'/></span>
+                <span *ngIf="showDate"><p-calendar  formControlName="value" [monthNavigator]="true" [yearNavigator]="true" yearRange="2000:2021" class="p-inputtext-sm" dateFormat="mm/dd/yy" dataType="string"></p-calendar></span>
+            </div>
+            <div class="p-field p-col-12 p-md-2">
+                <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text p-mr-2 p-mb-2 button-icon-cancel  p-button-sm" (click)="_removeControl()"  pTooltip="Remove Filter" tooltipPosition="top"></button>
+            </div>
+        </div>
+    </div>
+
+
+

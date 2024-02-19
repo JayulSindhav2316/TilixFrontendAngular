@@ -1,0 +1,290 @@
+<div class="p-grid">
+    <div class="p-col-12">
+        <p-toast></p-toast>
+        <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+        <h5>Deposit Report</h5>
+        <div class="card">
+            <p-toolbar styleClass="p-mb-4">
+                <ng-template pTemplate="left">
+                   <div class="p-formgroup-inline">
+                      <div class="p-field" >
+                         <label for="serachSelection"  class="p-sr-only" >Report  By:</label>
+                         <p-dropdown id='serachSelection' [options]="searchList" [(ngModel)]="selectedSearch" optionLabel="name" name = "search" (ngModelChange)='searchSelectChanged(false)' ></p-dropdown>
+                      </div>
+                      <div *ngIf="selectedSearch.name=='Day'">
+                         <form [formGroup]="searchByDayForm">
+                                <div class="p-input-icon-left" >
+                                  <div class="p-field ">
+                                     <label for="day" >Day</label>
+                                     <p-calendar formControlName='Day' [minDate]="minDate" [maxDate]="maxDate" [readonlyInput]="true"  [showIcon]="true"></p-calendar>
+                                  </div>
+                               </div>      
+                         </form>
+                      </div>
+                      <div *ngIf="selectedSearch.name=='Month'">
+                         <form [formGroup]="searchByMonthForm">
+                            <div class="p-field" >
+                               <label for="month" >Month</label>
+                               <p-calendar formControlName='Month' view="month"  dateFormat="mm/yy" [yearNavigator]="true" yearRange="2000:2030" [readonlyInput]="true"  [showIcon]="true"></p-calendar>
+                            </div>
+                         </form>
+                      </div>
+                      <div *ngIf="selectedSearch.name=='Date Range'">
+                         <form [formGroup]="searchByDateRangeForm">
+                            <div class="p-input-icon-left" >
+                                <div class="p-field" >
+                                    <label for="startDate" >From Date</label>
+                                    <p-calendar formControlName='FromDate' [minDate]="minDate" [maxDate]="maxDate" [readonlyInput]="true" [showIcon]="true"></p-calendar>
+                                </div>
+                            </div>
+                            <div class="p-input-icon-right">
+                                <div class="p-field" >
+                                    <label for="Phone">To Date</label>
+                                    <p-calendar formControlName='ToDate' [minDate]="minDate" [maxDate]="maxDate" [readonlyInput]="true" [showIcon]="true"></p-calendar>
+                                  </div>
+                             </div>
+                         </form>
+                      </div>
+                      <div>
+                        <div class="p-field">
+                            <label for="portalSelection">Portal</label>
+                            <p-dropdown id='portalSelection' [options]="portalList" [(ngModel)]="selectedPortal" optionLabel="name" name = "portal" (ngModelChange)='portalChanged($event)' ></p-dropdown>
+                         </div>
+                        </div>
+                      <div>
+                           <div class="p-field">
+                              <label for="cardType" >Payment Type</label>
+                              <p-dropdown id='cardType' [options]="paymentTypeList" [(ngModel)]="selectedPayment" optionLabel="name" name = "paymentType" ></p-dropdown>
+                           </div>
+                     </div>
+                     <div>
+                        <div class="p-field" style="margin-top:10px">
+                            <label for="remember">Summary?</label>  
+                        </div>
+                    </div>
+                    <div>
+                        <div class="p-field" style="margin-top:10px">
+                            <p-inputSwitch [(ngModel)]='summaryReport' class="align-middle" (ngModelChange)='summaryChanged($event)'></p-inputSwitch>
+                        </div>
+                    </div>
+                      <button pButton type="button" label="Search"  icon="pi pi-search" class="p-button-primary p-mr-2 p-mb-2" type="submit" (click)="getDeposit(false)" ></button>
+                   </div>
+                </ng-template>
+                  <ng-template pTemplate="right">
+                    <div class="p-d-flex">
+                        <button type="button" [disabled]="showExport" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()" class="p-button-success p-mb-3 p-mr-2"  pTooltip="XLS" tooltipPosition="bottom"></button>
+                        <button type="button" [disabled]="showExport" pButton pRipple icon="pi pi-file-pdf" (click)="exportPdf()" class="p-button-warning p-mb-3" pTooltip="PDF" tooltipPosition="bottom"></button>
+                    </div>
+                  </ng-template>
+              </p-toolbar>
+        </div>
+        <div class="card" *ngIf="showTable && !summaryReport">
+            <p-table #dt [value]="depositReport" sortField="paymentMode" sortMode="single" [scrollable]="true" scrollHeight="400px" rowGroupMode="subheader" groupRowsBy="paymentMode" responsiveLayout="scroll" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                      <th pSortableColumn="receiptId" class="ui-resizable-column" pResizableColumn width="15%" >
+                            Receipt#
+                            <p-columnFilter class="table-header-left" type="text" field="receiptId" display="menu"></p-columnFilter>  
+                      </th>
+                      <th pSortableColumn="transactionDate" class="ui-resizable-column" pResizableColumn width="15%" >
+                            Date
+                            <p-columnFilter class="table-header-left" type="text" field="transactionDate" display="menu"></p-columnFilter>  
+                    </th>
+                    <th pSortableColumn="billableName" class="ui-resizable-column" pResizableColumn width="15%" >
+                            Name
+                            <p-columnFilter class="table-header-left" type="text" field="billableName" display="menu"></p-columnFilter>  
+                    </th>
+                    <th pSortableColumn="transactionReference" class="ui-resizable-column" pResizableColumn width="15%" >
+                        Transaction Ref
+                        <p-columnFilter class="table-header-left" type="text" field="transactionReference" display="menu"></p-columnFilter>  
+                   </th>
+                     
+                      <th pSortableColumn="portal" class="ui-resizable-column" pResizableColumn width="15%" >
+                        Portal
+                        <p-columnFilter class="table-header-left" type="text" field="portal" display="menu"></p-columnFilter>  
+                    </th>
+                      <th pSortableColumn="amount" class="ui-resizable-column" pResizableColumn width="15%" style="text-align:center">
+                          Amount
+                          <p-columnFilter class="table-header-left" type="text" field="amount" display="menu"></p-columnFilter> 
+                      </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="groupheader" let-payment>
+                    <tr pRowGroupHeader>
+                        <td colspan="6">
+                            <span style="text-align: left; font-weight: bold;">{{payment.paymentMode}}</span>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="groupfooter" let-payment>
+                    <tr class="p-rowgroup-footer">
+                        <td style="min-width: 90%">
+                            <div style="text-align: right; width: 100%;font-weight: bold;">Total</div>
+                        </td>
+                        <td style="width: 10%;font-weight: bold;" *ngIf="calculatePaymentTotal(payment.paymentMode)>=0">{{calculatePaymentTotal(payment.paymentMode) | currency}}</td>
+                        <td style="width: 10%;font-weight: bold;" *ngIf="calculatePaymentTotal(payment.paymentMode)<0">({{calculatePaymentTotal(payment.paymentMode)*-1 | currency}})</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                    <tr class="maxTableRow">
+                    <td>
+                       {{item.receiptId}}
+                    </td>
+                  
+                    <td>
+                       {{item.transactionDate }}
+                    </td>
+                    <td>
+                      {{item.billableName}}
+                    </td>
+                    <td>
+                        {{item.transactionReference}}
+                    </td>
+                    <td>
+                        {{item.portal}}
+                    </td>      
+                    <td style="text-align:right" *ngIf="item.amount>=0">
+                       {{item.amount | currency}}
+                    </td>   
+                    <td style="text-align:right" *ngIf="item.amount<0">
+                        ({{item.amount*-1 | currency}})
+                     </td>                  
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="footer">
+                  
+                  <tr>
+                      <td style="min-width: 90%"><div style="text-align: right; width: 100%;font-weight: bold;">Cash Total</div></td>
+                      <td style="width: 10%;font-weight: bold;">{{totalCash | currency}}</td>
+                  </tr>
+                  <tr>
+                    <td style="min-width: 90%"><div style="text-align: right; width: 100%;font-weight: bold;">Check Total</div></td>
+                    <td style="width: 10%;font-weight: bold;">{{totalCheck | currency}}</td>
+                </tr>
+                <tr>
+                    <td style="min-width: 90%"><div style="text-align: right; width: 100%;font-weight: bold;">Credit Card Total</div></td>
+                    <td style="width: 10%;font-weight: bold;" *ngIf="totalCreditCard>=0">{{totalCreditCard | currency}}</td>
+                    <td style="width: 10%;font-weight: bold;" *ngIf="totalCreditCard<0">({{totalCreditCard*-1 | currency}})</td>
+                </tr>
+                <tr>
+                    <td style="min-width: 90%"><div style="text-align: right; width: 100%;font-weight: bold;">eCheck Total</div></td>
+                    <td style="width: 10%;font-weight: bold;" *ngIf="totaleCheck >=0">{{totaleCheck | currency}}</td>
+                    <td style="width: 10%;font-weight: bold;" *ngIf="totaleCheck<0">({{totaleCheck*-1 | currency}})</td>
+                </tr>
+                <tr>
+                    <td style="min-width: 90%"><div style="text-align: right; width: 100%;font-weight: bold;">Off Line Total</div></td>
+                    <td style="width: 10%;font-weight: bold;">{{totalOffline | currency}}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+        </div>
+        <div class="card" *ngIf="showTable && summaryReport">
+            <p-table #dtSummary [value]="depositReport"  [scrollable]="true" scrollHeight="400px"  responsiveLayout="scroll" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                      <th pSortableColumn="receiptId" class="ui-resizable-column" pResizableColumn width="20%" >
+                            Date
+                            <p-columnFilter class="table-header-left" type="text" field="transactionDate" display="menu"></p-columnFilter>  
+                      </th>
+                     
+                    <th pSortableColumn="totalCash" class="ui-resizable-column" pResizableColumn width="20%" >
+                            Cash
+                            <p-columnFilter class="table-header-left" type="text" field="totalCash" display="menu"></p-columnFilter>  
+                    </th>
+                    <th pSortableColumn="totalCheck" class="ui-resizable-column" pResizableColumn width="20%" >
+                        Check
+                        <p-columnFilter class="table-header-left" type="text" field="totalCheck" display="menu"></p-columnFilter>  
+                    </th>
+                    <th pSortableColumn="totalECheck" class="ui-resizable-column" pResizableColumn width="20%" >
+                        eCheck
+                        <p-columnFilter class="table-header-left" type="text" field="totalECheck" display="menu"></p-columnFilter>  
+                    </th>
+                    <th pSortableColumn="totalCreditCard" class="ui-resizable-column" pResizableColumn width="20%" >
+                        Credit Card
+                        <p-columnFilter class="table-header-left" type="text" field="totalCreditCard" display="menu"></p-columnFilter>  
+                    </th>
+                    <th pSortableColumn="totalOffline" class="ui-resizable-column" pResizableColumn width="20%" >
+                        Off Line
+                        <p-columnFilter class="table-header-left" type="text" field="totalOffline" display="menu"></p-columnFilter>  
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                    <tr class="maxTableRow">
+                    <td>
+                       {{item.transactionDate}}
+                    </td>
+                  
+                    <td style="text-align:right">
+                        {{item.totalCash | currency}}
+                     </td>  
+                     <td style="text-align:right">
+                        {{item.totalCheck | currency}}
+                     </td>  
+                     <td style="text-align:right" *ngIf="item.totalECheck>=0">
+                        {{item.totalECheck | currency}}
+                     </td> 
+                     <td style="text-align:right" *ngIf="item.totalECheck<0">
+                        ({{item.totalECheck*-1 | currency}})
+                     </td> 
+                     <td style="text-align:right" *ngIf="item.totalCreditCard>=0">
+                        {{item.totalCreditCard | currency}}
+                     </td> 
+                     <td style="text-align:right" *ngIf="item.totalCreditCard<0">
+                        ({{item.totalCreditCard*-1 | currency}})
+                     </td>    
+                     <td style="text-align:right">
+                        {{item.totalOffline | currency}}
+                     </td>       
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="footer">
+                  <tr>
+                      <td style="min-width: 90%"><div style="text-align: right; width: 100%;font-weight: bold;">Cash Total</div></td>
+                      <td style="width: 10%;font-weight: bold;">{{totalCash | currency}}</td>
+                  </tr>
+                  <tr>
+                    <td style="min-width: 90%"><div style="text-align: right; width: 100%;font-weight: bold;">Check Total</div></td>
+                    <td style="width: 10%;font-weight: bold;">{{totalCheck | currency}}</td>
+                </tr>
+                <tr>
+                    <td style="min-width: 90%"><div style="text-align: right; width: 100%;font-weight: bold;">Credit Card Total</div></td>
+                    <td style="width: 10%;font-weight: bold;" *ngIf="totalCreditCard>=0">{{totalCreditCard | currency}}</td>
+                    <td style="width: 10%;font-weight: bold;" *ngIf="totalCreditCard<0">({{totalCreditCard*-1 | currency}})</td>
+                </tr>
+                <tr>
+                    <td style="min-width: 90%"><div style="text-align: right; width: 100%;font-weight: bold;">eCheck Total</div></td>
+                    <td style="width: 10%;font-weight: bold;" *ngIf="totaleCheck>=0">{{totaleCheck | currency}}</td>
+                    <td style="width: 10%;font-weight: bold;" *ngIf="totaleCheck<0">({{totaleCheck * -1 | currency}})</td>
+                </tr>
+                <tr>
+                    <td style="min-width: 90%"><div style="text-align: right; width: 100%;font-weight: bold;">Off Line Total</div></td>
+                    <td style="width: 10%;font-weight: bold;">{{totalOffline | currency}}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+        </div>
+        <div class="card" *ngIf="showReport">
+            <tr-viewer #depositReportViewer
+            [containerStyle]="viewerContainerStyle"
+            [serviceUrl]="reportApiUrl"
+            [reportSource]="{
+                report: 'DepositReport.trdx',
+                parameters: { 
+                  Url:maxApiUrl, 
+                  token: authService.currentUserValue.token,
+                  tenantid:authService.currentUserValue.tenantId,
+                  paymentType: selectedPayment.code,
+                  searchBy: selectedSearch.name
+                }
+            }"
+            [viewMode]="'INTERACTIVE'"
+            [scaleMode]="'FIT_PAGE_WIDTH'"
+            [ready]="ready"
+            [viewerToolTipOpening]="viewerToolTipOpening"
+            [enableAccessibility]="false"            
+            [scale]="1.0">
+        </tr-viewer>
+        </div>
+    </div>
+</div>

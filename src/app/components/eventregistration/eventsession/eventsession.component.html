@@ -1,0 +1,108 @@
+<div>
+	<div class="p-grid">
+		<div class="p-col-12">
+			<div class="card">
+                <div *ngIf="showTable">
+					<p-table #dt [value]="sessions" [columns]="cols" [rows]="5" [paginator]="true"
+						[rowHover]="true" dataKey="sessionId" styleClass="p-datatable-sm"
+						currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+						[showCurrentPageReport]="true" rowExpandMode="single" selectionMode="single" (onRowExpand)="sessionLeaders($event)">
+						<ng-template pTemplate="header">
+							<tr>
+                                <th style="width: 5%" ></th>
+								<th pSortableColumn="sessionName" width="10%">
+									Session Name
+								</th>
+								<th pSortableColumn="sessionStarts" width="10%">
+									Session Starts
+								</th>
+								<th pSortableColumn="registrationgroup" width="15%">
+									Registration Group Pricing
+								</th>
+								<th pSortableColumn="price" width="15%">
+									Price
+								</th>
+								<th pSortableColumn="capacity" width="10%">
+									Capacity
+								</th>
+								<th width="5%"></th>
+							</tr>
+						</ng-template>
+						<ng-template pTemplate="body" let-session let-expanded="expanded">
+							<tr class="maxTableRow">
+                                <td style='text-align: center;'>
+									<p-checkbox [binary]="true" inputId="ol" [(ngModel)]="session.checked" (click)="SelectSession(session)"></p-checkbox>
+                                    <!-- <p-tableCheckbox [value]="session" binary="true" (click)="SelectSession(session)"></p-tableCheckbox> -->
+                                </td>
+								<td>
+                                    {{session.name}}
+								</td>
+								<td>
+                                    {{session.startDatetime | date : "MM/dd/yyyy hh:mm a"}}
+								</td>
+								<td>
+									<p-dropdown appendTo="body" [(ngModel)]="session.selectedRegistrationGroupPricingId" [options]="session.sessionGroupPriceModel"  [style]="{'width':'100%'}" placeholder="Select option"
+                        			optionLabel="groupPricing" optionValue="sessionRegistrationGroupPricingId" optionDisabled="disabled">
+                      				</p-dropdown>
+                                    <!-- {{getRegistrationGroup(session.sessionId)}} -->
+								</td>
+								<td pEditableColumn style="cursor: pointer;">
+									<p-cellEditor>
+										<ng-template pTemplate="input">
+											<p-inputNumber [(ngModel)]="session.selectedRegistrationGroupPrice" [showButtons]="true" [min]="0.0"  buttonLayout="horizontal"  spinnerMode="horizontal" [step]="0.25"
+											decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" (onBlur)="setSessionPricing(session.sessionId,$event)" (keydown.enter)="setSessionPricing(session.sessionId,$event)">
+											</p-inputNumber>
+										</ng-template>
+										<ng-template pTemplate="output">
+											<a>{{session.selectedRegistrationGroupPrice | currency:'USD'}}</a>
+										</ng-template>
+									</p-cellEditor>
+								</td>
+								<td *ngIf = "eventTypeId!=3">
+                                    {{session.maxCapacity - session.registeredSessions}} of {{session.maxCapacity}}
+								</td>
+								<td *ngIf = "eventTypeId==3">
+									-
+								</td>
+                                <td>
+									<button type="button" pButton pRipple [pRowToggler]="session"
+										class="p-button-text p-button-rounded p-button-plain"
+										[icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+									</button>
+								</td>
+							</tr>
+						</ng-template>
+						<ng-template pTemplate="rowexpansion" let-session>
+						 <tr>
+                            <td colspan="6">
+                                <div class="card" *ngIf="session.sessionLeaders.length > 0">
+                                    <hr>
+                                    <div class="p-col-2">
+                                        <h6>Location : {{session.location}}</h6>
+                                    </div>
+                                    <div class="p-col-2">
+                                        <h6>Speakers :</h6>
+                                    </div>
+                                    <div class="p-grid">
+                                      <div class="p-col-2" *ngFor="let leader of session.sessionLeaders">
+                                        <img class="rounded" width="100px" height="100px"
+                                          id="imgLeader_{{session.sessionId}}_{{leader.entityId}}">
+                                        <h6>{{leader.entityName}}</h6>
+                                      </div>
+                                    </div>
+                                  </div>
+                            </td>
+						 </tr>
+						</ng-template>
+					</p-table>
+					<br/>
+					<div class="center">
+						<button pButton pRipple label="Back" icon="pi pi-arrow-left" class="p-button-success p-mr-2 p-mb-2" (click)="goBack()"></button>
+						<button pButton pRipple label="Continue" *ngIf="sessions.length > 0" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" (click)="selectSession()"></button>
+						<button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="goToSearch()"></button>
+					</div>
+				</div>
+            </div>
+		</div>
+	</div>
+</div>

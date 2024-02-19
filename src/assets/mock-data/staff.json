@@ -1,0 +1,238 @@
+{
+    "data": [
+        {
+          "staffId": "6026463c8bd8e1ed637b8059",
+          "firstName": "Franklin",
+          "lastName": "Charles",
+          "email": "franklincharles@kengen.com",
+          "userName": "Lucia",
+          "password": "PASSWORD",
+          "status": 1,
+          "department": "Back Office",
+          "lastAccessed": "2015-09-03T01:43:18Z",
+          "createDate": "2018-07-25T05:43:35Z",
+          "roles": [
+            {
+              "roleId": 0,
+              "name": "Accounting"
+            },
+            {
+              "roleId": 1,
+              "name": "Accounting"
+            },
+            {
+              "roleId": 2,
+              "name": "Administrator"
+            }
+          ]
+        },
+        {
+          "staffId": "6026463c24ec94ff58d20620",
+          "firstName": "Copeland",
+          "lastName": "Shaw",
+          "email": "copelandshaw@kengen.com",
+          "userName": "Marks",
+          "password": "PASSWORD",
+          "status": 0,
+          "department": "Membership",
+          "lastAccessed": "2015-01-23T02:29:22Z",
+          "createDate": "2019-10-03T11:07:06Z",
+          "roles": [
+            {
+              "roleId": 0,
+              "name": "Administrator"
+            },
+            {
+              "roleId": 1,
+              "name": "Contact  Manager"
+            },
+            {
+              "roleId": 2,
+              "name": "Administrator"
+            }
+          ]
+        },
+        {
+          "staffId": "6026463c7b80da63b5718f82",
+          "firstName": "Bertha",
+          "lastName": "Zamora",
+          "email": "berthazamora@kengen.com",
+          "userName": "Summer",
+          "password": "PASSWORD",
+          "status": 0,
+          "department": "Back Office",
+          "lastAccessed": "2014-09-28T11:24:08Z",
+          "createDate": "2018-04-26T10:47:51Z",
+          "roles": [
+            {
+              "roleId": 0,
+              "name": "Front Desk"
+            },
+            {
+              "roleId": 1,
+              "name": "Administrator"
+            },
+            {
+              "roleId": 2,
+              "name": "Contact  Manager"
+            }
+          ]
+        },
+        {
+          "staffId": "6026463cb8c7733f1f0e1841",
+          "firstName": "Tammy",
+          "lastName": "Banks",
+          "email": "tammybanks@kengen.com",
+          "userName": "Elinor",
+          "password": "PASSWORD",
+          "status": 0,
+          "department": "Accounting",
+          "lastAccessed": "2017-05-05T02:59:06Z",
+          "createDate": "2020-01-18T06:55:24Z",
+          "roles": [
+            {
+              "roleId": 0,
+              "name": "Administrator"
+            },
+            {
+              "roleId": 1,
+              "name": "Accounting"
+            },
+            {
+              "roleId": 2,
+              "name": "Contact  Manager"
+            }
+          ]
+        },
+        {
+          "staffId": "6026463c3e86ab22d9452442",
+          "firstName": "Shepard",
+          "lastName": "Phillips",
+          "email": "shepardphillips@kengen.com",
+          "userName": "Bruce",
+          "password": "PASSWORD",
+          "status": 0,
+          "department": "Back Office",
+          "lastAccessed": "2017-01-06T12:14:04Z",
+          "createDate": "2015-08-20T12:28:57Z",
+          "roles": [
+            {
+              "roleId": 0,
+              "name": "Accounting"
+            },
+            {
+              "roleId": 1,
+              "name": "Contact  Manager"
+            },
+            {
+              "roleId": 2,
+              "name": "Contact  Manager"
+            }
+          ]
+        },
+        {
+          "staffId": "6026463c9b66ac2545477777",
+          "firstName": "Becky",
+          "lastName": "Snider",
+          "email": "beckysnider@kengen.com",
+          "userName": "Collier",
+          "password": "PASSWORD",
+          "status": 1,
+          "department": "Accounting",
+          "lastAccessed": "2015-05-22T11:24:56Z",
+          "createDate": "2019-12-30T03:41:13Z",
+          "roles": [
+            {
+              "roleId": 0,
+              "name": "Administrator"
+            },
+            {
+              "roleId": 1,
+              "name": "Administrator"
+            },
+            {
+              "roleId": 2,
+              "name": "Accounting"
+            }
+          ]
+        },
+        {
+          "staffId": "6026463cd78d34b856d8cfa3",
+          "firstName": "Santana",
+          "lastName": "Haley",
+          "email": "santanahaley@kengen.com",
+          "userName": "Leah",
+          "password": "PASSWORD",
+          "status": 0,
+          "department": "Accounting",
+          "lastAccessed": "2018-03-21T10:56:20Z",
+          "createDate": "2017-04-02T09:01:01Z",
+          "roles": [
+            {
+              "roleId": 0,
+              "name": "Administrator"
+            },
+            {
+              "roleId": 1,
+              "name": "Accounting"
+            },
+            {
+              "roleId": 2,
+              "name": "Front Desk"
+            }
+          ]
+        },
+        {
+          "staffId": "6026463c73d3f30c2ae6fac9",
+          "firstName": "Harrison",
+          "lastName": "Olsen",
+          "email": "harrisonolsen@kengen.com",
+          "userName": "Lynda",
+          "password": "PASSWORD",
+          "status": 1,
+          "department": "Back Office",
+          "lastAccessed": "2016-04-21T12:57:23Z",
+          "createDate": "2014-09-23T10:10:59Z",
+          "roles": [
+            {
+              "roleId": 0,
+              "name": "Administrator"
+            },
+            {
+              "roleId": 1,
+              "name": "Accounting"
+            },
+            {
+              "roleId": 2,
+              "name": "Administrator"
+            }
+          ]
+        },
+        {
+          "staffId": "6026463c2500571e9cc854c5",
+          "firstName": "Marianne",
+          "lastName": "Mosley",
+          "email": "mariannemosley@kengen.com",
+          "userName": "Osborn",
+          "password": "PASSWORD",
+          "status": 0,
+          "department": "Back Office",
+          "lastAccessed": "2016-07-24T11:53:07Z",
+          "createDate": "2017-04-17T01:34:00Z",
+          "roles": [
+            {
+              "roleId": 0,
+              "name": "Accounting"
+            },
+            {
+              "roleId": 1,
+              "name": "Accounting"
+            },
+            {
+              "roleId": 2,
+              "name": "Contact  Manager"
+            }
+          ]
+        }
+      ]
+}

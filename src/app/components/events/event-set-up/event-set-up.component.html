@@ -1,0 +1,360 @@
+<form [formGroup]="eventDetailForm">
+  <div class="p-grid">
+    <p-toast></p-toast>
+    <div class="p-col-6">
+      <div class="card-header profile-title">
+        <h5>Basic Information</h5>
+      </div>
+      <hr class="profile-ruler">
+      <div class="p-fluid p-formgrid p-grid" *ngIf="displayCode == 1">
+        <div class="p-field p-col-8" [ngClass]="errorIconCss('Code')">
+          <label for="Code">Event Code</label>
+          <input type="text" pInputText [ngClass]="errorFieldCss('Code')" autofocus maxlength="10"
+            formControlName="Code" (change)="enableSave('Code')" />
+          <app-field-error-display [displayError]="isFieldValid('Code')" [addErrorMessages]="addErrorMessages">
+          </app-field-error-display>
+        </div>
+      </div>
+      <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-8" [ngClass]="errorIconCss('Name')">
+          <label for="Name">Event Name</label>
+          <input type="text" pInputText [ngClass]="errorFieldCss('Name')" autofocus maxlength="100"
+            formControlName="Name" (change)="enableSave('Name')" onkeypress="return (event.charCode > 31 && event.charCode < 94) || (event.charCode > 96 && event.charCode < 125) || (event.charCode==32) 
+          || (event.charCode==39)" />
+          <app-field-error-display [displayError]="isFieldValid('Name')" [addErrorMessages]="addErrorMessages">
+          </app-field-error-display>
+        </div>
+      </div>
+      <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-6" [ngClass]="errorIconCss('Type')">
+          <label for="Type">Event Type</label>
+          <p-dropdown [options]="eventTypeList" placeholder="Select a Event Type" optionLabel="name" optionValue="value"
+            appendTo="body" [ngClass]="errorFieldCss('Type')" (onChange)="eventTypeChanged(); enableSave('Type')"
+            formControlName="Type"></p-dropdown>
+          <app-field-error-display [displayError]="isFieldValid('Type')" [addErrorMessages]="addErrorMessages">
+          </app-field-error-display>
+        </div>
+        <div class="p-field p-col-2">
+          <div style="text-align: end;">
+            <label for="Status">Status</label>
+            <div style="padding-top: 15px;">
+              <p-inputSwitch formControlName="Status" (onChange)="enableSave('Status')"></p-inputSwitch>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-fluid p-formgrid p-grid" *ngIf="eventType==2">
+        <div class="p-field p-col-8" [ngClass]="errorIconCss('WebinarLiveLink')">
+          <label for="WebinarLiveLink">Webinar Live Link</label>
+          <input type="text" pInputText [ngClass]="errorFieldCss('WebinarLiveLink')" maxlength="100"
+            formControlName="WebinarLiveLink" (change)="enableSave('WebinarLiveLink')" />
+          <app-field-error-display [displayError]="isFieldValid('WebinarLiveLink')"
+            [addErrorMessages]="addErrorMessages">
+          </app-field-error-display>
+        </div>
+      </div>
+      <div class="p-fluid p-formgrid p-grid" *ngIf="eventType==3">
+        <div class="p-field p-col-8" [ngClass]="errorIconCss('PreRecordedWebinarLink')">
+          <label for="PreRecordedWebinarLink">Pre-Recorded Webinar Link</label>
+          <input type="text" pInputText [ngClass]="errorFieldCss('PreRecordedWebinarLink')" maxlength="100"
+            formControlName="PreRecordedWebinarLink" (change)="enableSave('PreRecordedWebinarLink')" />
+          <app-field-error-display [displayError]="isFieldValid('PreRecordedWebinarLink')"
+            [addErrorMessages]="addErrorMessages">
+          </app-field-error-display>
+        </div>
+      </div>
+      <div *ngIf="eventType==1 || eventType==2">
+        <div class="card-header profile-title">
+          <h5>When & Where ?</h5>
+        </div>
+        <hr class="profile-ruler">
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-4" [ngClass]="errorIconCss('StartDate')">
+            <label for="StartDate">Event Start</label>
+            <p-calendar [hourFormat]="12" inputId="icon" appendTo="body" [showTime]="true" [showIcon]="true"
+              formControlName="StartDate" [minDate]="currentDate" (onBlur)="enableSave('StartDate')"
+              [ngClass]="eventType != 3 && errorFieldCss('StartDate')" (onSelect)="setDueDate($event)"></p-calendar>
+            <app-field-error-display [displayError]="eventType != 3 && isFieldValid('StartDate')"
+              [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+          <div class="p-field p-col-4" [ngClass]="errorIconCss('EndDate')">
+            <label for="EndDate">Event End</label>
+            <p-calendar [hourFormat]="12" inputId="icon" appendTo="body" [showTime]="true" [showIcon]="true"
+              formControlName="EndDate" [minDate]="currentDate" (onBlur)="enableSave('EndDate')"
+              [ngClass]="eventType != 3 && errorFieldCss('EndDate')"></p-calendar>
+            <app-field-error-display [displayError]="eventType != 3 && isFieldValid('EndDate')"
+              [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+        </div>
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-4" [ngClass]="errorIconCss('RegStartDate')">
+            <label for="StartDate">Reg. Start</label>
+            <p-calendar [hourFormat]="12" inputId="icon" appendTo="body" [showTime]="true" [showIcon]="true"
+              formControlName="RegStartDate" [minDate]="currentDate" (onBlur)="enableSave('RegStartDate')"
+              [ngClass]="eventType != 3 && errorFieldCss('RegStartDate')"></p-calendar>
+            <app-field-error-display [displayError]="eventType != 3 && isFieldValid('RegStartDate')"
+              [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+          <div class="p-field p-col-4" [ngClass]="errorIconCss('RegEndDate')">
+            <label for="EndDate">Reg. End</label>
+            <p-calendar [hourFormat]="12" inputId="icon" appendTo="body" [showTime]="true" [showIcon]="true"
+              formControlName="RegEndDate" [minDate]="currentDate" (onBlur)="enableSave('RegEndDate')"
+              [ngClass]="eventType != 3 && errorFieldCss('RegEndDate')"></p-calendar>
+            <app-field-error-display [displayError]="eventType != 3 && isFieldValid('RegEndDate')"
+              [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+        </div>
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-8" [ngClass]="errorIconCss('TimeZone')">
+            <label for="TimeZone">Time Zone</label>
+            <p-dropdown [options]="timeZoneList" placeholder="Select a Time Zone" optionLabel="name" optionValue="value"
+              appendTo="body" [ngClass]="eventType != 3 && errorFieldCss('TimeZone')" formControlName="TimeZone"
+              [filter]="true" filterBy="name" (onChange)="enableSave('TimeZone')"></p-dropdown>
+            <app-field-error-display [displayError]="eventType != 3 && isFieldValid('TimeZone')"
+              [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+          </div>
+        </div>
+        <div *ngIf="eventType==1 || eventType==2">
+          <div class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-8" [ngClass]="errorIconCss('Location')">
+              <label for="Location">Location</label>
+              <input type="text" pInputText [ngClass]="errorFieldCss('Location')" maxlength="30"
+                formControlName="Location" (change)="enableSave('Location')" />
+              <app-field-error-display [displayError]="isFieldValid('Location')" [addErrorMessages]="addErrorMessages">
+              </app-field-error-display>
+            </div>
+          </div>
+          <div *ngIf="eventType==2">
+            <div class="p-fluid p-formgrid p-grid">
+              <div class="p-field p-col-2" [ngClass]="errorIconCss('MaxCapacity')">
+                <label for="MaxCapacity">Max Capacity</label>
+                <input type="number" pInputText [ngClass]="errorFieldCss('MaxCapacity')" maxlength="3"
+                  formControlName="MaxCapacity" min="1" size=10
+                  (change)="capacityChanged($event); enableSave('MaxCapacity')" />
+                <app-field-error-display [displayError]="isFieldValid('MaxCapacity')"
+                  [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="eventType==1">
+            <div class="p-fluid p-formgrid p-grid">
+              <div class="p-field p-col-8" [ngClass]="errorIconCss('Area')">
+                <label for="Area">Area</label>
+                <input type="text" pInputText [ngClass]="errorFieldCss('Area')" maxlength="30" formControlName="Area"
+                  (change)="enableSave('Area')" />
+                <app-field-error-display [displayError]="isFieldValid('Area')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+              </div>
+            </div>
+            <div class="p-fluid p-formgrid p-grid">
+              <div class="p-field p-col-8" [ngClass]="errorIconCss('Country')">
+                <label for="Country">Country</label>
+                <p-dropdown [options]="countryList" class="country-dropdown p-dropdown-sm"
+                  placeholder="Select a Country" optionLabel="name" optionValue="name" appendTo="body"
+                  [ngClass]="errorFieldCss('Country')" formControlName="Country"
+                  (onChange)="countryFieldChangeEvent($event)"></p-dropdown>
+                <app-field-error-display [displayError]="isFieldValid('Country')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+              </div>
+            </div>
+            <div class="p-fluid p-formgrid p-grid">
+              <div class="p-field p-col-8" [ngClass]="errorIconCss('State')">
+                <label for="State">State</label>
+                <p-dropdown [options]="stateList" class="state-dropdown p-dropdown-sm" placeholder="Select a State"
+                  optionLabel="name" optionValue="name" appendTo="body" [ngClass]="errorFieldCss('State')"
+                  formControlName="State" (onChange)="enableSave('State')"></p-dropdown>
+                <app-field-error-display [displayError]="isFieldValid('State')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+              </div>
+            </div>
+            <div class="p-fluid p-formgrid p-grid">
+              <div class="p-field p-col-4" [ngClass]="errorIconCss('City')">
+                <label for="City">City</label>
+                <input type="text" pInputText [ngClass]="errorFieldCss('City')" maxlength="30" formControlName="City"
+                  (change)="enableSave('City')" />
+                <app-field-error-display [displayError]="isFieldValid('City')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+              </div>
+              <div class="p-field p-col-4" [ngClass]="errorIconCss('Zip')">
+                <label for="Zip">Zip</label>
+                <p-inputMask type="text" [ngClass]="errorFieldCss('Zip')" [mask]="zipFormat" formControlName="Zip"
+                  [autoClear]="false" (change)="enableSave('Zip')"></p-inputMask>
+                <app-field-error-display [displayError]="isFieldValid('Zip')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+              </div>
+            </div>
+            <div class="p-fluid p-formgrid p-grid">
+              <div class="p-field p-col-2" [ngClass]="errorIconCss('MaxCapacity')">
+                <label for="MaxCapacity">Max Capacity</label>
+                <input type="number" pInputText [ngClass]="errorFieldCss('MaxCapacity')" maxlength="3"
+                  formControlName="MaxCapacity" min="1" size=10
+                  (change)="capacityChanged($event); enableSave('MaxCapacity')" />
+                <app-field-error-display [displayError]="isFieldValid('MaxCapacity')"
+                  [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+              </div>
+            </div>
+          </div>
+        </div>       
+      </div>
+      <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-4" [ngClass]="errorIconCss('DueDate')">
+          <label for="DueDate">Event Due</label>
+          <p-calendar [hourFormat]="12" inputId="icon" appendTo="body" [showTime]="true" [showIcon]="true"
+            formControlName="DueDate" [minDate]="currentDate" (onBlur)="enableSave('DueDate')"
+            [ngClass]="errorFieldCss('DueDate')"></p-calendar>
+          <app-field-error-display [displayError]="isFieldValid('DueDate')"
+            [addErrorMessages]="addErrorMessages">
+          </app-field-error-display>
+        </div>
+      </div>
+      <div>
+        <div class="card-header profile-title">
+          <h5>Event Image</h5>
+        </div>
+        <hr class="profile-ruler">
+        <div class="p-fluid p-formgrid p-grid">
+          <div style="display: none;">
+            <input type="file" class="file-input" (change)="onFileSelected($event, 'eventImage')"
+              accept="image/png, image/gif, image/jpeg, image/jpg" #imageUpload>
+          </div>
+          <div class="p-col-4">
+            <button pButton pRipple icon="pi pi-upload" class="p-button-success p-mr-2 p-mb-2" pTooltip="Upload Image"
+              (click)="imageUpload.click()"></button>
+            <button pButton pRipple icon="pi pi-trash" class="p-button-danger p-mr-2 p-mb-2" pTooltip="Delete Image"
+              (click)="removeEventImage()"></button>
+          </div>
+          <div class="p-field p-col-8">
+            <p-image [src]="eventImage" alt="Image" width="250" [preview]="true"></p-image>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="p-col-6">
+      <div class="card-header profile-title">
+        <h5>Contact Information</h5>
+      </div>
+      <hr class="profile-ruler">
+
+      <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-8" [ngClass]="errorIconCss('ContactNameSearch')">
+          <label for="SessionLeader">Contact Person(s)</label>
+          <p-autoComplete [suggestions]="filteredPersons" (completeMethod)="getPeopleByName($event)"
+            formControlName="ContactNameSearch" pTooltip="You can search for staff users"
+            [dropdown]="false" datakey="name" (onSelect)="selectContactPerson($event); enableSave('ContactNameSearch')"
+            placeholder="Search Person by First Name/Last Name/Username/E-mail"
+            [ngClass]="errorFieldCss('ContactNameSearch')">
+            <ng-template let-person pTemplate="item">
+              <div>{{person.firstName}} {{person.lastName}}
+                <br>
+                <i class="pi pi-phone p-mr-2"><small class="p-mr-2">&nbsp;{{person.cellPhoneNumber}}</small></i>
+                <i class="pi pi-envelope p-mr-2"><small class="p-mr-2">&nbsp;{{person.email}}</small></i>
+              </div>
+            </ng-template>
+          </p-autoComplete>
+          <app-field-error-display [displayError]="isFieldValid('ContactNameSearch')"
+            [addErrorMessages]="addErrorMessages">
+          </app-field-error-display>
+        </div>
+      </div>
+      <div *ngIf="displayContactDetails">
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-8">
+            <label for="ContactName">Contact Name</label>
+            <input type="text" pInputText disabled formControlName="ContactName" />
+          </div>
+        </div>
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-8">
+            <label for="ContactEmail">Contact E-mail</label>
+            <input type="email" pInputText formControlName="ContactEmail" (change)="enableSave('ContactEmail')" />
+          </div>
+        </div>
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-8">
+            <label for="ContactPhone">Contact Phone</label>
+            <p-inputMask formControlName="ContactPhone" (change)="enableSave('ContactPhone')"
+              mask="(999) 999-9999? x99999"></p-inputMask>
+          </div>
+          <div class="p-field p-col-4" style="margin: auto;">
+            <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-outlined p-mr-2"
+              (click)="addToContactDetails()"></button>
+            <button pButton pRipple type="button" icon="pi pi-times"
+              class="p-button-rounded  p-button-danger p-button-outlined" (click)="hideContactDetails()"></button>
+          </div>
+        </div>
+      </div>
+      <div class="p-fluid p-formgrid p-grid" *ngIf="!displayContactDetails">
+        <div class="p-field" *ngFor="let contact of contactPersonsList">
+          <span class="p-buttonset">
+            <button styleClass="p-button-sm" pButton pRipple [label]="contact.name"
+              (click)="showContactDetails(contact, false)"></button>
+            <button class="p-mr-2" styleClass="p-button-sm" pButton pRipple icon="pi pi-trash"
+              (click)="removeContact(contact)" style="flex: 0.2;"></button>
+          </span>
+        </div>
+      </div>
+      <div class="card-header profile-title">
+        <h5>Summary</h5>
+      </div>
+      <hr class="profile-ruler">
+      <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-12">
+          <label for="Name">Short Description <small>({{shortDescriptionCharactersLeft}} characters
+              left)</small></label>
+          <textarea [rows]="5" pInputTextarea maxlength="300" style="resize: none;"
+            (input)="characterCount('ShortDescription'); enableSave('ShortDescription')"
+            formControlName="ShortDescription"></textarea>
+        </div>
+      </div>
+      <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-12">
+          <label for="Name">Long Description</label>
+          <p-editor [style]="{'height':'320px'}" formControlName="LongDescription"
+            (onTextChange)="enableSave('LongDescription')"></p-editor>
+        </div>
+      </div>
+      <div>
+        <div class="card-header profile-title">
+          <h5>Event Cover Image</h5>
+        </div>
+        <hr class="profile-ruler">
+        <div class="p-fluid p-formgrid p-grid">
+          <div style="display: none;">
+            <input type="file" class="file-input" accept="image/png, image/gif, image/jpeg, image/jpg"
+              (change)="onFileSelected($event, 'coverImage')" #coverImageUpload>
+          </div>
+          <div class="p-col-4">
+            <button pButton pRipple icon="pi pi-upload" class="p-button-success p-mr-2 p-mb-2" pTooltip="Upload Image"
+              (click)="coverImageUpload.click()"></button>
+            <button pButton pRipple icon="pi pi-trash" class="p-button-danger p-mr-2 p-mb-2" pTooltip="Delete Image"
+              (click)="removeCoverImage()"></button>
+          </div>
+          <div class="p-field p-col-8">
+            <p-image [src]="eventCoverImage" alt="Image" width="250" [preview]="true"></p-image>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="p-col-12 p-d-flex p-jc-center">
+      <p-checkbox class="p-mr-2" [binary]="true" inputId="ol" formControlName="EnableQuestions"
+        pTooltip="Link Questions?" (onChange)="enableQuestionSetUp($event)"></p-checkbox>
+      <label class="p-mr-5" for="ol">Link Questions?</label>
+    </div>
+    <div class="p-col-12 p-d-flex p-jc-center">
+      <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"
+        (click)="continue(false)" [disabled]="submitted && hasNoErrors"></button>
+      <button pButton pRipple label="Save & Continue" icon="pi pi-arrow-right" class="p-button-success p-mr-2 p-mb-2"
+        (click)="continue(true)" [disabled]="submitted && hasNoErrors"></button>
+      <button pButton pRipple label="Close" icon="pi pi-times" class="p-button-danger p-mb-2"
+        (click)="cancel()"></button>
+    </div>
+  </div>
+</form>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

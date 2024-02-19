@@ -1,0 +1,122 @@
+<div class="p-grid">
+	<div class="p-col-12">
+		<p-toast></p-toast>
+		<div class="card">
+            <p-toolbar styleClass="p-mb-4">
+				<ng-template pTemplate="left">
+				</ng-template>
+				<ng-template pTemplate="right">
+                    <div class="p-formgroup-inline">
+                        <button pButton type="button" label="Add"  icon="pi pi-plus" class="p-button-primary p-mr-2 p-mb-2"  (click)="addCommunication()"></button>
+                    </div>
+				</ng-template>
+			</p-toolbar>
+			<div class="card" *ngIf="noRecords">
+				<div class="center">
+					<h6>No Encounter record(s) found.</h6>
+				</div>
+			</div>
+			<div *ngIf="showTable">
+			<p-table #dt [value]="communications" [columns]="cols" [rows]="5" [paginator]="true"  [rowHover]="true" dataKey="encounterId" resizableColumns="true" 
+			styleClass="p-datatable-sm" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [showCurrentPageReport]="true" [autoLayout]="true">
+				<ng-template pTemplate="header">
+					<tr>
+						<th pSortableColumn="date" class="ui-resizable-column" pResizableColumn width="10%" >
+                            Date
+							<p-columnFilter type="text" field="date" display="menu"></p-columnFilter>
+						</th>
+						<th pSortableColumn="type" class="ui-resizable-column" pResizableColumn width="10%" >						
+                            Type
+							<p-columnFilter type="text" field="type" display="menu"></p-columnFilter>
+						</th>
+						<th pSortableColumn="subject" pResizableColumn width="20%" >							
+                            Subject
+							<p-columnFilter type="text" field="subject" display="menu"></p-columnFilter>
+						</th>
+							<th pSortableColumn="from" pResizableColumn width="20%"> 							
+							From
+							<p-columnFilter type="text" field="from" display="menu"></p-columnFilter>							
+						</th>                   
+						<th  pSortableColumn="notes" pResizableColumn width="40%" >							
+							Notes
+							<p-columnFilter type="text" field="notes" display="menu"></p-columnFilter>
+					    </th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-communication>
+					<tr class="maxTableRow">
+						<td>
+              				{{ communication.date | date:'MM/dd/yyyy'}}
+						</td>
+						<td>
+							{{ communication.type}}
+						</td>
+						<td>
+							{{ communication.subject }}
+						</td>
+						<td>
+							{{ communication.from }}
+						</td>
+						<td style="text-overflow: ellipsis !important; max-width: 200px;">
+							{{ communication.notes }}
+						</td>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="summary">
+					<div class="p-d-flex p-ai-center p-jc-between">
+						In total there are
+						{{ communications ? communications.length : 0 }} Encounters.
+					</div>
+				</ng-template>
+			</p-table>
+		</div>
+        
+		<form [formGroup]="communicationForm">
+			<p-dialog [(visible)]="communicationDialog" [style]="{ width: '650px' }" header="Add Encounter" [modal]="true" styleClass="p-fluid"  [contentStyle]="{minHeight: '350px'}" (onHide)="hideDialog()">
+			<ng-template pTemplate="content">
+			<div class="p-fluid p-formgrid p-grid">
+			  <div class="p-field p-col-6" [ngClass]="errorIconCss('CommunicationDate')">
+				<label for="CommunicationDate">Date</label>
+				<input type="date" pInputText class="form-control" name="currentDate" [value]="currentDate | date:'yyyy-MM-dd'" [disabled]="true">
+			  </div>
+			  <div class="p-field p-col-12" [ngClass]="errorIconCss('From')">
+				<label for="From">From</label>
+				<input type="text" pInputText formControlName="From" [ngClass]="errorFieldCss('From')" (click) = "resetSubmitted('From')" 
+				onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) 
+				|| (event.charCode==39)" maxlength="30" (paste)="matcher($event, 'From')"/>
+				<app-field-error-display [displayError]="isFieldValid('From')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+			  </div>
+			  <div class="p-field p-col-6" [ngClass]="errorIconCss('Type')">
+				<label for="Type">Type</label>
+				<p-dropdown [options]="types" formControlName="Type" placeholder="Select a Type"  appendTo="body" optionLabel="name" optionValue="code" appendTo="body" [ngClass]="errorFieldCss('Type')" (click) = "resetSubmitted('Type')" ></p-dropdown>
+				<app-field-error-display [displayError]="isFieldValid('Type')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+			  </div>
+			  <div class="p-field p-col-12" [ngClass]="errorIconCss('Subject')">
+				<label for="Subject">Subject</label>
+				<input type="text" pInputText required formControlName="Subject" [ngClass]="errorFieldCss('Subject')" (click) = "resetSubmitted('Subject')" 
+				onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32)" maxlength="64"
+				 (paste)="matcher($event, 'Subject')"/>
+				<app-field-error-display [displayError]="isFieldValid('Subject')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+			  </div>
+			  <div class="p-field p-col-12" [ngClass]="errorIconCss('Description')">
+				<label for="Description">Description</label>
+				<textarea [rows]="5" pInputTextarea formControlName="Description"   [ngClass]="errorFieldCss('Description')" maxlength="500"
+				 (click) = "resetSubmitted('Description')" onKeyDown="if(this.value.length==1000 && event.keyCode!=8) return false;" (paste)="matcher($event, 'Description')"></textarea>
+				<app-field-error-display [displayError]="isFieldValid('Description')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+			</div>
+			</div>
+			</ng-template>
+			<ng-template pTemplate="footer">
+			  <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="saveCommunication()" [disabled]="submitted"></button>
+			  <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideDialog()"></button>
+			</ng-template>
+			  </p-dialog>      
+		  </form>
+		</div>
+		<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+	</div>
+</div>

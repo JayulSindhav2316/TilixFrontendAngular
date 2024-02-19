@@ -1,0 +1,37 @@
+{
+    "data":[
+        {
+            "membershipId": 1,
+            "name": "Family - DJ 1",
+            "code": "FM-DJ-1",
+            "description": "Family Membership",
+            "period": "Annual",
+            "status": 1,
+            "glAccount": "102-1212-122-22",
+            "fee": 100.50,
+            "type": "Family"
+        },
+        {
+            "membershipId": 2,
+            "name": "Family - DJ 2",
+            "code": "FM-DJ-2",
+            "description": "Family Membership",
+            "period": "Quarterly",
+            "status": 1,
+            "glAccount": "102-1212-122-22",
+            "fee": 200.50,
+            "type": "Family"
+          },
+          {
+              "membershipId": 3,
+              "name": "Health - DJ 2",
+              "code": "FM-DJ-3",
+              "description": "Individual Membership",
+              "period": "Monthly",
+              "status": 1,
+              "glAccount": "102-1212-122-22",
+              "fee": 150.50,
+              "type": "Individual"
+            }
+]
+}

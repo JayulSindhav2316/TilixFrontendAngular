@@ -1,0 +1,92 @@
+<div *ngIf="profileLoaded">
+    <div class="p-grid">
+        <p-toast></p-toast>
+        <div class="p-col-5 p-d-flex p-ai-center p-jc-center">
+            <div class="p-mr-5">
+                <img
+                    [src]="profileImage"
+                    class="rounded"
+                    width="100px"
+                    height="100px"
+                    style="
+                        border-radius: 05%;
+                        -webkit-filter: drop-shadow(2px 2px 2px #888);
+                        filter: drop-shadow(2px 2px 2px #888);
+                    "
+                />
+            </div>
+            <div class="p-mr-5">
+                <h5>
+                    {{ primaryContact.person.prefix }}
+                    {{ primaryContact.person.firstName }}
+                    {{ primaryContact.person.middleName }}
+                    {{ primaryContact.person.lastName }}
+                </h5>
+            </div>
+        </div>
+        <br />
+        <h4>Create Membership</h4>
+        <div class="p-col-12">
+            <div class="card">
+                <p-tabView id="tabMembership" [(activeIndex)]="index">
+                    <p-tabPanel
+                        header="Membership"
+                        [cache]="false"
+                        [disabled]="disableMembership"
+                    >
+                        <ng-template pTemplate="content">
+                            <app-search-membership
+                                (activeTabEvent)="setActiveTab($event)"
+                            ></app-search-membership>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel
+                        header="Additional Fees"
+                        [cache]="false"
+                        [disabled]="disableFee"
+                    >
+                        <ng-template pTemplate="content">
+                            <app-select-fees
+                                (activeTabEvent)="setActiveTab($event)"
+                            ></app-select-fees>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel
+                        header="Add Contacts"
+                        [cache]="false"
+                        [disabled]="disableAdditional"
+                    >
+                        <ng-template pTemplate="content">
+                            <app-add-member
+                                (activeTabEvent)="setActiveTab($event)"
+                            ></app-add-member>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel
+                        header="Review"
+                        [cache]="false"
+                        [disabled]="disableReview"
+                    >
+                        <ng-template pTemplate="content">
+                            <app-review
+                                (activeTabEvent)="setActiveTab($event)"
+                            ></app-review>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel
+                        header="Invoice"
+                        [cache]="false"
+                        [disabled]="disableInvoice"
+                    >
+                        <ng-template pTemplate="content">
+                            <app-invoice
+                                (activeTabEvent)="setActiveTab($event)"
+                            ></app-invoice>
+                        </ng-template>
+                    </p-tabPanel>
+                </p-tabView>
+            </div>
+        </div>
+    </div>
+</div>
+<div></div>

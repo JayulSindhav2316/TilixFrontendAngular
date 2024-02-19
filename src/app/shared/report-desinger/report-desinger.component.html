@@ -1,0 +1,3 @@
+<p-button label="Back to Reports..." styleClass="p-button-help" icon="pi pi-arrow-circle-left" [routerLink]="backtoreportLink"></p-button>
+<iframe *ngIf="reportApiUrl" (load)="onLoaded($event)" class="responsive-iframe"
+    [src]="reportApiUrl"></iframe>

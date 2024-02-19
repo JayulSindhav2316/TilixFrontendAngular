@@ -1,0 +1,101 @@
+<div class="card">
+   <h6>Member(s)</h6>
+   <p-table [value]="members" styleClass="p-datatable-sm" >
+   <ng-template pTemplate="header">
+      <tr>
+         <th pSortableColumn="firstName" class="ui-resizable-column" pResizableColumn width="30%">
+            Name
+            <p-columnFilter type="text" field="firstName" display="menu"></p-columnFilter>
+         </th>
+         <th  pSortableColumn="gender" pResizableColumn width="15%">
+            Gender
+            <p-columnFilter type="text" field="gender" display="menu"></p-columnFilter>
+         </th>
+         <th  pSortableColumn="age" pResizableColumn width="15%">
+            Age
+            <p-columnFilter type="text" field="age" display="menu"></p-columnFilter>
+         </th>
+         <th  pSortableColumn="billable" pResizableColumn width="15%" style="text-align: center;">
+            Remove
+         </th>
+      </tr>
+   </ng-template>
+   <ng-template pTemplate="body" let-member>
+      <tr class="maxTableRow">
+         <td>
+            {{ member.name }}
+         </td>
+         <td>
+            {{ member.gender }}
+         </td>
+         <td>
+            {{ member.age }}
+         </td>
+         <td style="text-align: center;">  
+            <div *ngIf="member.entityId==mainMemberId">
+               <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger" [disabled]=true></button>
+            </div> 
+            <div *ngIf="member.entityId!=mainMemberId">   
+            <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger"  (click)="removeMember(member)"></button>
+         </div>  
+         </td>
+      </tr>
+   </ng-template>
+  </p-table>
+</div>
+<div class="card" *ngIf="hasRelations && addAdditionalMembers">
+   <h6>Related Contact(s)</h6>
+   <p-table [value]="relations" styleClass="p-datatable-sm" >
+   <ng-template pTemplate="header">
+      <tr>
+         <th pSortableColumn="firstName" class="ui-resizable-column" pResizableColumn width="30%">
+            Name
+            <p-columnFilter type="text" field="firstName" display="menu"></p-columnFilter>
+         </th>
+         <th  pSortableColumn="gender" pResizableColumn width="15%">
+            Gender
+            <p-columnFilter type="text" field="gender" display="menu"></p-columnFilter>
+         </th>
+         <th  pSortableColumn="age" pResizableColumn width="15%">
+            Age
+            <p-columnFilter type="text" field="age" display="menu"></p-columnFilter>
+         </th>
+         <th  pSortableColumn="billable" pResizableColumn width="15%" style="text-align: center;">
+            Add
+         </th>
+      </tr>
+   </ng-template>
+   <ng-template pTemplate="body" let-member>
+      <tr class="maxTableRow">
+         <td>
+            {{ member.firstName + " " + member.lastName}}
+         </td>
+         <td>
+            {{ member.gender }}
+         </td>
+         <td>
+            {{ member.age }}
+         </td>
+         <td style="text-align: center;">
+            <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addRelationalContact(member)" ></button>
+         </td>
+      </tr>
+   </ng-template>
+</p-table>
+</div>
+<div *ngIf="addAdditionalMembers"><h6>You can add {{slotLeft}} more member(s)</h6>
+<p-toolbar >
+   <ng-template pTemplate="left" >
+      <button pButton pRipple label="Add Additional Members"  class="p-button-success p-mr-2 p-mb-2" (click)="addMember()"></button>
+   </ng-template>
+</p-toolbar>
+</div>
+<div *ngIf="showSearchControl && addAdditionalMembers">
+   <app-search [exceptMemberIds]="addedMemberIds" [parentControl]="'additionalMembersControl'"  (addMemberEvent)="addAdditionalMember($event)"></app-search>
+</div>
+<br>
+<div class="center">
+   <button pButton pRipple label="Back" icon="pi pi-arrow-left" class="p-button-success p-mr-2 p-mb-2" (click)="goBack()"></button>
+   <button pButton pRipple label="Continue" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" (click)="goToNext()"></button>
+   <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="goToSearch()"></button>
+ </div>

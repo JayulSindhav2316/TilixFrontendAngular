@@ -1,0 +1,5 @@
+<div [formGroup]="columnFormGroup">
+    <input formControlName="columnId" type="hidden"/>
+    <input formControlName="columnName" type="hidden" />
+    <div>{{columnFormGroup.controls.columnName.value}}</div>
+</div>

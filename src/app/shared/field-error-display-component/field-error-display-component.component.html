@@ -1,0 +1,20 @@
+<div *ngIf="displayError" >
+  <span class="pi pi-times form-control-feedback error-icon"></span>
+  <small *ngIf="addErrorMessages.errorType=='required'" class="p-invalid">{{addErrorMessages.controlName}} is required. </small>  
+  <small *ngIf="addErrorMessages.errorType=='dropdownrequired'" class="p-invalid"> Please select a {{addErrorMessages.controlName}}. </small>  
+  <small *ngIf="addErrorMessages.errorType=='selectedrolesrequired'" class="p-invalid"> Select atlease one role </small>  
+  <small *ngIf="addErrorMessages.errorType=='email'" class="p-invalid">Please enter a valid email </small>  
+  <div *ngIf="addErrorMessages.errorType=='pwPattern'" class="password-policy">
+    <small class="p-mt-2"><b>Password Policy</b></small>
+    <ul class="p-pl-2 p-ml-2 p-mt-0" style="line-height: 1.5">
+     <li>Password must be 8-20 characters long.</li>
+     <li>Contains atleast one uppercase character.</li>
+     <li>Contains atleast one number.</li>
+   </ul> 
+  </div>
+  <small *ngIf="addErrorMessages.errorType=='mustMatch'" class="p-invalid">Password and Confirm Password not matching.</small>
+  <small *ngIf="addErrorMessages.errorType=='minFeeRequired'" class="p-invalid">Amount needs to be greater than $0.</small>
+  <small *ngIf="addErrorMessages.errorType=='minContactSearchRequired'" class="p-invalid">Please enter first name or last name with minimum 3 characters.  </small>
+  <small *ngIf="addErrorMessages.errorType=='lesserEndDate'" class="p-invalid">End date should be greater than Start date.</small>
+  <small *ngIf="addErrorMessages.errorType=='creditcardminlength'" class="p-invalid">Please {{addErrorMessages.errorMessage}}</small>
+</div>

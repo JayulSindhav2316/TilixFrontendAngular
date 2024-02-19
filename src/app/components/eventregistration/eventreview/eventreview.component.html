@@ -1,0 +1,110 @@
+<div class="p-grid">
+    <div class="p-col-12">
+      <div class="card" *ngIf = "showDetails">
+        <div class="p-grid">
+          <div class="p-xl-6 p-md-6 p-sm-12">
+            <h5>Event Details</h5>
+            <span><b>Event Name:</b> {{eventSession.eventName}}</span>
+            <br/><br/>
+            <span><b>Event Type:</b> {{getEventTypeName(eventSession.eventTypeId)}}</span>
+          </div>
+          <div class="p-xl-6 p-md-6 p-sm-12">
+            <h5>Member Registration Details</h5>
+            <span *ngIf= "isPerson"><b>Name:</b> {{ entity.person.prefix }}
+                {{ entity.person.firstName }}
+                {{ entity.person.middleName }}
+                {{ entity.person.lastName }}</span>
+            <span *ngIf="isCompany"><b>Name:</b>{{entity.company.companyName}}</span>
+            <br/> <br/>
+            <span><b>Email:</b> {{memberEmail}}</span>
+            <br/><br/>
+            <span><b>Phone:</b> {{memberPhone}}</span>
+          </div>
+        </div>
+        <br/><br/>  
+        <div class="p-grid">
+            <div class="p-xl-12 p-md-6 p-sm-12">
+                <h5>Sessions</h5>
+                <p-accordion>
+                    <div *ngFor="let session of eventSession.selectedSession">
+                      <p-accordionTab [header]="session.session.name" [selected]="expandAllTabs">
+                        <div class="card" *ngIf="session.session.sessionLeaders.length > 0">
+                          <br/>
+                          <b>Location: {{session.session.location}}</b>  
+                          <h6>Speakers :</h6>
+                          <div class="p-grid">
+                            <div class="p-col-2" *ngFor="let leader of session.session.sessionLeaders">
+                              <img class="rounded" width="100px" height="100px"
+                                id="imgLeader_{{session.sessionId}}_{{leader.entityId}}">
+                              <h6>{{leader.entityName}}</h6>
+                            </div>
+                          </div>
+                        </div>
+                      </p-accordionTab>
+                      <hr>
+                    </div>
+                  </p-accordion>
+            </div>
+        </div>
+        <br/><br/> 
+        <div class="p-grid" *ngIf ="eventSession.selectedQuestion.length > 0">
+            <div class="p-xl-12 p-md-6 p-sm-12">
+                <p-accordion>
+                    <div>
+                      <p-accordionTab [header]="'Questions'" [selected]="expandAllTabs">
+                        <div class="card">
+                          <div class="p-grid" *ngFor="let question of eventSession.selectedQuestion">
+                            <div class="p-col-12">
+                              <h6>Question : {{question.question}}</h6>
+                              <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="question.answerTypeLookUpId == 1">
+                                <div class="p-field p-col-12">
+                                  <textarea [rows]="3" disabled pInputTextarea autoResize="autoResize" [(ngModel)]="question.answerValue">Max 200 characters allowed.</textarea>
+                                </div>
+                              </div>
+                              <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="question.answerTypeLookUpId == 2">
+                                <div class="p-field p-col-12">
+                                  <textarea [rows]="5" disabled pInputTextarea autoResize="autoResize" [(ngModel)]="question.answerValue">Max 1000 characters allowed.</textarea>
+                                </div>
+                              </div>
+                              <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 5">
+                                <div class="p-field p-col-6">
+                                  <p-calendar [showIcon]="true" inputId="icon" appendTo="body" [(ngModel)]="question.answerValue" [disabled]="true" ></p-calendar>
+                                </div>
+                              </div>
+                              <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 6">
+                                <div class="p-field p-col-6">
+                                  <p-calendar [timeOnly]="true" [hourFormat]="12" [(ngModel)]="question.answerValue"  appendTo="body" style="height: 100px;" [disabled]="true"></p-calendar>
+                                </div>
+                              </div>
+                              <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 7">
+                                <div class="p-field p-col-6">
+                                  <p-calendar [showTime]="true" [hourFormat]="12" appendTo="body" [(ngModel)]="question.answerValue" [disabled]="true"></p-calendar>
+                                </div>
+                              </div>
+                              <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 4">
+                                <div class="p-field p-col-6">
+                                    <p-multiSelect [options]="question.answerOption" placeholder="Select option(s)"  appendTo="body"  [(ngModel)] ="question.selectedAnwserOptions" optionLabel="option" optionValue="answerOptionId" readonly="true"></p-multiSelect>
+                                </div>
+                              </div>
+                              <div class="p-fluid p-formgrid p-grid" *ngIf="question.answerTypeLookUpId == 3">
+                                <div class="p-field p-col-6">
+                                    <p-dropdown [options]="question.answerOption" [(ngModel)]="question.answerValue" [style]="{'width':'100%'}" placeholder="Select option"
+                                    optionLabel="option" optionValue="answerOptionId" readonly="true">
+                                  </p-dropdown>
+                                </div>
+                              </div>
+                            </div>
+                            </div>
+                          </div>
+                      </p-accordionTab>
+                    </div>
+                  </p-accordion>
+            </div>
+        </div>
+        <div class="p-xl-12 p-md-6 p-sm-12   center">
+            <button pButton pRipple label="Back" icon="pi pi-arrow-left" class="p-button-success p-mr-2 p-mb-2" (click)="goBack()" *ngIf = "!disableBack"></button>
+            <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" (click)="save()"></button>
+            <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="goToSearch()"></button>
+        </div>
+    </div>    
+</div>    

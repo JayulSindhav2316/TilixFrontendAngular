@@ -1,0 +1,222 @@
+<p-toast></p-toast>
+<div class="p-grid" #mydiv>
+	<div class="p-col-12">
+		<div class="card">
+			<p-toolbar styleClass="p-mb-4">
+				<ng-template pTemplate="left">
+					<span class="p-input-icon-left">
+						<i class="pi pi-search"></i>
+						<input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+					</span>
+				</ng-template>
+				<ng-template pTemplate="right">
+          <div>
+            <small for="Status"><strong>Include Inactive?</strong></small>
+            <div class="p-col-3" style="padding-top: 5px;">
+              <p-inputSwitch [(ngModel)]="includeInactive" (onChange)="includeInactiveGroups($event)"></p-inputSwitch>
+            </div>
+          </div>
+				</ng-template>
+			</p-toolbar>
+      
+      <p-table #dt [value]="includeInactive ? groupsList : activeGroupsList" [rows]="10" [paginator]="true" [globalFilterFields]="['groupName']"  [showCurrentPageReport]="true"
+        [rowHover]="true" resizableColumns="true" styleClass="p-datatable" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" rowExpandMode="single" dataKey="groupId"
+       [expandedRowKeys]="expandedRows">
+        <ng-template pTemplate="header">
+          <tr>
+              <th style="width: 5%;"></th>
+              <th pSortableColumn="groupName" class="ui-resizable-column" width="30%" pResizableColumn>
+                <span class="table-header">Group Name</span>
+                <p-columnFilter type="text" field="groupName" display="menu"></p-columnFilter>
+              </th>
+              <th width="20%">                   
+                # of Members
+              </th>
+              <th width="10%">                   
+                Target Size
+              </th>
+              <th width="15%">                   
+                Group Term
+              </th>
+              <th pSortableColumn="status" width="15%">
+                Group Status
+              </th>
+              <th width="5%"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-group let-expanded="expanded">
+          <tr class="maxTableRow">
+              <td>
+                <button type="button" pButton pRipple [pRowToggler]="group" class="p-button-text p-button-rounded p-button-plain" 
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" (click)="expandGroupClick(group, expanded)">
+                </button>
+              </td>
+              <td style="text-overflow: ellipsis !important; max-width: 250px;">
+                {{group.groupName}}
+              </td>
+              <td>
+                {{group.groupMembers.length}}
+              </td>
+              <td>
+                {{group.preferredNumbers}}
+              </td>
+              <td>
+                <div *ngIf="group.terrmStartDate != null && group.termEndDate != null; else elseTermBlock">{{group.terrmStartDate | date:'MM/dd/yyyy'}} - {{group.termEndDate | date:'MM/dd/yyyy'}}</div>
+                <ng-template #elseTermBlock><label>&nbsp;</label></ng-template>
+              </td>
+              <td>
+                <div *ngIf="group.isActive; else elseBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+                <ng-template #elseBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+              </td>
+              <td>                    
+                <button type="button" pButton icon="pi pi-plus" (click)="openSearchFunction(group)"  pTooltip="Add Member"  tooltipPosition="left"></button>							
+              </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-group>
+            <tr>
+              <td colspan="7" style="width:100%"> 
+                <div *ngIf="openSearch">
+                  <app-search [memberGroupId]="currentGroupId" [parentControl]='"Groups"' (addMemberToGroupEvent)="addMemberToGroup($event)" (closeEvent)='closeSearchFunction()' ></app-search>
+                </div>          
+                <p-table [value]="groupMembers" dataKey="groupMemberId" resizableColumns="true" styleClass="p-datatable-sm">
+                  <ng-template pTemplate="header">
+                    <tr>                  
+                      <th width="5%">                   
+                        &nbsp;
+                      </th>
+                      <th width="30%">                   
+                        Name
+                        <p-columnFilter type="text" field="entityName" display="menu"></p-columnFilter>
+                      </th>
+                      <th width="25%">
+                        Email
+                      </th>
+                      <th width="20%">
+                        Phone
+                      </th>
+                      <th width="15%">
+                        Member Status
+                      </th>
+                      <th width="5%"></th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body"  let-member>
+                      <tr class="maxTableRow">
+                        <td>
+                          <button type="button" pButton pRipple class="p-button-text p-button-rounded p-button-plain" 
+                            [icon]="roleExpanded && member.groupMemberId == expandedGroupMemberId ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" (click)="expandMemberRoleClick(member.groupMemberId)">
+                          </button>                          
+                        </td>
+                        <td>
+                          {{member.entityName}}
+                        </td>
+                        <td>
+                          {{member.email}}
+                        </td>
+                        <td>
+                          {{member.formattedPhoneNumber}}
+                        </td>
+                        <td>
+                          <div *ngIf="member.isActive; else elseBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+                          <ng-template #elseBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+                        </td>
+                        <td>
+                          <div #pMenu></div>
+                          <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu> 
+                          <button type="button" pButton icon="pi pi-ellipsis-v" (click)="setActiveMemberRow(member);menu.toggle($event)"></button>
+                        </td>
+                      </tr>
+                      <tr *ngIf="member.groupMemberId == expandedGroupMemberId">
+                        <td>&nbsp;</td>
+                        <td colspan="6">
+                          <p-table [value]="groupMemberRoles" dataKey="groupMemberRoleId" resizableColumns="true" styleClass="p-datatable-sm">
+                            <ng-template pTemplate="header">
+                              <tr>
+                              <th width="40%">                   
+                                Position
+                              </th>
+                              <th width="35%">
+                                Position Term
+                              </th>
+                              <th width="15%">
+                                Position Status
+                              </th>
+                              <th width="5%">
+                                &nbsp;
+                              </th>
+                            </tr> 
+                            </ng-template>
+                            <ng-template pTemplate="body" let-role>
+                              <tr class="maxTableRow">
+                                <td>{{role.groupRole.groupRoleName}}</td>
+                                <td>
+                                  <div *ngIf="role.startDate != null && role.endDate != null; else elseRoleMemberTermBlock">{{role.startDate | date:'MM/dd/yyyy'}} - {{role.endDate | date:'MM/dd/yyyy'}}</div>
+                                  <ng-template #elseRoleMemberTermBlock><label>&nbsp;</label></ng-template>
+                                </td>
+                                <td>
+                                  <div *ngIf="role.isActive; else elseBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+                                  <ng-template #elseBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+                                </td>
+                                <td>&nbsp;</td>
+                              </tr>
+                            </ng-template>
+                          </p-table>
+                        </td>
+                      </tr>
+                      
+                  </ng-template>
+                </p-table>
+              </td>          
+            </tr>
+          </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<form [formGroup]="groupMemberForm">
+  <p-dialog [(visible)]="groupMemberDialog" [breakpoints]="{'960px': '90vw'}" [style]="{width: '75vw'}" [header]="headerName" [modal]="true" styleClass="p-fluid" (onHide)="hideDialog()">
+    <ng-template pTemplate="content">
+      <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-6">
+            <label for="Name">Member Name</label>
+            <input type="text" pInputText formControlName="MemberName" readonly/>
+        </div>
+        <div class="p-field p-col-2 ">
+          <label for="Status">Status</label>
+          <div class="p-field p-col-3 p-d-flex"  style="padding-top: 5px;" >
+            <p-toggleButton #tb formControlName="Status" onLabel="Active" offLabel="Inactive" styleClass="p-button-danger">
+            </p-toggleButton>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header profile-title">
+          <h5>Positions</h5>
+          <div class="header-buttons">
+              <button  pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2 p-mb-2" (click)="addRole()" pTooltip="Add Position" 
+                [disabled]="groupMemberForm.get('Roles').invalid"  tooltipPosition="left" >
+              </button>
+          </div>
+        </div>      
+        <!-- <hr class="profile-ruler"> -->
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-12 p-md-12">
+            <div formArrayName="Roles">
+              <div *ngFor="let role of Roles.controls; let i=index">
+                  <app-group-role [groupId]="currentGroupId" [formControlName]="i" [roleList]="roleList"  [controlId]="i" (removeControl)="removeRole($event)" [roleFormSubmitted]="submitted" (otherFormClicked)="otherFormClicked($event)"></app-group-role>
+              </div>
+            </div>
+          </div>
+        </div>  
+      </div>
+      
+    </ng-template>
+    <ng-template pTemplate="footer">
+    <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="saveGroupMember()" [disabled]="submitted"></button>
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-danger p-mb-2" (click)="hideDialog()"></button>
+    </ng-template>
+  </p-dialog>
+</form>
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

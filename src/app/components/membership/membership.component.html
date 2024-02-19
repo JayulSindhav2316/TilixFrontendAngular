@@ -1,0 +1,145 @@
+<div class="p-grid">
+	<div class="p-col-12">
+		<p-toast></p-toast>
+		<div class="card">
+      <div *ngIf="showTable">
+			<p-toolbar styleClass="p-mb-4">
+				<ng-template pTemplate="left">
+					<span class="p-input-icon-left">
+						<i class="pi pi-search"></i>
+						<input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+					</span>
+				</ng-template>
+				<ng-template pTemplate="right">
+					<button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="openNew()"></button>
+				</ng-template>
+			</p-toolbar>
+			<p-table #dt [value]="membershipTypeList" [columns]="cols" [rows]="10" [paginator]="true" [globalFilterFields]="['code','name','description','periodName','categoryName']" 
+        [rowHover]="true" dataKey="membershipTypeId" resizableColumns="true" styleClass="p-datatable" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+				[showCurrentPageReport]="true" rowExpandMode="single">
+				<ng-template pTemplate="header">
+					<tr> 
+            <th width="5%" ></th>        
+            <th pSortableColumn="code" class="ui-resizable-column" width="5%" pResizableColumn>
+              <span class="table-header">Code</span>
+              <p-columnFilter type="text" field="code" display="menu"></p-columnFilter>
+						</th>
+            <th pSortableColumn="categoryName"  width="10%" pResizableColumn>
+              <span class="table-header">Category</span>
+              <p-columnFilter type="text" field="categoryName" display="menu"></p-columnFilter>
+						</th>		
+						<th pSortableColumn="name" class="ui-resizable-column"  width="10%" pResizableColumn>
+              <span class="table-header">Name</span>
+              <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+						</th>
+						<th pSortableColumn="description" class="ui-resizable-column"  width="15%" pResizableColumn>
+              <span class="table-header">Description</span>
+              <p-columnFilter type="text" field="description" display="menu"></p-columnFilter>
+						</th>
+						<th pSortableColumn="periodName" class="ui-resizable-column"   width="10%" pResizableColumn>
+              <span class="table-header">Period</span>
+              <p-columnFilter type="text" field="periodName" display="menu"></p-columnFilter>
+						</th>
+            <th pSortableColumn="paymentFrequency" class="ui-resizable-column"   width="10%" pResizableColumn>
+              <span class="table-header">Payment Frequency</span>
+              <p-columnFilter type="text" field="paymentFrequencyName" display="menu"></p-columnFilter>
+						</th>
+							
+            <th pSortableColumn="units"  width="5%" pResizableColumn>
+              <span class="table-header">Units</span>
+              <p-columnFilter type="text" field="units" display="menu"></p-columnFilter>
+						</th>				
+						<th pSortableColumn="status"  width="5%">
+							<span class="table-header">Status</span>
+						</th>
+						<th  width="5%"></th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-membershipType let-expanded="expanded">
+					<tr class="maxTableRow">
+            <td>
+              <button type="button" pButton pRipple [pRowToggler]="membershipType" class="p-button-text p-button-rounded p-button-plain" 
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+              </button>
+            </td>
+            <td>
+							{{ membershipType.code }}
+						</td>
+            <td>
+							{{ membershipType.categoryName }}
+						</td>	
+						<td class="membershipType-name">
+              <div [title]=" membershipType.name">
+                {{ membershipType.name }}
+              </div>
+
+						</td>
+						<td class="membershipType-desc">
+              <div [title]=" membershipType.description">
+                {{ membershipType.description }}
+              </div>
+
+						</td>
+						<td>
+							{{ membershipType.periodName }}
+						</td>
+            <td>
+							{{ membershipType.paymentFrequencyName }}
+						</td>
+					
+            <td>
+							{{ membershipType.units }}
+						</td>				
+            <td style="text-align: center;">
+              <div *ngIf="membershipType.status; else elseBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+              <ng-template #elseBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+              <!-- <p-inputSwitch readonly=true [ngModel]="membershipType.status"></p-inputSwitch> -->
+						</td>
+						<td>
+              <div #pMenu style="text-align: center;"></div>
+							<p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+							<button type="button" pButton icon="pi pi-ellipsis-v" (click)="setActiveRow(membershipType); menu.toggle($event)"> </button>
+						</td>
+					</tr>
+				</ng-template>
+        <ng-template pTemplate="rowexpansion" let-membershipType >
+        <tr>
+          <td colspan="1">
+          </td>
+          <td colspan="9" style="width:100%">
+           
+              <p-table [value]="membershipType.membershipFees" dataKey="feeId" resizableColumns="true" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                      <th pSortableColumn="description" class="ui-resizable-column"  width="25%" pResizableColumn>Fees  <p-columnFilter type="text" field="description" display="menu"></p-columnFilter></th>
+                      <th style="text-align: left" pSortableColumn="feeAmount" class="ui-resizable-column" style="text-align:left" width="10%" pResizableColumn>Amount</th>
+                      <th pSortableColumn="glAccountCode" class="ui-resizable-column"  width="25%" pResizableColumn>GL Account <p-columnFilter type="text" field="glAccountCode" display="menu"></p-columnFilter></th>
+                      <th>Required</th>
+                      <th>Billing Frequency</th>
+                      <!-- <th>Active</th> -->
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-mebershipFee>
+                    <tr>
+                      <td>{{mebershipFee.description}}</td>
+                      <td style="text-align: left;">{{mebershipFee.feeAmount | currency:'USD'}}</td>
+                      <td>{{mebershipFee.glAccountCode}}</td>
+                      <td style="text-align: left;">
+                        <div *ngIf="mebershipFee.isMandatory; else elseBlock"><p-tag styleClass="p-mr-2" severity="success" value="Yes" [rounded]="true"></p-tag></div>
+                        <ng-template #elseBlock><p-tag styleClass="p-mr-2" severity="danger" value="No" [rounded]="true"></p-tag></ng-template>
+                        <!-- <p-inputSwitch readonly=true [ngModel]="mebershipFee.isMandatory"></p-inputSwitch> -->
+                      </td>
+                      <td>{{mebershipFee.billingFrequency === 1 ? "Once" : mebershipFee.billingFrequency === 2 ? "On Renewal" : "Every Billing Cycle"}}</td>              
+                    </tr>
+                </ng-template>
+              </p-table>
+                   
+          </td>          
+        </tr>
+    </ng-template>
+			</p-table>
+        </div>
+		</div>
+    <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+	</div>
+</div>

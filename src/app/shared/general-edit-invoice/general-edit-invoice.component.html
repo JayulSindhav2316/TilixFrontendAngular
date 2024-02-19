@@ -1,0 +1,142 @@
+<div *ngIf="itemInvoice">
+	<form [formGroup]="invoiceForm">
+		<div class="p-grid">
+			<div class="p-col">
+				<div class="card">
+					<input type="hidden" formControlName="InvoiceId">
+					<div id="invoice-content">
+						<div class="invoice">
+							<div class="invoice-header">
+								<div class="invoice-title">{{headerName}}</div>
+								<div>
+									<div class="invoice-details">
+										<div class="invoice-label">
+											Due Date
+										</div>
+										<p-calendar formControlName="InvoiceDueDate" [minDate]="minDate"
+											[showIcon]="true" appendTo="body"></p-calendar>
+									</div>
+								</div>
+							</div>
+							<div>
+								<div class="bill-to"><B>Bill To</B>
+									<a *ngIf="!companyInvoice" style="padding: 10px;"><fa-icon [icon]="faEdit"
+											(click)="showRelatedContacts=true"></fa-icon></a>
+								</div>
+								<div class="invoice-to-info">
+									<div *ngIf="companyInvoice">{{entityName}}</div>
+									<div *ngIf="!companyInvoice">
+										<p-dropdown *ngIf="showRelatedContacts" [options]="relationsList"
+											(onChange)="changeBillableMember($event)" formControlName="MemberEntityId"
+											optionValue="code" optionLabel="name"></p-dropdown>
+										<span *ngIf="!showRelatedContacts">{{entityName}}</span>
+									</div>
+									<div *ngIf="!companyInvoice">
+										<span>{{billablePerson?.streetAddress}}</span><br>
+										<span> {{billablePerson?.city}},
+											{{billablePerson?.state}}, {{billablePerson?.zip}}</span>
+									</div>
+									<div *ngIf="companyInvoice">
+										<span>{{company?.streetAddress}}</span><br>
+										<span> {{company?.city}},
+											{{company?.state}}, {{company?.zip}}
+										</span>
+									</div>
+								</div>
+								<hr>
+							</div>
+							<!-- <div *ngIf="companyInvoice">
+								<div class="bill-to"><B>Contact</B></div>
+								<form [formGroup]="entityForm">
+									<div class="p-fluid p-formgrid p-grid">
+										<input formControlName="EntityId" type="hidden">
+										<div class="p-field p-col-12 p-md-4">
+											<label for="name">Name</label>
+											<p-dropdown [options]="employeesList" formControlName="ContactEntity"
+												optionLabel="name" optionValue="code" appendTo="body"></p-dropdown>
+										</div>
+									</div>
+								</form>
+								<hr>
+							</div> -->
+
+							<div>
+								<div class="p-fluid p-formgrid p-grid" style="margin-top: 10px;">
+									<div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2"><B>Select
+											Contact</B></div>
+									<div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2"><B>Item</B></div>
+									<div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2"><B>Description</B> </div>
+									<div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2"><B>Quantity</B> </div>
+									<div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2"><B>Unit Price </B></div>
+									<div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2"><B>Amount </B></div>
+								</div>
+								<div formArrayName="Items">
+									<div *ngFor="let item of Items.controls; let i=index">
+										<div class="p-fluid p-formgrid p-grid">
+											<div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-11">
+												<app-line-item [entity]="entity" [formControlName]="i" [controlId]="i"
+													(removeControl)="removeInvoiceItem($event)"
+													(otherFormClicked)="otherFormClicked($event)"></app-line-item>
+											</div>
+											<div class="p-field p-col-1 p-sm-1 p-md-1 p-lg-1"
+												*ngIf="Items.controls.length > 1">
+												<button pButton pRipple type="button" icon="pi pi-times"
+													(click)="removeInvoiceItem(i)"
+													class="p-button-rounded p-button-danger"
+													pTooltip="Remove Item"></button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="invoice-item">
+									<button pButton pRipple type="button" icon="pi pi-plus"
+										class="p-button-rounded p-mr-2 p-mb-2" (click)="addInvoiceItem()"
+										pTooltip="Add Item" tooltipPosition="left"
+										[disabled]="invoiceForm.get('Items').invalid">
+									</button>
+								</div>
+								<div class="p-fluid p-formgrid p-grid">
+									<div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2"></div>
+									<div class="p-field p-col-3 p-sm-3 p-md-3 p-lg-3"> </div>
+									<div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2"> </div>
+									<div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2"><B>Total Due</B> </div>
+									<div class="p-field p-col-2 p-sm-2 p-md-2 p-lg-2">
+										<div class="p-inputgroup">
+											<span class="p-inputgroup-addon">$</span>
+											<input type="number" formControlName="TotalAmount" readonly="true"
+												min="0.00" placeholder="0.00" pInputText />
+										</div>
+									</div>
+									<div class="p-field p-col-1 p-sm-1 p-md-1 p-lg-1 p-jc-center invoice-item"></div>
+								</div>
+							</div>
+							<div>
+								<h5>Notes</h5>
+								<div class="p-fluid p-formgrid p-grid">
+									<div class="p-field p-md-12">
+										<textarea [rows]="5" formControlName="Note" pInputTextarea
+											autoResize="autoResize" maxlength="500"></textarea>
+									</div>
+								</div>
+							</div>
+							<div class="center">
+								<button pButton pRipple label="Save" icon="pi pi-save"
+									class="p-button-success p-mr-2 p-mb-2" type="button" (click)="saveItemInvoice(true)"
+									[disabled]="invoiceForm.get('Items').invalid || disabled"></button>
+								<!-- <button pButton pRipple label="Save & Create New" icon="pi pi-save" class="p-button-warning p-mr-2 p-mb-2"  type="button" (click)="saveAndCreateNewItemInvoice()" [disabled]="invoiceForm.get('Items').invalid || disabled"></button> -->
+								<button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+									(click)="closeItemInvoice($event)"></button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</form>
+</div>
+<div *ngIf="showReceipt">
+	<app-show-edit-invoice-recepit [invoiceId]="newInvoiceId" (closeEvent)='closeReceipt($event)'
+		[previousInvoiceId]="previousInvoiceId">
+	</app-show-edit-invoice-recepit>
+</div>

@@ -1,0 +1,7 @@
+.has-feedback {
+    position: relative;
+}
+
+:host ::ng-deep .p-tag {
+    margin-bottom: 1px;
+}

@@ -1,0 +1,33 @@
+.profile-label {
+    margin-bottom: 0px;
+    font-weight: lighter;
+}
+
+.profile-data {
+    margin-bottom: 0px;
+    font-weight: bolder;
+}
+
+.invoice-badge.status-paid {
+    background: #C8E6C9;
+    color: #256029;
+  }
+
+.invoice-badge.status-unpaid {
+    background: #FFCDD2;
+    color: #C63737;
+  }
+  
+.invoice-badge.status-partial {
+    background: #FEEDAF;
+    color: #8A5340;
+}
+
+.invoice-badge {
+    border-radius: 2px;
+    padding: 0.25em 0.5rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+}

@@ -1,0 +1,185 @@
+<div class="p-grid">
+  <div class="p-col-12">
+    <p-toast></p-toast>
+    <div class="card">
+      <p-toolbar styleClass="p-mb-4">
+        <ng-template pTemplate="left">
+        </ng-template>
+        <ng-template pTemplate="right">
+          <div class="p-formgroup-inline">
+            <button pButton type="button" label="Add" icon="pi pi-plus" class="p-button-primary p-mr-2 p-mb-2"
+              (click)="addNote()"></button>
+          </div>
+        </ng-template>
+      </p-toolbar>
+      <div class="card" *ngIf="noRecords">
+        <div class="center">
+          <h6>No records found.</h6>
+        </div>
+      </div>
+      <div *ngIf="showTable">
+        <p-table #dt [value]="notes" [columns]="cols" [rows]="10" [paginator]="true" [rowHover]="true"
+          resizableColumns="true" styleClass="p-datatable-sm"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [showCurrentPageReport]="true"
+          [autoLayout]="true">
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="date" class="ui-resizable-column" pResizableColumn width="10%"
+                style="text-align:center">
+                Created Date
+                <p-columnFilter type="text" field="date" display="menu"></p-columnFilter>
+              </th>
+              <th pSortableColumn="notes" pResizableColumn width="10%" style="text-align:center">
+                Created By
+                <p-columnFilter type="text" field="notes" display="menu"></p-columnFilter>
+              </th>
+              <th pSortableColumn="type" class="ui-resizable-column" pResizableColumn width="50%"
+                style="text-align:center">
+                Notes
+                <p-columnFilter type="text" field="type" display="menu"></p-columnFilter>
+              </th>
+              <th pSortableColumn="subject" pResizableColumn width="10%" style="text-align:center">
+                Severity
+                <p-columnFilter type="text" field="subject" display="menu"></p-columnFilter>
+              </th>
+              <!-- <th pSortableColumn="from" pResizableColumn width="10%" style="text-align:center"> 							
+							Profile Display?
+							<p-columnFilter type="text" field="from" display="menu"></p-columnFilter>							
+						</th> -->
+              <th pSortableColumn="notes" pResizableColumn width="10%" style="text-align:center">
+                Active
+                <p-columnFilter type="text" field="notes" display="menu"></p-columnFilter>
+              </th>
+              <th width="10%"></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-note>
+            <tr class="maxTableRow">
+              <td style="text-align:center">
+                {{ note.createdOn | date:'MM/dd/yyyy'}}
+              </td>
+              <td style="text-align:center">
+                {{ note.createdBy }}
+              </td>
+              <td style="text-overflow: ellipsis !important; max-width: 200px;">
+                {{ note.notes }}
+              </td>
+              <td style="text-align:center">
+                <div *ngIf="note.severity === 'General'">
+                  <p-tag styleClass="p-mr-2" severity="info" value="General" [rounded]="true"></p-tag>
+                </div>
+                <div *ngIf="note.severity === 'Warning'">
+                  <p-tag styleClass="p-mr-2" severity="warning" value="Warning" [rounded]="true"></p-tag>
+                </div>
+                <div *ngIf="note.severity === 'Emergency'">
+                  <p-tag styleClass="p-mr-2" severity="danger" value="Emergency" [rounded]="true"></p-tag>
+                </div>
+              </td>
+              <!-- <td style="text-align:center">
+              <div *ngIf="note.displayOnProfile; else elseDisplayBlock"><p-tag styleClass="p-mr-2" severity="success" value="Yes" [rounded]="true"></p-tag></div>
+              <ng-template #elseDisplayBlock><p-tag styleClass="p-mr-2" severity="danger" value="No" [rounded]="true"></p-tag></ng-template>
+            </td> -->
+              <td style="text-align:center">
+                <div *ngIf="note.status; else elseStatusBlock">
+                  <p-tag styleClass="p-mr-2" severity="success" value="Yes" [rounded]="true"></p-tag>
+                </div>
+                <ng-template #elseStatusBlock>
+                  <p-tag styleClass="p-mr-2" severity="danger" value="No" [rounded]="true"></p-tag>
+                </ng-template>
+              </td>
+              <td style="text-align: center;">
+                <div #pMenu></div>
+                <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+                <button type="button" pButton icon="pi pi-ellipsis-v"
+                  (click)="setActiveRow(note); menu.toggle($event)"></button>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="summary">
+            <div class="p-d-flex p-ai-center p-jc-between">
+              In total there are
+              {{ notes ? notes.length : 0 }} Notes.
+            </div>
+          </ng-template>
+        </p-table>
+      </div>
+
+      <form [formGroup]="notesForm">
+        <p-dialog [(visible)]="notesDialog" [style]="{ width: '650px' }" header="Add Notes" [modal]="true"
+          styleClass="p-fluid" [contentStyle]="{minHeight: '350px'}" (onHide)="hideDialog()">
+          <ng-template pTemplate="content">
+            <div class="p-fluid p-formgrid p-grid">
+              <div class="p-field p-col-12" [ngClass]="errorIconCss('Note')">
+                <label for="Description">Note</label>
+                <textarea [rows]="5" pInputTextarea formControlName="Note" autoResize="autoResize"
+                  [ngClass]="errorFieldCss('Note')" maxlength="500" [readonly]="isViewOnly"
+                  (click)="resetSubmitted('Note')"
+                  onKeyDown="if(this.value.length==1000 && event.keyCode!=8) return false;"
+                  (paste)="matcher($event, 'Note')"></textarea>
+                <app-field-error-display [displayError]="isFieldValid('Note')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+              </div>
+              <div class="p-field p-col-4" [ngClass]="errorIconCss('Severity')">
+                <label for="Type">Severity</label>
+                <p-dropdown [options]="severityList" formControlName="Severity" placeholder="Select a Type"
+                  appendTo="body" optionLabel="name" optionValue="code" appendTo="body"
+                  [ngClass]="errorFieldCss('Severity')" (click)="resetSubmitted('Severity')" [disabled]="isViewOnly">
+                </p-dropdown>
+                <app-field-error-display [displayError]="isFieldValid('Severity')"
+                  [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+              </div>
+              <div class="p-field p-col-4 center">
+                <!-- <div>
+              <label for="Display">Display ?</label>
+              <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                <p-inputSwitch formControlName='DisplayOnProfile'></p-inputSwitch>
+              </div>
+          </div> -->
+              </div>
+              <div class="p-field p-col-4 center">
+                <div>
+                  <label for="Status">Active</label>
+                  <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                    <p-inputSwitch formControlName='Status' [disabled]="isViewOnly"></p-inputSwitch>
+                  </div>
+                </div>
+              </div>
+              <div class="p-field p-col-5">
+                <div *ngIf="!isAddNewRecord">
+                  <label for="CreatedOn"><small>Created On : {{createdOn}}</small></label>
+                </div>
+              </div>
+              <div class="p-field p-col-2"></div>
+              <div class="p-field p-col-5">
+                <div *ngIf="!isAddNewRecord && this.modifyOn">
+                  <label for=""><small>Modified On : {{modifyOn}}</small></label>
+                </div>
+              </div>
+              <div class="p-field p-col-5">
+                <div *ngIf="!isAddNewRecord">
+                  <label for="CreatedOn"><small>Created By : {{createdBy}}</small></label>
+                </div>
+              </div>
+              <div class="p-field p-col-2"></div>
+              <div class="p-field p-col-5">
+                <div *ngIf="!isAddNewRecord && this.modifyBy">
+                  <label for=""><small>Modified By : {{modifyBy}}</small></label>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <div *ngIf="!isViewOnly">
+              <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"
+                type="submit" (click)="saveNotes()" [disabled]="isPageValid"></button>
+              <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+                (click)="hideDialog()"></button>
+            </div>
+          </ng-template>
+        </p-dialog>
+      </form>
+    </div>
+    <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+  </div>
+</div>

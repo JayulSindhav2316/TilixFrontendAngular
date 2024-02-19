@@ -1,0 +1,40 @@
+{
+    "data":[
+    {
+        "menuId": 1,
+        "group": "Staff Management",
+        "name": "Manage Staff",
+        "route": "administrator/staff"
+    },
+    {
+        "menuId": 2,
+        "group": "Staff Management",
+        "name": "Manage Roles",
+        "route": "administrator/role"
+    },
+    {
+        "menuId": 3,
+        "group": "Staff Management",
+        "name": "Link menus to Role",
+        "route": "administrator/menu-role"
+    },
+    {
+        "menuId": 4,
+        "group": "Back Office",
+        "name": "Manage Memberships",
+        "route": "administrator/membership"
+    },
+    {
+        "menuId": 5,
+        "group": "Back Office",
+        "name": "Create Memberships",
+        "route": "membership/new"
+    },
+    {
+        "menuId": 6,
+        "group": "Back Office",
+        "name": "Renew Memberships",
+        "route": "membership/renew"
+    }
+]
+}

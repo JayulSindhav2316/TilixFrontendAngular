@@ -1,0 +1,369 @@
+<div class="p-grid">
+    <div class="p-col-12 p-md-12 p-xl-12">
+        <p-toast></p-toast>
+        <div *ngIf="showTable">
+            <div class="card">
+                <p-toolbar styleClass="p-mb-4">
+                    <ng-template pTemplate="left">
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')"
+                                placeholder="Search..." />
+                        </span>
+                    </ng-template>
+                    <ng-template pTemplate="right">
+                        <button pButton pRipple label="Add Directory" icon="pi pi-plus"
+                            class="p-button-success p-mr-2 p-mb-2" (click)="openNew()"></button>
+                    </ng-template>
+                </p-toolbar>
+
+                <p-table #dt [value]="containers" [columns]="cols" [rows]="10" [paginator]="true" [rowHover]="true"
+                    [globalFilterFields]="['name','description']" dataKey="containerId" styleClass="p-datatable-sm"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+                    [showCurrentPageReport]="true" rowExpandMode="single">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th width="5%"></th>
+                            <th pSortableColumn="name" class="ui-resizable-column" pResizableColumn style="width:25%;">
+                                Directory
+                                <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+                            <th pSortableColumn="description" class="ui-resizable-column" pResizableColumn
+                                style="width:50%;">
+                                Tooltip
+                                <p-columnFilter type="text" field="description" display="menu"></p-columnFilter>
+                            </th>
+                            <th pSortableColumn="accessControlEnabled" class="ui-resizable-column" pResizableColumn
+                                style="width:10%;">
+                                Permissions
+                                <p-columnFilter type="text" field="accessControlEnabled" display="menu">
+                                </p-columnFilter>
+                            </th>
+                            <th style="width:5%;">
+
+                            </th>
+                            <th style="width:5%;">
+
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-container let-expanded="expanded">
+                        <tr class="maxTableRow">
+                            <td *ngIf="container.accessControlEnabled===1">
+                                <button type="button" pButton pRipple [pRowToggler]="container"
+                                    class="p-button-text p-button-rounded p-button-plain"
+                                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                                </button>
+                            </td>
+                            <td *ngIf="container.accessControlEnabled===0">
+                                <button type="button" pButton pRipple [disabled]="true" [pRowToggler]="container"
+                                    class="p-button-text p-button-rounded p-button-plain"
+                                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                                </button>
+                            </td>
+                            <td>
+                                {{container.name}}
+                            </td>
+                            <td>
+                                {{container.description}}
+                            </td>
+                            <td>
+                                <div *ngIf="container.accessControlEnabled; else elseStatusBlock">
+                                    <p-tag styleClass="p-mr-2" severity="danger" value="Restricted" [rounded]="true">
+                                    </p-tag>
+                                </div>
+                                <ng-template #elseStatusBlock>
+                                    <p-tag styleClass="p-mr-2" severity="success" value="Community Members"
+                                        [rounded]="true">
+                                    </p-tag>
+                                </ng-template>
+                            </td>
+                            <td style="text-align: center;">
+
+                                <div #pMenu></div>
+                                <p-menu #menu [popup]="true" [model]="menuItems" position="left" appendTo="body">
+                                </p-menu>
+                            </td>
+                            <td>
+                                <button type="button" pButton icon="pi pi-ellipsis-v"
+                                    (click)="setActiveRow(container);menu.toggle($event)"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="rowexpansion" let-container>
+                        <tr>
+                            <td colspan="1">
+                            </td>
+                            <td colspan="5">
+                                <p-table [value]="container.containerAccesss" dataKey="containerAccessId"
+                                    resizableColumns="true" styleClass="p-datatable-sm">
+                                    <ng-template pTemplate="header">
+                        <tr *ngIf="showMembershipTable">
+                            <th>Category </th>
+                            <th>Type </th>
+                            <th>Period </th>
+                        </tr>
+                        <tr *ngIf="showGroupTable">
+                            <th>Name </th>
+                            <th>Description </th>
+                            <th> </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-containerAccesss>
+                        <tr *ngIf="showMembershipTable">
+                            <td>{{containerAccesss.membershipType.categoryName}}</td>
+                            <td>{{containerAccesss.membershipType.name}}</td>
+                            <td>{{containerAccesss.membershipType.periodName}}</td>
+                        </tr>
+                        <tr *ngIf="showGroupTable">
+                            <td>{{containerAccesss.groupName}}</td>
+                            <td>{{containerAccesss.groupDescription}}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+                </td>
+                </tr>
+                </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </div>
+</div>
+<form [formGroup]="containerForm">
+    <div class="p-grid" *ngIf="showForm">
+
+        <div class="p-col-1 p-xl-1"></div>
+        <div class="p-col-10 p-xl-10">
+            <div class="card">
+                <div class="card-header profile-title">
+                    <h5>Add Directory</h5>
+
+                </div>
+                <hr>
+                <input type="hidden" formControlName="containerId">
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12" [ngClass]="errorIconCss('containerName')">
+                        <label for="name"> Directory Name</label>
+                        <input type="text" pInputText formControlName="containerName" autofocus pInputText
+                            maxlength="100" [ngClass]="errorFieldCss('containerName')" autofocus
+                            (click)="resetSubmitted('containerName')"
+                            onkeypress="return (event.charCode > 47 && event.charCode < 58) || (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode == 32) || (event.charCode == 45)"
+                            (paste)="matcher($event, 'containerName')" />
+                        <app-field-error-display [displayError]="isFieldValid('containerName')"
+                            [addErrorMessages]="addErrorMessages">
+                        </app-field-error-display>
+                    </div>
+                    <div class="p-field p-col-12" [ngClass]="errorIconCss('description')">
+                        <label for="description">Description [Tooltip]</label>
+                        <textarea [rows]="5" pInputTextarea formControlName="description" autoResize="autoResize"
+                            [ngClass]="errorFieldCss('description')" maxlength="500"
+                            (click)="resetSubmitted('description')"></textarea>
+                        <app-field-error-display [displayError]="isFieldValid('description')"
+                            [addErrorMessages]="addErrorMessages">
+                        </app-field-error-display>
+                    </div>
+                    <div class="p-field p-col-12 p-d-flex p-jc-center">
+                        <div class="p-fluid p-formgrid p-grid">
+                            <div>
+                                <label for="accessControlDisabled">Allow Access to everyone</label>
+                                <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                                    <p-inputSwitch formControlName="accessControlDisabled"
+                                        (click)="showMembershipSearch()">
+                                    </p-inputSwitch>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" *ngIf="showAccessControl">
+                <!-- <p-toolbar styleClass="p-mb-4">
+                    <ng-template pTemplate="left">
+                        <div class="p-formgroup-inline" *ngIf="showMembershipTable">
+                            <div class="p-field">
+                                <label for="serachSelection" class="p-sr-only">Search By:</label>
+                                <p-multiSelect [options]="membershipCategory" placeholder="Select Membership(s)"
+                                    appendTo="body" formControlName="membershipCategory" optionLabel="name"
+                                    optionValue="code"></p-multiSelect>
+                            </div>
+                            <button pButton type="button" label="Search" icon="pi pi-search"
+                                class="p-button-primary p-mr-2 p-mb-2" (click)="serachMemberships()"></button>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate="right">
+                    </ng-template>
+                </p-toolbar> -->
+               
+               
+                    <p-tabView  id="tabContact"  [(activeIndex)]="index">
+                        <p-tabPanel header="Contact's Access" [cache]="false">
+                            <!-- <div *ngIf="showGroupTable"> -->
+                            <ng-template pTemplate="content">
+                                <div *ngIf="showMembershipTable">
+                                    <p-toolbar styleClass="p-mb-4">
+                                        <ng-template pTemplate="left">
+                                            <div class="p-formgroup-inline" *ngIf="showMembershipTable">
+                                                <div class="p-field">
+                                                    <label for="serachSelection" class="p-sr-only">Search By:</label>
+                                                    <p-multiSelect [options]="membershipCategory" placeholder="Select Membership(s)"
+                                                        appendTo="body" formControlName="membershipCategory" optionLabel="name"
+                                                        optionValue="code"></p-multiSelect>
+                                                </div>
+                                                <button pButton type="button" label="Search" icon="pi pi-search"
+                                                    class="p-button-primary p-mr-2 p-mb-2" (click)="serachMemberships()"></button>
+                                            </div>
+                                        </ng-template>
+                                        <ng-template pTemplate="right">
+                                        </ng-template>
+                                    </p-toolbar>
+                                    <p-table #dt [value]="membershipTypes" [columns]="cols" [rows]="25" [paginator]="false"
+                                        [(selection)]="selectedMembershipType" [rowHover]="true" dataKey="membershipTypeId"
+                                        resizableColumns="true" styleClass="p-datatable-sm" [showCurrentPageReport]="true"
+                                        selectionMode="single">
+                                        <ng-template pTemplate="header">
+                                            <tr>
+                                                <th style="width: 5%">
+                                                </th>
+                                                <th pSortableColumn="categoryName" class="ui-resizable-column" pResizableColumn
+                                                    style="width:25%;">
+                                                    Membership Type
+                                                    <p-columnFilter type="text" field="categoryName" display="menu"></p-columnFilter>
+                                                </th>
+                                                <th pSortableColumn="name" class="ui-resizable-column" pResizableColumn
+                                                    style="width:10%;">
+                                                    Name
+                                                    <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+                                                </th>
+                                                <th pSortableColumn="name" class="ui-resizable-column" pResizableColumn
+                                                    style="width:25%;">
+                                                    Description
+                                                    <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+                                                </th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-membershipType>
+                                            <tr class="maxTableRow">
+                                                <td style='text-align: center;'>
+                                                    <p-tableCheckbox [value]="membershipType"></p-tableCheckbox>
+                                                </td>
+                                                <td>
+                                                    {{ membershipType.categoryName }}
+                                                </td>
+                                                <td>
+                                                    {{ membershipType.name }}
+                                                </td>
+                                                <td>
+                                                    {{ membershipType.description }}
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                
+                                    </p-table>
+                
+                                </div>
+                                <div *ngIf="showGroupTable"> 
+                                <p-table #dt [value]="groups" [columns]="cols" [rows]="25" [paginator]="false"
+                                [(selection)]="selectedGroups" [rowHover]="true" dataKey="groupId"
+                                resizableColumns="true" styleClass="p-datatable-sm" [showCurrentPageReport]="true"
+                                selectionMode="single">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th style="width: 5%">
+                                        </th>
+                                        <th pSortableColumn="name" class="ui-resizable-column" pResizableColumn
+                                            style="width:10%;">
+                                            Name
+                                            <p-columnFilter type="text" field="groupName" display="menu"></p-columnFilter>
+                                        </th>
+                                        <th pSortableColumn="description" class="ui-resizable-column" pResizableColumn
+                                            style="width:25%;">
+                                            Description
+                                            <p-columnFilter type="text" field="groupDescription" display="menu"></p-columnFilter>
+                                        </th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-group>
+                                    <tr class="maxTableRow">
+                                        <td style='text-align: center;'>
+                                            <p-tableCheckbox [value]="group"></p-tableCheckbox>
+                                        </td>
+                                        <td>
+                                            {{ group.groupName }}
+                                        </td>
+                                        <td>
+                                            {{ group.groupDescription }}
+                                        </td>
+                                    </tr>
+                                </ng-template>
+        
+                            </p-table>
+                        </div>
+                            </ng-template>
+                        </p-tabPanel>
+                        <p-tabPanel header="Staff Access" [cache]="false">
+                            <ng-template pTemplate="content">
+                                <p-table #dt [value]="roles" [columns]="cols" [(selection)]="selectedStaff"  selectionMode="single" [rows]="10" [paginator]="true"
+                                [globalFilterFields]="['name','description']" [rowHover]="true" dataKey="roleId" styleClass="p-datatable-sm"
+                                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [showCurrentPageReport]="true" resizableColumns="true">
+                                <ng-template pTemplate="header">
+                                  <tr>
+                                    <th style="width: 5%">
+                                    </th>
+                                    <th pSortableColumn="name" class="item-header" width="25%" pResizableColumn>  
+                                      <span class="table-header">Role Name</span>          
+                                      <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+                                    <th pSortableColumn="description" class="ui-resizable-column" width="55%" pResizableColumn>             
+                                      Description
+                                      <p-columnFilter type="text" field="description" display="menu"></p-columnFilter>
+                                    </th>
+                                    <!-- <th pSortableColumn="status" class="ui-resizable-column" width="10%" pResizableColumn>             
+                                      Status
+                                    </th>
+                                    <th width="10%">
+                                    </th> -->
+                                  </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-role>
+                                  <tr class="maxTableRow">
+                                    <td style='text-align: center;'>
+                                        <p-tableCheckbox [value]="role"></p-tableCheckbox>
+                                    </td>
+                                    <td>
+                                      {{role.name}}
+                                    </td>
+                                    <td>
+                                      {{role.description}}
+                                    </td>
+                                    <!-- <td style="text-align: center;">
+                                      <div *ngIf="role.status; else elseBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+                                      <ng-template #elseBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+                                     
+                                      <div #pMenu></div>
+                                      <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+                                    </td>
+                                    <td style="text-align: center;">
+                                      <button type="button" pButton icon="pi pi-ellipsis-v"
+                                        (click)="setActiveRow(role);menu.toggle($event)"></button>
+                                    </td> -->
+                                  </tr>
+                                </ng-template>
+                              </p-table>
+                            </ng-template>
+                        </p-tabPanel>
+                    </p-tabView>
+                <!-- </div> -->
+            </div>
+            <div class="card">
+
+                <div class="center">
+                    <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"
+                        type="submit" (click)="saveContainer()"></button>
+                    <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+                        (click)="cancel()"></button>
+                </div>
+
+            </div>
+        </div>
+        <div class="p-col-1 p-xl-1"></div>
+    </div>
+    <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+</form>

@@ -1,0 +1,172 @@
+<div class="p-grid">
+  <div class="p-col-1 p-md-1 p-xl-1"></div>
+  <div class="p-col-10 p-md-10 p-xl-10">
+    <p-toast></p-toast>
+    <div class="card">
+      <p-toolbar styleClass="p-mb-4">
+        <ng-template pTemplate="left">
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains'); resetActiveRow();" [(ngModel)]="searchText" placeholder="Search..." />
+          </span>
+        </ng-template>
+        <ng-template pTemplate="right">
+          <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="dt.filterGlobal('', 'contains'); addNewQuestion()" [disabled]="addNewQuestionRecord"></button>
+           <div>
+            <small for="Status"><strong>Include Inactive?</strong></small>
+            <div class="p-col-3" style="padding-top: 5px;">
+              <p-inputSwitch [(ngModel)]="includeInactive" (onChange)="includeInactiveQuestions($event)"></p-inputSwitch>
+            </div>
+          </div>
+        </ng-template>
+      </p-toolbar>
+      <p-table #dt [value]="questionList" dataKey="questionBankId" responsiveLayout="scroll" rowExpandMode="single" [expandedRowKeys]="expandedRows" [globalFilterFields]="['question']" [showCurrentPageReport]="true"
+        styleClass="p-datatable" [rowHover]="true" [rows]="10" [paginator]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)">
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 5%;">&nbsp;</th>
+                <th style="width: 45%;">Question</th>
+                <th style="width: 25%; text-align: center;">Answer Type</th>
+                <th style="width: 15%; text-align: center;">Status</th>
+                <th style="width: 5%;">&nbsp;</th>
+                <th style="width: 5%;">&nbsp;</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-question let-rowIndex="rowIndex" let-expanded="expanded">
+          <tr>
+            <td>
+              <button type="button" pButton pRipple [pRowToggler]="question" class="p-button-text p-button-rounded p-button-plain" (click)="expanded ? resetActiveRow() : setActiveRow(question, selectedQuestionRowIndex)"
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" [disabled]="selectedQuestionRowIndex!=question.questionBankId && selectedQuestionRowIndex!= -1">
+              </button> 
+            </td>
+            <td >
+              <div>
+                <input pInputText type="text" [(ngModel)]="question.question" required="true"  id="question_{{question.questionBankId}}" [style]="{'width':'100%'}" 
+                (click)="setActiveRow(question, rowIndex)" (keyup)="setActiveRow(question, rowIndex)" (keydown.enter)="updateQuestion(question, rowIndex, false)" 
+                (keydown.tab)="updateQuestion(question, rowIndex, false)" maxlength="100" [ngClass]="applyClass('text', question.question)" placeholder="Enter a question"
+                [disabled]="selectedQuestionRowIndex!=question.questionBankId && selectedQuestionRowIndex!= -1" (keyup.esc)="resetActiveRow()">
+              </div>
+            </td>
+            <td style="text-align: center;">
+              <p-dropdown [options]="answerTypeLookUpList" appendTo="body" [(ngModel)]="question.answerTypeLookUpId" (ngModelChange)="answertTypeChanged($event, question, rowIndex)" [style]="{'width':'100%'}" placeholder="Select Answer Type"
+                optionLabel="name" optionValue="value" required="true" [disabled]="selectedQuestionRowIndex!=question.questionBankId && selectedQuestionRowIndex!= -1" [ngClass]="applyClass('list', question.answerTypeLookUpId)">
+              </p-dropdown>
+            </td>
+            <td style="text-align: center;">
+              <p-toggleButton [(ngModel)]="question.status" onLabel="Active" offLabel="Inactive" 
+                 (onChange)="toggleStatus($event, question, rowIndex)" styleClass="p-button-danger" [disabled]="selectedQuestionRowIndex!=question.questionBankId && selectedQuestionRowIndex!= -1">
+              </p-toggleButton>
+            </td>
+            <td *ngIf="selectedQuestionRowIndex==question.questionBankId; else elseBlockNew">
+              <button (click)="saveQuestion(question, rowIndex)" pButton pRipple type="button" icon="pi pi-save" class="p-button-rounded p-button-success p-mr-2 p-mb-2" 
+                pTooltip="Save Question"  tooltipPosition="left" [disabled]="submitted">
+              </button> 
+              <button (click)="resetActiveRow()" pButton pRipple type="button" icon="pi pi-times"
+                class="p-button-rounded p-button-danger p-mr-2 p-mb-2" pTooltip="Reset"  tooltipPosition="left">
+              </button> 
+            </td>
+            <td style="text-align: center;">              
+              <button (click)="cloneQuestion(question, rowIndex)" pButton pRipple type="button" icon="pi pi-copy" class="p-button-rounded p-button-warning p-mr-2 p-mb-2" 
+                pTooltip="Clone Question"  tooltipPosition="left" [disabled]="selectedQuestionRowIndex!=question.questionBankId && selectedQuestionRowIndex!= -1 || question.questionBankId == 0">
+              </button>
+            </td>
+            <td *ngIf="selectedQuestionRowIndex==-1">
+              <button (click)="deleteQuestion(question, rowIndex)" pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-mr-2 p-mb-2" 
+                pTooltip="Delete Question"  tooltipPosition="left" [disabled]="selectedQuestionRowIndex!=question.questionBankId && selectedQuestionRowIndex!= -1">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-question >
+          <tr class="maxTableRow" style="width: 50%;">
+          <!-- *ngIf="(question.answerTypeLookUpId == 3 && selectedQuestionRowIndex==question.questionBankId) || (question.answerTypeLookUpId == 4 && selectedQuestionRowIndex==question.questionBankId)"> -->
+            <td>&nbsp;</td>            
+            <td colspan="2" *ngIf="question.answerTypeLookUpId > 0">
+              <div class="card" style="max-height: 300px ; overflow: auto;">
+                <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="question.answerTypeLookUpId == 1">
+                  <div class="p-field p-col-12">
+                    <h6>Short Description</h6>
+                    <textarea [rows]="3" pInputTextarea disabled autoResize="autoResize">Max 200 characters allowed.</textarea>
+                  </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="question.answerTypeLookUpId == 2">
+                  <div class="p-field p-col-12">
+                    <h6>Long Description</h6>
+                    <textarea [rows]="5" pInputTextarea disabled autoResize="autoResize">Max 1000 characters allowed.</textarea>
+                  </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="question.answerTypeLookUpId == 5">
+                  <div class="p-field p-col-6">
+                    <h6>Date</h6>
+                    <p-calendar [showIcon]="true" inputId="icon" appendTo="body" [(ngModel)]="currentDate"></p-calendar>
+                  </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="question.answerTypeLookUpId == 6">
+                  <div class="p-field p-col-6">
+                    <h6>Time</h6>
+                    <p-calendar [timeOnly]="true" [hourFormat]="12" [(ngModel)]="currentDate"  appendTo="body" style="height: 100px;"></p-calendar>
+                  </div>
+                </div>
+                <div class="p-fluid p-formgrid p-grid p-jc-center" *ngIf="question.answerTypeLookUpId == 7">
+                  <div class="p-field p-col-6">
+                    <h6>Date & Time</h6>
+                    <p-calendar [showTime]="true" [hourFormat]="12" appendTo="body" [(ngModel)]="currentDate"></p-calendar>
+                  </div>
+                </div>
+                <p-table [value]="question.answerOptions" dataKey="answerOptionId" responsiveLayout="scroll" *ngIf="question.answerTypeLookUpId == 3 || question.answerTypeLookUpId == 4">
+                  <ng-template pTemplate="header">
+                      <tr>
+                          <th *ngIf="question.answerTypeLookUpId == 3" style="width: 85%; background-color: whitesmoke;">Drop Down</th>
+                          <th *ngIf="question.answerTypeLookUpId == 4" style="width: 85%; background-color: whitesmoke;">Multi Select Drop Down</th>                          
+                          <th style="width: 5%; background-color: whitesmoke;">&nbsp;</th>
+                          <th style="width: 5%; background-color: whitesmoke;">&nbsp;</th>
+                          <th style="width: 5%; background-color: whitesmoke;">
+                            <button  pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success p-mr-2 p-mb-2" 
+                              pTooltip="Add Option"  tooltipPosition="left" (click)="addNewOption(question)" *ngIf="selectedOptionRowIndex==-1">
+                            </button>
+                          </th>
+                      </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-option let-rowOptionIndex="rowIndex">
+                    <tr>
+                      <td>
+                        <div>                          
+                          <input pInputText type="text" [(ngModel)]="option.option" required="true" [ngClass]="applyClass('text', option.option)" maxlength="45"
+                            id="option_{{option.answerOptionId}}" (click)="setActiveOptionRow(option, rowOptionIndex)"  placeholder="Enter a option"
+                            (keydown.enter)="addUpdateOption(option, rowOptionIndex)" (keyup)="setActiveOptionRow(option, rowOptionIndex)" 
+                            (keydown.tab)="addUpdateOption(option, rowOptionIndex)"  (keyup.esc)="resetActiveRow()" >
+                        </div>
+                      </td>                
+                      <td>
+                        <button  pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success p-mr-2 p-mb-2" 
+                          pTooltip="Add Option"  tooltipPosition="left" (click)="addNewOption(question)" [disabled]="option.option.trim().length == 0"
+                          *ngIf="selectedOptionRowIndex == option.answerOptionId; else elseNoAddNew">
+                        </button>
+                        <ng-template #elseNoAddNew>&nbsp;</ng-template>
+                      </td>
+                      <td >
+                        <button (click)="resetOptionRow(option,selectedOptionRowIndex)" pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-mr-2 p-mb-2"
+                          pTooltip="Reset Option"  tooltipPosition="left" *ngIf="selectedOptionRowIndex == option.answerOptionId ; else elseNoReset">
+                        </button>
+                        <ng-template #elseNoReset>&nbsp;</ng-template>
+                      </td>
+                      <td>
+                        <button (click)="deleteOption(option, rowOptionIndex)" pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-mr-2 p-mb-2" 
+                          pTooltip="Delete Option"  tooltipPosition="left" *ngIf="selectedOptionRowIndex==-1">
+                        </button>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </td>           
+            <td>&nbsp;</td>
+          </tr>
+        </ng-template>
+      </p-table>   
+    </div>
+    <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+  </div>
+  <div class="p-col-1 p-md-10 p-xl-1"></div>
+</div>

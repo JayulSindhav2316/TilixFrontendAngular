@@ -1,0 +1,31 @@
+<HR>
+    <div [formGroup]="emailFormGroup">
+        <div class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-md-2" [ngClass]="errorIconCss('emailAddressType')">               
+                <label for="city">Email Type</label>
+                <p-dropdown [options]="labels" placeholder="Select a Type" class="p-inputtext-sm"  optionLabel="name" optionValue="code"
+                  formControlName='emailAddressType' (onChange) = "enableSave($event, 'emailAddressType')" [ngClass]="errorFieldCss('emailAddressType')" 
+                  (click) = "resetSubmitted('emailAddressType')"></p-dropdown>
+                <app-field-error-display [displayError]="isFieldValid('emailAddressType')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+            </div>
+            <div class="p-field p-col-12  p-md-6" [ngClass]="errorIconCss('emailAddress')">
+                <label for="email">Email</label>
+                <input type="text" class="p-inputtext-sm"  pInputText autocomplete="new-password" formControlName='emailAddress' (keyup) = "enableSave($event, 'emailAddress')" 
+                [ngClass]="errorFieldCss('emailAddress')"  (click) = "resetSubmitted('emailAddress')" (paste)="matcher($event, 'emailAddress')"/>
+                <app-field-error-display [displayError]="isFieldValid('emailAddress')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+            </div>
+            <div class="p-field p-col-12  p-md-2" [ngClass]="errorIconCss('isPrimary')">
+                <p>Primary?</p>
+                <p-inputSwitch formControlName="isPrimary" (onChange)="handleChange($event)"></p-inputSwitch>
+                <app-field-error-display [displayError]="isFieldValid('isPrimary')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+            </div>
+            <div class="p-field p-col-12 p-md-2">
+                <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text p-mr-2 p-mb-2 button-icon-cancel  p-button-sm" (click)="_removeControl()"  pTooltip="Remove Email Address" tooltipPosition="top"></button>
+            </div>
+        </div>
+    </div>
+
+

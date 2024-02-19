@@ -1,0 +1,40 @@
+{
+    "data": [
+        {
+            "Group": "Administrator",
+            "functionName": "Membership Types"
+        },
+        {
+            "Group": "Administrator",
+            "functionName": "Providers"
+        },
+        {
+            "Group": "Administrator",
+            "functionName": "Staff"
+        },
+        {
+            "Group": "Administrator",
+            "functionName": "Roles"
+        },
+        {
+            "Group": "Control Center",
+            "functionName": "Persons"
+        },
+        {
+            "Group": "Control Center",
+            "functionName": "Companies"
+        },
+        {
+            "Group": "Control Center",
+            "functionName": "Chapters"
+        },
+        {
+            "Group": "Back Office",
+            "functionName": "Create membership"
+        },
+        {
+            "Group": "Back Office",
+            "functionName": "Renew membership"
+        }
+    ]
+}

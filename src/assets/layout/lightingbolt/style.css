@@ -1,0 +1,327 @@
+.profile-label {
+    margin-top: 2px;
+    /*font-size: .80rem;*/
+    padding: 5px 5px 5px 5px !important;
+    text-align: right;
+}
+
+.profile-data {
+    margin-top: 2px;
+    /*font-weight:bold;
+    font-size: .80rem;*/
+    padding: 5px 5px 5px 5px !important;
+    text-align: left;
+}
+
+.profile-account-data {
+    margin-top: 0px;
+    margin-left: 0px;
+    /*font-weight:bold;
+    font-size: .80rem;*/
+    padding: 0px 0px 0px 0px !important;
+    text-align: left;
+}
+
+.profile-ruler {
+    margin: 2px 2px 10px 2px;
+}
+
+.profile-title {
+    margin-top: 2px;
+    /*font-size: .90rem;*/
+    font-weight: bolder;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+}
+
+.right {
+    display: flex;
+    justify-content: right;
+
+}
+
+.organization-title {
+    font-size: 24px;
+    font-weight: bold;
+    padding: 2px 2px 2px 2px !important;
+    margin: 2px 2px 2px 2px !important;
+}
+
+.organization-address {
+    font-size: 12px;
+    padding: 2px 2px 2px 2px !important;
+    margin: 2px 2px 2px 2px !important;
+}
+
+.card {
+    box-shadow: 0 2px 6px 0 rgb(0 0 0 / 10%);
+}
+
+.button-icon-cancel {
+    margin-top: 23px !important;
+}
+
+
+.invoice-badge.status-paid {
+    background: #C8E6C9;
+    color: #256029;
+}
+
+.invoice-badge.status-unpaid {
+    background: #FFCDD2;
+    color: #C63737;
+}
+
+.invoice-badge.status-partial {
+    background: #FEEDAF;
+    color: #8A5340;
+}
+
+.invoice-badge {
+    border-radius: 2px;
+    padding: 0.25em 0.5rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+}
+
+.row {
+    border: 1px solid gray;
+}
+
+.maxAmountCell {
+    text-align: right;
+    width: 100%;
+}
+
+.image-loader {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 2px;
+    width: 60px;
+    height: 60px;
+}
+
+.payment-card {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 2px;
+    width: 60px;
+    height: 40px;
+}
+
+.payment-card span:nth-of-type(1) {
+    float: left
+}
+
+.payment-card span:nth-of-type(2) {
+    float: right
+}
+
+.mem-fee-box {
+    max-width: 250px;
+    margin: auto;
+    padding: 2px;
+    font-size: 12px;
+    font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+}
+
+.invoice-box {
+    max-width: 800px;
+    margin: auto;
+    padding: 10px;
+    border: 1px solid #eee;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    font-size: 12px;
+    line-height: 16px;
+    font-family: 'Calibri', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+    color: #555;
+    background-color: #FFF;
+}
+
+.invoice-box table {
+    width: 100%;
+    line-height: inherit;
+    text-align: left;
+    border-collapse: collapse;
+}
+
+.invoice-box table td {
+    padding: 5px;
+    vertical-align: top;
+}
+
+.invoice-box table tr td:nth-child(2) {
+    text-align: right;
+}
+
+.invoice-box table tr.top table td {
+    padding-bottom: 10px;
+}
+
+.invoice-box table tr.top table td.title {
+    font-size: 45px;
+    line-height: 45px;
+    color: #333;
+}
+
+.invoice-box table tr.information table td {
+    padding-bottom: 40px;
+}
+
+.invoice-box table tr.title-item td {
+    border: 1px solid #888;
+    padding: 5px !important;
+    text-align: left;
+}
+
+.invoice-box table tr.heading td {
+    background: #eee;
+    font-weight: bold;
+}
+
+.invoice-box table tr.item-header td {
+    border: 1px solid #888;
+    text-align: center;
+    padding: 10px;
+    background-color: #CCC;
+}
+
+.invoice-box table tr.details td {
+    padding-bottom: 20px;
+    padding: 10px;
+}
+
+.invoice-box table tr.item td {
+    border: 1px solid #888;
+    text-align: left;
+    white-space: normal;
+    word-break: break-all;
+}
+
+.invoice-box table tr.total td:nth-child(2) {
+    font-weight: bold;
+}
+
+.p-datatable.p-datatable-sm .p-datatable-thead>tr>th,
+.p-datatable-resizable .p-datatable-thead>tr>th,
+.p-datatable .p-datatable-thead>tr>th {
+    background: #EFEFEF;
+    font-weight: bold;
+    text-align: left;
+    padding: 0.5rem 0.5rem;
+    border: black;
+}
+
+@media only screen and (max-width: 600px) {
+    .invoice-box table tr.top table td {
+        width: 100%;
+        display: block;
+        text-align: center;
+    }
+
+    .invoice-box table tr.information table td {
+        width: 100%;
+        display: block;
+        text-align: center;
+    }
+}
+
+@media only screen and (max-width: 1920px) {
+    .hidden-sm {
+        display: none;
+    }
+}
+
+.country-dropdown .p-dropdown-panel,
+.state-dropdown .p-dropdown-panel,
+.organization-dropdown .p-dropdown-panel {
+    right: 0 !important;
+}
+
+td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis !important;
+}
+
+.progress-container {
+    position: absolute;
+    z-index: 999;
+    height: 2em;
+    width: 2em;
+    overflow: show;
+    margin: auto;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+/* SKELETON */
+
+.p-component,
+.p-component *,
+.p-skeleton,
+.skeleton * {
+    box-sizing: border-box;
+}
+
+.p-skeleton {
+    background-color: #e9ecef;
+    border-radius: 3px;
+}
+
+.p-skeleton:after {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+}
+
+app-manage-group app-search .p-field .p-invalid {
+    white-space: normal !important;
+}
+
+p-button.p-button-rounded button {
+    border-radius: 2rem !important;
+}
+
+p-button.p-button-warning button {
+    color: #212529 !important;
+    background: #FBC02D !important;
+    border: 1px solid #FBC02D !important;
+}
+
+p-button.p-button-danger button {
+    color: #ffffff !important;
+    background: #D32F2F !important;
+    border: 1px solid #D32F2F !important;
+}
+
+.event-description img {
+    max-width: 100% !important;
+}
+
+.dropdown-activity app-field-error-display .form-control-feedback.error-icon {
+    display: none;
+}
+
+.contact-dropdown .cdk-virtual-scroll-content-wrapper {
+    position: relative;
+}
+
+.contact-dropdown .p-dropdown-panel .p-dropdown-items .p-dropdown-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.contact-activities .p-accordion-toggle-icon {
+    display: none !important;
+}
+
+.contact-activity-table table {
+    width: 100% !important;
+}

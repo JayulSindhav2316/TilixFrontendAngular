@@ -1,0 +1,101 @@
+<div class="p-grid" *ngIf="!isViewSummary">
+  <div class="p-col-12">
+    <p-toast></p-toast>
+    <div class="card">
+      <p-toolbar styleClass="p-mb-4">
+        <ng-template pTemplate="left">
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')"
+              placeholder="Search..." />
+          </span>
+        </ng-template>
+        <ng-template pTemplate="right">
+          <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="addNewEvent()"></button>
+          <div class="p-mr-2 p-mb-2" style="text-align: center;">
+            Filter events By
+            <div class="p-col-3" style="padding-top: 5px;">
+              <!-- <p-inputSwitch [(ngModel)]="includeInactive"></p-inputSwitch> -->
+              <p-dropdown [options]="filterEventsList" [(ngModel)]="selectedFilter" optionLabel="name" optionValue="code" appendTo="body" (onChange)="onEventFilterChange($event)"></p-dropdown>
+            </div>
+          </div>
+        </ng-template>
+      </p-toolbar>      
+      <p-table #dt [value]="eventsList" [rows]="10" [paginator]="true"
+        [globalFilterFields]="['code','name','location']" [rowHover]="true" dataKey="roleId" styleClass="p-datatable-sm"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [showCurrentPageReport]="true" resizableColumns="true">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="name" class="item-header" width="15%" pResizableColumn>  
+              <span class="table-header">Code</span>
+            </th>
+            <th pSortableColumn="name" class="item-header" width="25%" pResizableColumn>  
+              <span class="table-header">Name</span>  
+            </th>
+            <th pSortableColumn="description" class="ui-resizable-column" width="10%" pResizableColumn>             
+              Start
+              <p-columnFilter type="date" field="fromDate" display="menu"></p-columnFilter>
+            </th>
+            <th pSortableColumn="status" class="ui-resizable-column" width="10%" pResizableColumn>             
+              End
+              <p-columnFilter type="date" field="toDate" display="menu"></p-columnFilter>
+            </th>
+            <th pSortableColumn="location" class="ui-resizable-column" width="10%" pResizableColumn>             
+              Location
+            </th>
+            <th class="ui-resizable-column" width="10%" pResizableColumn>             
+              Type
+            </th>
+            <th width="10%">
+              Status
+            </th>
+            <th width="10%">
+              &nbsp;
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-event>
+          <tr class="maxTableRow">
+            <td>
+              <p-button [label]="event.code" styleClass="p-button-link" (click)="setActiveRow(event); viewSummary()" pTooltip="View summary"></p-button>
+            </td>
+            <td>
+              <p-button [label]="event.name" styleClass="p-button-link" (click)="setActiveRow(event); viewSummary()" pTooltip="View summary"></p-button>
+            </td>
+            <td>
+              {{event.fromDate | date:'short'}}
+            </td>
+            <td>
+              {{event.toDate | date:'short'}}
+            </td>
+            <td>
+              {{event.location}}
+            </td>
+            <td>
+              {{getEventTypeName(event.eventTypeId)}}
+            </td>
+            <td>
+              <div *ngIf="event.status == 1; else elseBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+                <ng-template #elseBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+            </td>
+            <td>              
+              <div #pMenu></div>
+              <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+              <button type="button" pButton icon="pi pi-ellipsis-v" (click)="setActiveRow(event);menu.toggle($event)"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+</div>
+<div class="p-grid" *ngIf="isViewSummary">
+  <div class="p-col-12">
+    <app-event-summary [eventId]="eventId" [addEditWizard]="false" (closeSummary)="closeSummary()"></app-event-summary>
+  </div>
+</div>
+<div *ngIf="showLoader">
+  <div class="progress-container">
+    <p-progressSpinner></p-progressSpinner>
+</div>

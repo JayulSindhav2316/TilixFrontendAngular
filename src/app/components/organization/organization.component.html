@@ -1,0 +1,104 @@
+<div class="p-grid">
+  <div class="p-col-12">
+     <div class="card">
+        <p-toolbar styleClass="p-mb-4">
+           <ng-template pTemplate="left">
+             
+           </ng-template>
+           <ng-template pTemplate="right">
+              <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="openNew()"></button>
+           </ng-template>
+        </p-toolbar>
+      
+      <div *ngIf="showTable">
+        <p-table #dt [value]="organizationList" [rows]="10" [paginator]="true" [globalFilterFields]="['Name','Email','Phone','Address','City', 'State','Zip']"
+           [rowHover]="true" resizableColumns="true" [showCurrentPageReport]="true" styleClass="p-datatable" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)">
+           <ng-template pTemplate="caption">
+            <div style="text-align: left">
+                <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+                <input type="text" pInputText size="30" placeholder="Search .." (input)="dt.filterGlobal($event.target.value, 'contains')"
+                 style="width:auto">
+            </div>
+            </ng-template>
+           <ng-template pTemplate="header">
+              <tr>
+                 <th pSortableColumn="Name" class="ui-resizable-column" pResizableColumn width="10%">                   
+                    Name
+                    <p-columnFilter type="text" field="Name" display="menu"></p-columnFilter>
+                 </th>
+                 <th pSortableColumn="Title" class="ui-resizable-column" pResizableColumn width="10%">                   
+                  Title
+                  <p-columnFilter type="text" field="Name" display="menu"></p-columnFilter>
+               </th>
+                  <th pSortableColumn="Code" class="ui-resizable-column" pResizableColumn width="5%">
+                  Code
+                  <p-columnFilter type="text" field="Code" display="menu"></p-columnFilter>
+                  </th>
+                  <th pSortableColumn="Email" class="ui-resizable-column" pResizableColumn width="15%">
+                  Email
+                  <p-columnFilter type="text" field="Email" display="menu"></p-columnFilter>
+                  </th>
+                 <th pSortableColumn="Phone" class="ui-resizable-column" pResizableColumn width="10%">
+                  Phone
+                  <p-columnFilter type="text" field="Phone" display="menu"></p-columnFilter>
+                 </th>
+                 <th pSortableColumn="Address" class="ui-resizable-column" pResizableColumn width="15%">                   
+                    Address
+                    <p-columnFilter type="text" field="Address" display="menu"></p-columnFilter>
+                 </th>
+                 <th pSortableColumn="City" class="ui-resizable-column" pResizableColumn width="10%">                   
+                    City
+                    <p-columnFilter type="text" field="City" display="menu"></p-columnFilter>
+                 </th>
+                 <th pSortableColumn="State" class="ui-resizable-column" pResizableColumn width="5%">                   
+                    State
+                    <p-columnFilter type="text" field="State" display="menu"></p-columnFilter>
+                 </th>   
+                 <th pSortableColumn="Zip" class="ui-resizable-column" pResizableColumn width="5%">                   
+                    Zip
+                    <p-columnFilter type="text" field="Zip" display="menu"></p-columnFilter>
+                 </th>               
+                 <th width="10%"></th>
+              </tr>
+           </ng-template>
+           <ng-template pTemplate="body" let-organization>
+              <tr class="maxTableRow">
+                 <td>
+                  {{organization.name}}
+                 </td>
+                 <td>
+                  {{organization.title}}
+                 </td>
+                  <td>
+                  {{organization.code}}
+                 </td>
+                 <td>
+                  {{organization.email}}
+                 </td>
+                 <td>
+                  {{organization.phone}}
+                 </td>
+                 <td>
+                  {{organization.address1}} {{organization.address2}} {{organization.address3}}
+                 </td>
+                 <td>
+                  {{organization.city}}
+                </td>
+                <td>
+                  {{organization.state}}
+                </td>
+                <td>
+                  {{organization.zip}}
+                </td>
+                 <td style="text-align: center;">
+                    <div #pMenu></div>
+                    <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+                    <button type="button" pButton icon="pi pi-ellipsis-v" (click)="setActiveRow(organization); menu.toggle($event)"></button>
+                 </td>
+              </tr>
+           </ng-template>
+           </p-table>
+        </div>
+     </div>
+     </div>
+  </div>

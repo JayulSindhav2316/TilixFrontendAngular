@@ -1,0 +1,26 @@
+<div [formGroup]="tagFormGroup">
+    <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-12 p-md-4" [ngClass]="errorIconCss('tagName')">
+            <label for="label">Tag</label>
+            <p-dropdown id="tagName" [options]="Tags" placeholder="Select or Add Tag" class="p-inputtext-sm"
+                optionLabel="name" optionValue="code" appendTo="body" formControlName='tagName'
+                [ngClass]="errorFieldCss('tagName')" (click)="resetSubmitted('tagName')"
+                 [editable]="true"> </p-dropdown>
+            <app-field-error-display [displayError]="isFieldValid('tagName')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+        </div>
+        <div class="p-field p-col-12  p-md-6" [ngClass]="errorIconCss('tagValue')">
+            <label for="tagValue">Tag Value</label>
+            <input type="Text"  pInputText  id='tagValue' formControlName='tagValue' 
+                class="p-inputtext-sm" autocomplete="new-password" [ngClass]="errorFieldCss('tagValue')"
+                (click)="resetSubmitted('tagValue')" />
+            <app-field-error-display [displayError]="isFieldValid('tagValue')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+        </div>
+        <div class="p-field p-col-12 p-md-2">
+            <button pButton pRipple type="button" icon="pi pi-times"
+                class="p-button-rounded p-button-danger p-button-text p-mr-2 p-mb-2 button-icon-cancel  p-button-sm"
+                (click)="_removeControl()" pTooltip="Remove Tag" tooltipPosition="top"></button>
+        </div>
+    </div>
+</div>

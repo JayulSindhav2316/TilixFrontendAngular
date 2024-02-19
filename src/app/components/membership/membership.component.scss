@@ -1,0 +1,17 @@
+.status {
+    padding-top: 15px;
+}
+
+tr.maxTableRow td div {
+    overflow: hidden;
+    text-overflow: ellipsis !important;
+}
+
+@media screen and (max-width: 1920px) { 
+    tr.maxTableRow td.membershipType-desc {
+        max-width: 2px;
+    }
+    tr.maxTableRow td.membershipType-name {
+        max-width: 2px;
+    }
+}

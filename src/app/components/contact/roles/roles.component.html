@@ -1,0 +1,223 @@
+<div class="p-grid">
+    <div class="p-col-12">
+        <div *ngIf="noRecords">
+            <div class="center">
+                <h6>No Roles have been assigned yet.</h6>
+            </div>
+        </div>
+        <div *ngIf="showRoles">
+            <p-table #dt [value]="roles" [rows]="5" [paginator]="true" styleClass="p-datatable-sm"
+                        [showCurrentPageReport]="true" [autoLayout]="true">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th pSortableColumn="name" class="ui-resizable-column" pResizableColumn width='95%'>Role
+                                    <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+                                </th>
+                                <th></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-role let-i="rowIndex">
+                            <tr class="maxTableRow">
+                                <td><button pButton type="button" label="{{role.name}}" class="p-button-link" (click)="showContactsDetail(role)"></button></td>
+                                <td style="text-align:center">
+                                    <button type="button" pButton icon="pi pi-arrow-right" (click)="showContactsDetail(role)"   pTooltip="Details"  tooltipPosition="left"></button></td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+               
+        </div>
+        <div *ngIf="showPanels">
+            <p-toolbar styleClass="p-mb-4">
+                <ng-template pTemplate="left">
+                    <h5 ><b>{{selectedRole}}</b></h5>
+                </ng-template>
+                <ng-template pTemplate="right">
+                    <button pButton pRipple label="Back" icon="pi pi-back" class="p-button-success p-mr-2 p-mb-2" (click)="closeContactPanel()" ></button>
+                </ng-template>
+            </p-toolbar>
+                    <p-toast></p-toast>
+        <p-panel header="Account Contacts" [toggleable]="true" [collapsed]="!showContactTable">
+            <div class="card">
+                <div *ngIf="showContactTable">
+                    <div>
+                        <p-toolbar styleClass="p-mb-4">
+                            <ng-template pTemplate="left">
+                            </ng-template>
+                            <ng-template pTemplate="right">
+                                <div class="p-formgroup-inline">
+                                    <button pButton type="button" label="Assign Contact" icon="pi pi-plus"
+                                        class="p-button-primary p-mr-2 p-mb-2" (click)="addContacts()"></button>
+                                </div>
+                            </ng-template>
+                        </p-toolbar>
+                    </div>
+                    <div *ngIf="showSearch">
+                        <div class="p-field p-col-12 p-md-12">
+                            <app-search-contact-role [parentCompanyId]="companyId" 
+                                (addNewContactRoleEvent)="reloadContactRoles($event)"
+                                [searchEnabled]="true" [selectedParentRole]="selectedRole"></app-search-contact-role>
+                        </div>
+                    </div>
+                    <div *ngIf="showSearch">
+                        <p-table #dt [value]="accountContacts" [rows]="5" [paginator]="true" styleClass="p-datatable-sm"
+                            [showCurrentPageReport]="true" [autoLayout]="true">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th pResizableColumn width='10%'>Photo
+                                       
+                                    </th>
+                                    <th pSortableColumn="fullName" class="ui-resizable-column" pResizableColumn width='30%'>Name
+                                        <p-columnFilter type="text" field="fullName" display="menu"></p-columnFilter>
+                                    </th>
+                                    
+                                    <th pSortableColumn="timeLine" class="ui-resizable-column" pResizableColumn width='30%'>Timeline
+                                        <p-columnFilter type="text" field="timeLine" display="menu"></p-columnFilter>
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-contactRole let-i="rowIndex">
+                                <tr class="maxTableRow">
+                                    <td class='image-loader'>
+                                        <app-image-loader [imgSrc]='images[i]'></app-image-loader>
+                                        <!--img width="75"  height="75" class="p-shadow-4"  [src]='images[0]'-->
+                                    </td>
+                                    <td><button pButton type="button" label="{{contactRole.fullName}}" class="p-button-link" (click)="showContactDetail(contactRole)"></button></td>
+                                    
+                                    <td>{{contactRole.timeLine}}</td>
+                                    <td>
+                                        <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu> 
+                                        <button type="button" pButton icon="pi pi-ellipsis-v" (click)="setActiveRow(contactRole);menu.toggle($event)"></button>                      
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                    <div *ngIf="showRoleHistoryTable">
+
+                    
+                    <p-table #dt [value]="accountContacts" [rows]="5" [paginator]="true" styleClass="p-datatable-sm"
+                        [showCurrentPageReport]="true" [autoLayout]="true">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th pResizableColumn width='10%'>Photo
+                                   
+                                </th>
+                                <th pSortableColumn="fullName" class="ui-resizable-column" pResizableColumn width='30%'>Name
+                                    <p-columnFilter type="text" field="fullName" display="menu"></p-columnFilter>
+                                </th>
+                                
+                                <th pSortableColumn="timeLine" class="ui-resizable-column" pResizableColumn width='30%'>Timeline
+                                    <p-columnFilter type="text" field="timeLine" display="menu"></p-columnFilter>
+                                </th>
+                                <th></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-contactRole let-i="rowIndex">
+                            <tr class="maxTableRow">
+                                <td class='image-loader'>
+                                    <app-image-loader [imgSrc]='images[i]'></app-image-loader>
+                                    <!--img width="75"  height="75" class="p-shadow-4"  [src]='images[0]'-->
+                                </td>
+                                <td><button pButton type="button" label="{{contactRole.fullName}}" class="p-button-link" (click)="showContactDetail(contactRole)"></button></td>
+                                
+                                <td>{{contactRole.timeLine}}</td>
+                                <td>
+                                    <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu> 
+                                    <button type="button" pButton icon="pi pi-ellipsis-v" (click)="setActiveRow(contactRole);menu.toggle($event)"></button>                      
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+                </div>
+            </div>
+        </p-panel>
+        <p-panel header="Activity" [toggleable]="true" [collapsed]="true">
+            <ng-template pTemplate="content">
+                <app-contact-activity [isPerson]="showContact" [isCompany] ="showCompany" [entity]="contact" [isRoleActivity]="true" [roleId]="currentRole != null ? currentRole.contactRoleId : selectedRoleId"></app-contact-activity>
+            </ng-template>
+        </p-panel>
+        <p-panel header="Opportunities" [toggleable]="true" [collapsed]="true">
+            <p>
+                Yet to be implemented
+            </p>
+        </p-panel>
+        <p-panel header="Documents" [toggleable]="true" [collapsed]="true">
+            <p>
+                Yet to be implemented
+            </p>
+        </p-panel>
+    </div>
+    </div>
+</div>
+<p-dialog header="Confirm" [(visible)]="unassignRoleDialog" [style]="{width: '50vw'}">
+
+
+    <ng-template pTemplate="content">
+        <div class="p-fluid">
+
+            <div class="p-field p-grid">
+                <i class="pi pi-exclamation-triangle p-col-2 p-mb-2" style="font-size: 4rem;"></i>
+                <label class="p-confirm-dialog-message p-col-10 p-md-10">
+                    <p>Are you sure you want to unassign <b> {{unassignRoleContact}}</b> from
+                        <b>{{unassignRoleName}} role
+                        </b> at
+                        <b>{{unassignRoleAccount}} </b> ?
+                    </p>
+                </label>
+            </div>
+            <div class="p-field p-grid">
+                <label class="p-col-2 p-mb-2 p-md-2 p-mb-md-0">
+                    Effective Date
+                </label>
+                <div class="p-col-6 p-md-6">
+                    <p-calendar appendTo="body" styleClass="ui-column-filter" dateFormat="mm/dd/yy"
+                        [minDate]="minEffectiveEndDate" [(ngModel)]="effectiveEndDate"
+                        (onSelect)="effectiveEndDateChanged($event)">
+                    </p-calendar>
+                    <span *ngIf="effectiveEndDateRequired">The effecive date is required.</span>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="No" icon="pi pi-times" class="p-button-primary p-mb-2"
+            (click)="unassignRoleReject()"></button>
+        <button pButton pRipple label="Yes" icon="pi pi-check" class="p-button-primary p-mr-2 p-mb-2"
+        [disabled]="disableUnassignSaveBtn" (click)="unassignRoleAccept()" autofocus></button>
+    </ng-template>
+
+
+</p-dialog>
+
+<p-dialog header="Confirm" [(visible)]="unassignRoleHistoricRecordsDialog" [style]="{width: '50vw'}">
+
+    <ng-template pTemplate="content">
+        <div class="p-fluid">
+            <div class="p-field p-grid">
+                <label class="p-col-1 p-md-1"></label>
+                <label class="p-confirm-dialog-message p-col-11 p-md-11">
+                    <p> NOTE : Given there is no historic records associated with this record, this will remove them
+                        from
+                        historic records.</p>
+                </label>
+                <i class="pi pi-exclamation-triangle p-col-2 p-mb-2" style="font-size: 4rem;"></i>
+
+                <label class="p-confirm-dialog-message p-col-10 p-md-10">
+                    <p>Are you sure you want to unassign <b> {{unassignRoleContact}}</b> from
+                        <b>{{unassignRoleName}} role
+                        </b> at
+                        <b>{{unassignRoleAccount}} </b> ?
+                    </p>
+                </label>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="No" icon="pi pi-times" class="p-button-primary p-mb-2"
+            (click)="unassignRoleSecondReject()"></button>
+        <button pButton pRipple label="Yes" icon="pi pi-check" class="p-button-primary p-mr-2 p-mb-2"
+           [disabled]="disableUnassignSaveBtn" (click)="unassignRoleSecondAccept()" autofocus></button>
+    </ng-template>
+</p-dialog>

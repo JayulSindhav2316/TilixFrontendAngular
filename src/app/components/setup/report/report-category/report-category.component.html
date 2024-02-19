@@ -1,0 +1,94 @@
+<div class="p-grid">
+  <div class="p-col-2 p-md-2 p-xl-2"></div>
+  <div class="p-col-8 p-md-8 p-xl-8">
+    <p-toast></p-toast>
+    <div *ngIf="showTable">
+      <div class="card">
+        <p-toolbar styleClass="p-mb-4">
+          <ng-template pTemplate="left">
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" (input)="
+                                    dt.filterGlobal(
+                                        $event.target.value,
+                                        'contains'
+                                    )
+                                " placeholder="Search..." />
+            </span>
+          </ng-template>
+          <ng-template pTemplate="right">
+            <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2"
+              (click)="openNew()"></button>
+          </ng-template>
+        </p-toolbar>
+
+        <p-table #dt [value]="categories" [columns]="cols" [rows]="10" [paginator]="true" [rowHover]="true"
+          [globalFilterFields]="['name', 'description']" resizableColumns="true" dataKey="id"
+          styleClass="p-datatable-sm" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+          [showCurrentPageReport]="true">
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="name" class="ui-resizable-column" pResizableColumn style="width: 25%">
+                Name
+                <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+              </th>
+
+              <th pSortableColumn="description" class="ui-resizable-column" pResizableColumn style="width: 55%">
+                Description
+                <p-columnFilter type="text" field="description" display="menu"></p-columnFilter>
+              </th>
+              <th width="10%"></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-category>
+            <tr>
+              <td>
+                {{ category.name }}
+              </td>
+              <td>
+                {{ category.description }}
+              </td>
+              <td style="text-align: center">
+                <div #pMenu></div>
+                <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+                <button type="button" pButton icon="pi pi-ellipsis-v" (click)="
+                                        setActiveRow(category);
+                                        menu.toggle($event)
+                                    "></button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+    <p-dialog [(visible)]="categoryDialog" [style]="{ width: '550px' }" header="Category Details" [modal]="true"
+      styleClass="p-fluid">
+      <ng-template pTemplate="content">
+        <form  [formGroup]="categoryForm">
+          <div class="p-field">
+            <label for="name">Name</label>
+            <input type="text" pInputText id="name" formControlName="name" required autofocus />
+            <small class="p-invalid" *ngIf="categoryForm.get('name').invalid && (categoryForm.get('name').dirty || categoryForm.get('name').touched)">Category Name is required.</small>
+          </div>
+          <div class="p-field">
+            <label for="description">Description</label>
+            <textarea id="description" pInputTextarea formControlName="description"  required rows="3"
+              cols="20"></textarea>
+            <small class="p-invalid" *ngIf="categoryForm.get('description').invalid && (categoryForm.get('description').dirty || categoryForm.get('description').touched)">Category Description is
+              required.</small>
+          </div>
+        </form >
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit"
+          (click)="saveCategory()"></button>
+        <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+          (click)="hideDialog()"></button>
+      </ng-template>
+    </p-dialog>
+
+    <p-confirmDialog [style]="{ width: '550px' }"></p-confirmDialog>
+  </div>
+  <div class="p-col-3 p-md-3 p-xl-3"></div>
+</div>

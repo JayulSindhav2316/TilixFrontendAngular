@@ -1,0 +1,256 @@
+<!-- <button 
+              (click)="addInputControl()">Ho</button>
+<div class="container">
+  <h2>Please add as many hobbies are you want below</h2>
+  <div *ngFor="let hobby of hobbiesArray.controls">
+      <p-field>
+          <input matInput [formControl]="hobby">
+      </p-field>
+
+ </div>
+</div> -->
+<div class="p-grid">
+  <div class="p-col-1 p-md-1 p-xl-1"></div>
+  <div class="p-col-1 p-md-1 p-xl-1"></div>
+    <div class="p-col-10 p-md-10 p-xl-8">
+      <p-toast></p-toast>
+      <div class="card">
+        <p-toolbar styleClass="p-mb-4">
+          <ng-template pTemplate="left">
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')"
+                placeholder="Search..." />
+            </span>
+          </ng-template>
+          <ng-template pTemplate="right">
+            <button pButton pRipple label="Add Field" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2"
+              (click)="openNew()"></button>
+          </ng-template>
+        </p-toolbar>
+        <p-table #dt [value]="fields" [rows]="10" [paginator]="true" 
+        [globalFilterFields]="['label','fieldType.type']" [rowHover]="true" dataKey="roleId" 
+        styleClass="p-datatable-sm"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [showCurrentPageReport]="true">
+          <ng-template pTemplate="header">
+
+            <tr>
+              <th pSortableColumn="label" class="ui-resizable-column" pResizableColumn style="width:40%;">
+                Field Name
+                <p-columnFilter type="text" field="label" display="menu"></p-columnFilter>
+              <th pSortableColumn="fieldType.type" class="ui-resizable-column" pResizableColumn style="width:40%;">
+                Field Type
+                <p-columnFilter type="text" field="fieldType.type" display="menu"></p-columnFilter>
+              </th>
+              <th pSortableColumn="status" class="ui-resizable-column" pResizableColumn style="width:40%;">
+                Status
+              </th>
+              <th style="width: 5rem">
+                Operations
+              </th>
+              <th style="width: 5rem">
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-glaccount>
+            <tr>
+              <td>
+                {{glaccount.label}}
+              </td>
+              <td>
+                {{glaccount.fieldType.type}}
+              </td>
+              <td>
+                <div *ngIf="glaccount.status; else elseStatusBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+                <ng-template #elseStatusBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+                <!-- <p-inputSwitch readonly=true [ngModel]="department.status"></p-inputSwitch> -->
+                <!-- <div #pMenu></div>
+                <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu> -->
+              </td>
+              <td >
+                <div #pMenu></div>
+                <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+                <button type="button" pButton icon="pi pi-ellipsis-v"
+                (click)="setActiveRow(glaccount);menu.toggle($event)"></button>
+              </td>
+              <!-- <td style="text-align: center;">
+               
+              </td> -->
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <!-- <form [formGroup]="customFieldForm"> -->
+        <p-dialog [(visible)]="customFieldDialog" [style]="{ width: '800px', height:'700px' }" header={{header}} [resizable]="false" [modal]="true" styleClass="p-fluid" (onHide)="hideDialog()">
+          <ng-template pTemplate="content">
+           
+            <div class="p-fluid p-formgrid p-grid">
+              <div class="p-field  p-col-8">
+                <div class="p-field">
+                  <label for="name">Field Type</label>
+                  
+    <p-dropdown [options]="fieldTypes" [(ngModel)]="selectedFieldType" optionLabel="name" placeholder="Select a field type" (onChange)="fieldTypeChanged($event,'changed')"></p-dropdown>
+    
+                </div>
+              </div>
+              <div class="p-field p-col-4 p-d-flex p-jc-center">
+                <div>
+                  <label for="Available">Active</label>   
+                  <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                    <p-inputSwitch [(ngModel)]="fieldStatus"></p-inputSwitch>
+                  </div>       
+                </div>     
+                <div style="margin-left: 20px;">
+                  <label for="Available">Editable</label>   
+                  <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                    <p-inputSwitch pTooltip="Data will come from backend." [(ngModel)]="fieldEditable"></p-inputSwitch>
+                  </div>       
+                </div>        
+              </div> 
+            </div>
+              
+              <div class="p-field" *ngIf="showLabel">
+                <label for="name">Label</label>
+                <input type="text" [(ngModel)]="fieldLabel" [ngClass]="errorFieldCss('label')"
+                pInputText autofocus  maxlength = "45" autofocus />
+                <app-field-error-display [displayError]="isLabelValid" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+              </div>
+              <!-- Froms according to a selection -->
+              <div *ngIf="showTxtForm"> 
+                <form [formGroup]="textForm">
+                  <div class="p-field">
+                    <label for="lastName">Validations</label>
+                    <p-dropdown [options]="validations" [(ngModel)]="selectedValidation" formControlName="Validation" appendTo="body"  placeholder="none"
+                    optionLabel="name" optionValue="code" required="true">
+                  </p-dropdown>
+                  </div>
+                  <div class="p-field">
+                    <label for="name">Character Limit</label>
+                    <input type="text" formControlName="CharLimit" (keypress)="CheckVal($event)" maxlength="7" pInputText  autofocus pInputText autofocus />
+                    <small id="username-help">Limit the number of characters allowed for this field.</small>
+                  </div>
+                </form>
+              </div>
+            
+              <!-- date format -->
+              <div *ngIf="showDateForm">
+              <div class="p-field">
+                <label for="name">Date Format</label>
+                <p-selectButton [options]="dateFormat" [(ngModel)]="selectedDateFormat" [multiple]="false" optionLabel="name" optionValue="value"></p-selectButton>
+              </div>
+              <div class="p-field">
+                <label for="name">Default Date</label>
+                <p-selectButton [options]="defaultDate" [(ngModel)]="selectedDefaultDate" [multiple]="false" optionLabel="name" optionValue="value"></p-selectButton>
+              </div>
+            </div>
+
+            <!-- time format -->
+            <div *ngIf="showTimeForm">
+              <div class="p-field">
+                <label for="name">Time Format</label>
+                <p-selectButton [options]="timeFormat" [(ngModel)]="selectedTimeFormat" [multiple]="false" optionLabel="name" optionValue="value"></p-selectButton>
+              </div>
+              <div class="p-field">
+                <label for="name">Default Time</label>
+                <p-selectButton [options]="defaultTime" [(ngModel)]="selectedDefaultTime" [multiple]="false" optionLabel="name" optionValue="value"></p-selectButton>
+              </div>
+            </div>
+
+            <!-- dropdown -->
+
+            <div *ngIf="showDropdownForm">
+              <div class="p-field">
+                <label for="name">Options</label>
+                
+<!-- <textarea rows="5" cols="30" pInputTextarea [(ngModel)]="dropDownOptions"></textarea>
+<small>Give options for users to select form. Enter each option on a new line.</small> -->
+
+<!-- add options -->
+<div class="col-md-2" [formGroup]="addForm">
+	<div class="form-group">
+		<table>
+			<thead>
+				<button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2 p-mb-2" (click)="onAddRow()"></button>
+			</thead>
+			<tbody>
+				<tr *ngFor="let row of addForm.get('rows')?.controls;let index = index;">
+          <td>
+            Option {{index + 1}} : <input type="text" pInputText style="display: block;" [formControl]="row.get('name')">
+          </td>
+          <td>
+            <button pButton pRipple type="button" style="margin-top: 26px;" icon="pi pi-times" class="p-button-rounded p-button-danger p-mr-2 p-mb-2 cancelB" (click)="onRemoveRow(index, row)"></button>
+          </td>
+				</tr>
+			</tbody>
+		</table> 
+    <!-- <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-mr-2 p-mb-2" (click)="addInputControl()"></button>
+    <div class="p-field" *ngFor="let hobby of hobbiesArray.controls;let index = index;">
+      
+        <label for="name">Option {{index + 1}}</label>
+          <input type="text" pInputText [formControl]="hobby">
+          <label *ngIf="hobby.errors?.required">
+            Add Employees.
+          </label>
+          <button pButton pRipple type="button" style="margin-top: 26px;" icon="pi pi-times" class="p-button-rounded p-button-danger p-mr-2 p-mb-2 cancelB" (click)="onRemoveRow(index)"></button>
+ </div> -->
+
+
+	</div>
+</div>
+
+
+
+                </div>
+              <div class="p-field" *ngIf="showMultipleSelection">
+                <label for="name">Multiple Selection</label>
+                <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                <p-inputSwitch  [(ngModel)]="multipleSelection"></p-inputSwitch>
+                </div>
+              </div>
+            </div>
+
+              <div class="p-field" *ngIf="showPlaceholder">
+                <label for="name">Placeholder</label>
+                <input type="text" [(ngModel)]="fieldPlaceholder" pInputText  autofocus pInputText  maxlength = "45" autofocus />
+                <small>Add an example inside the field.</small>
+              </div>
+              <div class="p-field" *ngIf="showCountryCode">
+                <label for="name">Country Code</label>
+                <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;margin-bottom: auto;">
+                <p-inputSwitch  [(ngModel)]="countryCode"></p-inputSwitch>
+                </div>
+                <small>Include a number field for country code.</small>
+              </div>
+              <div class="p-field" *ngIf="showRequired">
+                <label for="name">Required Field</label>
+                <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                <p-inputSwitch  [(ngModel)]="fieldRequired"></p-inputSwitch>
+                </div>
+              </div>
+            <!-- <div class="p-fluid p-formgrid p-grid">
+            <div class="p-field  p-col-8">
+              <label for="lastName">Cost Center Code</label>
+              <input type="text" pInputTextarea formControlName="costCenterCode" autoResize="autoResize" maxlength="10" >
+            </div>
+            <div class="p-field p-col-4 p-d-flex p-jc-center">
+              <div>
+                <label for="Available">Active</label>   
+                <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+                  <p-inputSwitch formControlName="Status"></p-inputSwitch>
+                </div>       
+              </div>        
+            </div> 
+          </div> -->
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="saveCustomField()"></button>
+            <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideDialog()"></button>
+          </ng-template>
+        </p-dialog>
+      <!-- </form> -->
+      <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+    </div>
+    <div class="p-col-1 p-md-1 p-xl-1"></div>
+    <div class="p-col-1 p-md-1 p-xl-1"></div>
+  </div>

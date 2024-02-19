@@ -1,0 +1,252 @@
+<div class="p-grid">
+	<div class="p-col-12">
+		<p-toast class="custom-toast"></p-toast>
+		<div class="card">
+		   <p-toolbar styleClass="p-mb-4">
+			  <ng-template pTemplate="left">
+				 <div class="p-formgroup-inline">
+					<div class="p-field" >
+						<label for="searchTypeSelection"  class="p-sr-only" >Search:</label>
+						<p-dropdown id='searchTypeSelection' [options]="searchTypeList" [(ngModel)]="selectedSearchType" optionLabel="name" name = "search" (ngModelChange)='searchTypeSelectChanged($event)' ></p-dropdown>
+					 </div>
+					<div class="p-field" *ngIf="searchCompany===false">
+					   <label for="serachSelection"  class="p-sr-only" >Search  By:</label>
+					   <p-dropdown id='serachSelection' [options]="searchList" [(ngModel)]="selectedSearch" optionLabel="name" name = "search" (ngModelChange)='searchSelectChanged($event)' ></p-dropdown>
+					</div>
+					<div *ngIf="selectedSearch.name=='Name' && searchCompany===false">
+					   <form [formGroup]="searchByNameForm">
+						<div class="p-fluid p-formgrid p-grid">
+								<div class="p-field p-col-12 p-md-5" [ngClass]="errorIconCss('FirstName')">
+								   <label for="firstname" class="p-sr-only" >Firstname</label>
+								   <input id="firstname" type="text"  formControlName="FirstName" pInputText placeholder="First Name" maxlength = "30"
+								   [ngClass]="errorFieldCss('FirstName')" (click) = "resetSubmitted('FirstName')"
+								   onkeypress="return (event.charCode > 64 && event.charCode < 91) 
+                                   || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) || (event.charCode==45) 
+                                   || (event.charCode==39) || (event.charCode==44) || (event.charCode==46)"										
+                                   (paste)="matcher($event, 'FirstName')" />
+								   <app-field-error-display [displayError]="isFieldValid('FirstName')" [addErrorMessages]="addErrorMessages">
+								   </app-field-error-display>
+								</div>
+								<div class=" p-field p-col-12 p-md-5" [ngClass]="errorIconCss('LastName')">
+								   <label for="lastname" class="p-sr-only" >Lastname</label>						
+								   <input id="lastname" type="text"  formControlName="LastName" pInputText placeholder="Last Name" maxlength = "30" 
+								   [ngClass]="errorFieldCss('LastName')" (click) = "resetSubmitted('LastName')" 
+								   onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) 
+								   || (event.charCode==45) || (event.charCode==39) || (event.charCode==44) || (event.charCode==46)" 
+								   (paste)="matcher($event, 'LastName')" >
+								   <app-field-error-display [displayError]="isFieldValid('LastName')"  [addErrorMessages]="addErrorMessages">
+								   </app-field-error-display>
+								</div>
+							</div>
+					   </form>
+					</div>
+					<div *ngIf="selectedSearch.name=='Email' && searchCompany===false">
+					   <form [formGroup]="searchByEmailForm">
+						  <div class="p-field " [ngClass]="errorIconCss('Email')">
+							 <label for="email"  class="p-sr-only">Email</label>
+							 <input id="email" type="text" formControlName="Email" pInputText placeholder="Email" [ngClass]= "errorFieldCss('Email')" 
+							 (click) = "resetSubmitted('Email')" (paste)="matcher($event, 'Email')" > 
+							 <app-field-error-display [displayError]="isFieldValid('Email')" [addErrorMessages]="addErrorMessages">
+							 </app-field-error-display>
+					 	</div>
+					   </form>
+					</div>
+					<div *ngIf="selectedSearch.name=='Phone' && searchCompany===false">
+					   <form [formGroup]="searchByPhoneForm">
+						  <div class="p-field" [ngClass]="errorIconCss('Phone')">
+							 <label for="Phone" class="p-sr-only" >Phone</label>
+							 <p-inputMask id='Phone'  formControlName='Phone' mask="(999) 999-9999? x99999" class="p-inputtext-sm" [autoClear]="false" 
+							 autocomplete="new-password" [ngClass]="errorFieldCss('Phone')" (click) = "resetSubmitted('Phone')" ></p-inputMask>
+							 <app-field-error-display [displayError]="isFieldValid('Phone')" [addErrorMessages]="addErrorMessages">
+							 </app-field-error-display>
+						  </div>
+					   </form>
+					</div>
+					<div *ngIf="searchCompany">
+						<form [formGroup]="searchCompanyForm">
+						   <div class="p-field" [ngClass]="errorIconCss('CompanyName')">
+							  <label for="CompanyName" class="p-sr-only" >CompanyName</label>
+							  <input id="CompanyName" type="text" formControlName="CompanyName" pInputText placeholder="{{currentUser.accountName}} Name" [ngClass]= "errorFieldCss('CompanyName')" 
+							  (click) = "resetSubmitted('CompanyName')" (paste)="matcher($event, 'CompanyName')" > 
+							  <app-field-error-display [displayError]="isFieldValid('CompanyName')" [addErrorMessages]="addErrorMessages">
+							  </app-field-error-display>
+						   </div>
+						</form>
+					 </div>
+					<button pButton type="button" label="Search"  *ngIf="!searchCompany" icon="pi pi-search" class="p-button-primary p-mr-2 p-mb-2" type="submit"
+					 (click)="serachPersons()" ></button>
+					 <button pButton type="button" label="Search"  *ngIf="searchCompany" icon="pi pi-search" class="p-button-primary p-mr-2 p-mb-2" type="submit"
+					 (click)="searchCompanyByName()" ></button>
+				 </div>
+			  </ng-template>
+				<ng-template pTemplate="right">
+					<button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="openNew()" *ngIf="showAddButton && isEventRegistration==false" [ngClass]="newButtonAlignAdjust()"></button>
+					<button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="openNew()" *ngIf="showViewButton && isEventRegistration==false" [ngClass]="newButtonAlignAdjust()"></button>
+					<button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="openNew()" *ngIf="searchMemberRoute && isEventRegistration==false"  [ngClass]="newButtonAlignAdjust()"></button>
+					<button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger  p-mr-2 p-mb-2"  (click)="cancelContactSearch()" [ngClass]="newButtonAlignAdjust()" 
+					*ngIf="showCancelButton && isEventRegistration==false"></button>
+					<button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="openNew()" *ngIf="isEventRegistration"  [ngClass]="newButtonAlignAdjust()"></button>
+				</ng-template>
+			</p-toolbar>
+			<div *ngIf="showPersonTable">				
+			<p-table #dt [value]="contacts"  [columns]="cols" [rows]="10" [paginator]="true" [globalFilterFields]="['firstName','lastName','streetAddress','primaryPhone','membershipType']"  
+			[(selection)]="selectedContact" [rowHover]="true" dataKey="personId" resizableColumns="true"
+			styleClass="p-datatable-sm" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+				[showCurrentPageReport]="true" [autoLayout]="true">
+				<ng-template pTemplate="header">
+					<tr>			
+						<th>                            
+						</th>			
+						<th pSortableColumn="fullName" class="item-header" pResizableColumn>
+              				<span class="table-header">Name</span> 
+							<p-columnFilter class="table-header-left" type="text" field="fullName" display="menu"></p-columnFilter>
+						</th>
+						
+						<th pSortableColumn="lastName" class="ui-resizable-column" pResizableColumn>
+							<span class="table-header">Age</span>
+							<p-columnFilter type="text" field="lastName" display="menu"></p-columnFilter>
+						</th>
+						<th pSortableColumn="streetAddress" class="ui-resizable-column"  pResizableColumn >
+							<span class="table-header">	Address</span>
+							<p-columnFilter type="text" field="streetAddress" display="menu"></p-columnFilter>
+						</th>						
+						<th  pSortableColumn="primaryPhone" pResizableColumn >
+							<span class="table-header">Phone</span>
+							<p-columnFilter type="text" field="primaryPhone" display="menu"></p-columnFilter>
+						</th>
+						<th  pSortableColumn="membershipType" pResizableColumn *ngIf="showMembershipType">
+							<span class="table-header">Member Type</span>
+							<p-columnFilter type="text" field="entity.membershipType" display="menu"></p-columnFilter>
+						</th>
+						<th  pSortableColumn="membershipType" pResizableColumn *ngIf="showTitle">
+							<span class="table-header">Title</span>
+							<p-columnFilter type="text" field="entity.membershipType" display="menu"></p-columnFilter>
+						</th>
+						<th width="5%">
+							<p *ngIf="showAddButton"> Detail</p>
+							<p *ngIf="!showAddButton && !showCreateInvoiceButton"> Add</p>
+							<p *ngIf="showCreateInvoiceButton"> Create</p>
+						</th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-contact let-i="rowIndex">
+					<tr class="maxTableRow">
+						<td  class='image-loader'>
+							<app-image-loader [imgSrc]='images[i]'></app-image-loader>
+							<!--img width="75"  height="75" class="p-shadow-4"  [src]='images[0]'-->
+						</td>
+						<td>
+							<button pButton type="button" label="{{contact.fullName}}" class="p-button-link" (click)="showDetails(contact)"></button>
+						</td>
+						
+						<td>
+							{{ contact.age == 0 && currentUser.isBirthdayRequired == false ?  ' ' : contact.age}}
+						</td>
+						<td>
+							{{getAddress(contact.streetAddress,contact.city,contact.state, contact.zip) }}
+						</td>
+						<td>
+							{{contact.formattedPhoneNumber}}
+						</td>
+						<!--td style="text-align:center">
+							<button pButton *ngIf="contact.entity.isMember" type="button" icon="pi pi-check" class="p-button-rounded" styleClass="p-button-sm"></button>
+						</td-->
+						<td *ngIf="showMembershipType">
+							{{contact.entity.membershipType}}
+							<div #pMenu *ngIf="showAddButton"></div>
+							<p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body" *ngIf="showAddButton"></p-menu>
+						</td>
+						<td *ngIf="showTitle">
+							{{contact.title}}
+							<div #pMenu *ngIf="showAddButton"></div>
+							<p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body" *ngIf="showAddButton"></p-menu>
+						</td>
+						<td style="text-align:center">
+							<button type="button" pButton icon="pi pi-arrow-right" (click)="showDetails(contact)"  *ngIf="showAddButton" pTooltip="View Details"  tooltipPosition="left"></button>
+							<button type="button" pButton icon="pi pi-plus" (click)="addRelation(contact)"  *ngIf="showAddRelation" pTooltip="Add Relation"  tooltipPosition="left"></button>
+							<button type="button" pButton icon="pi pi-plus" (click)="addMembership(contact)"  *ngIf="searchMemberRoute" pTooltip="Create Membership"  tooltipPosition="left"></button>
+							<button type="button" pButton icon="pi pi-plus" (click)="addAdditionalPerson(contact)"  *ngIf="isAdditionalMemberAdd" pTooltip="Add to Membership"  tooltipPosition="left"></button>
+							<button type="button" pButton icon="pi pi-plus" (click)="addBillableContactPerson(contact)"  *ngIf="isBillableContactAdd" pTooltip="Add to Company"  tooltipPosition="left"></button>
+							<button type="button" pButton icon="pi pi-plus" (click)="createInvoice(contact)"  *ngIf="showCreateInvoiceButton" pTooltip="Create Invoice"  tooltipPosition="left"></button>
+							<button type="button" pButton icon="pi pi-plus" (click)="addMemberToGroup(contact)"  *ngIf="addGroupMember" pTooltip="Add to Group"  tooltipPosition="left"></button>
+							<button type="button" pButton icon="pi pi-plus" (click)="addEventRegistration(contact)" *ngIf="isEventRegistration" pTooltip="Add to Event"  tooltipPosition="left"></button>
+						</td>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="summary">
+					<div class="p-d-flex p-ai-center p-jc-between" *ngIf="contacts.length < 100">
+						In total there are
+						{{ contacts ? contacts.length : 0 }} Contacts. 
+					</div>
+					<div class="p-d-flex p-ai-center p-jc-between" *ngIf="contacts.length === 100">
+						Search results are limited to first 100 contacts. Please refine your search to get more accurate results.
+					</div>
+				</ng-template>
+			</p-table>
+	</div>
+	<div *ngIf="showCompanyTable">				
+		<p-table #dt [value]="companyList"  [columns]="cols" [rows]="10" [paginator]="true" [globalFilterFields]="['companyName','address','phone']"  
+		[(selection)]="selectedContact" [rowHover]="true" dataKey="personId" resizableColumns="true"
+		styleClass="p-datatable-sm" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+			[showCurrentPageReport]="true" [autoLayout]="true" >
+			<ng-template pTemplate="header">
+				<tr>						
+					<th pSortableColumn="companyName" class="item-header" pResizableColumn width="15%">
+						  <span class="table-header">Name</span> 
+						<p-columnFilter class="table-header-left" type="text" field="companyName" display="menu"></p-columnFilter>
+					</th>
+					<th pSortableColumn="address" class="ui-resizable-column" pResizableColumn  width="15%">
+						<span class="table-header">Address</span>
+						<p-columnFilter type="text" field="address" display="menu"></p-columnFilter>
+					</th>
+					<th pSortableColumn="phone" class="ui-resizable-column" pResizableColumn  width="20%">
+						<span class="table-header">Phone</span>
+						<p-columnFilter type="text" field="phone" display="menu"></p-columnFilter>
+					</th>
+					<th pSortableColumn="billablePerson" class="ui-resizable-column"  pResizableColumn  width="15%">
+						<span class="table-header">Billable Contact</span>
+						<p-columnFilter type="text" field="billableContact" display="menu"></p-columnFilter>
+					</th>						
+					<th width="5%">
+						<p *ngIf="showAddButton"> Detail</p>
+						<p *ngIf="!showAddButton && !showCreateInvoiceButton"> Add</p>
+						<p *ngIf="showCreateInvoiceButton"> Create</p>
+					</th>
+				</tr>
+			</ng-template>
+			<ng-template pTemplate="body" let-company>
+				<tr class="maxTableRow">
+					<td width="30%">
+						<button pButton type="button" label="{{company.companyName}}" class="p-button-link" (click)="showCompanyDetails(company)"></button>
+					</td>
+					<td width="30%">
+						{{getAddress(company.streetAddress,company.city,company.state, company.zip) }}
+					</td>
+					<td width="15%">
+						{{ company.phone }}
+					</td>
+					<td width="15%">
+						{{company.billablePerson.firstName }} {{company.billablePerson.lastName }}
+					</td>
+					<td style="text-align:center" width="10%">
+						<button type="button" pButton icon="pi pi-arrow-right" (click)="showCompanyDetails(company)"  *ngIf="showAddButton" pTooltip="View Details"  tooltipPosition="left"></button>
+						<button type="button" pButton icon="pi pi-plus" (click)="addCompanyRelation(company)"  *ngIf="showAddRelation" pTooltip="Add Relation"  tooltipPosition="left"></button>
+						<button type="button" pButton icon="pi pi-plus" (click)="addCompanyMembership(company)"  *ngIf="searchMemberRoute" pTooltip="Create Membership"  tooltipPosition="left"></button>
+						<button type="button" pButton icon="pi pi-plus" (click)="addAdditionalPerson(contact)"  *ngIf="isAdditionalMemberAdd" pTooltip="Add to Membership"  tooltipPosition="left"></button>
+						<button type="button" pButton icon="pi pi-plus" (click)="addBillableContactPerson(contact)"  *ngIf="isBillableContactAdd" pTooltip="Add to Comapny"  tooltipPosition="left"></button>
+						<button type="button" pButton icon="pi pi-plus" (click)="createInvoice(company)"  *ngIf="showCreateInvoiceButton" pTooltip="Create Invoice"  tooltipPosition="left"></button>
+						<button type="button" pButton icon="pi pi-plus" (click)="addEventRegistration(company)" *ngIf="isEventRegistration" pTooltip="Add to Event"  tooltipPosition="left"></button>
+					</td>
+				</tr>
+			</ng-template>
+			<ng-template pTemplate="summary">
+				<div class="p-d-flex p-ai-center p-jc-between">
+					In total there are
+					{{ companyList ? companyList.length : 0 }} {{currentUser.accountName}}.
+				</div>
+			</ng-template>
+		</p-table>
+</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,32 @@
+<form [formGroup]="webForm">
+<div class="card">
+    <h5>Web Login</h5>
+    <div class="p-fluid p-formgrid p-grid" >
+        <div class="p-field p-col-12 p-md-12" [ngClass]="errorIconCss('login')">
+            <label for="login">Username</label>
+            <input id="login" formControlName="login"  type="text" pInputText autocomplete="new-password" class="p-inputtext-sm" [ngClass]="errorFieldCss('login')" 
+            (click) = "resetSubmitted('login')"  (input) = "enableSave($event, 'login')">
+            <app-field-error-display [displayError]="isFieldValid('login')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+        </div>
+        <div class="p-field p-col-12 p-md-12" [ngClass]="errorIconCss('password')">
+            <label for="password">Password</label>
+            <input id="password" formControlName="password" type="text" pInputText  autocomplete="new-password" class="p-inputtext-sm" [ngClass]="errorFieldCss('password')" 
+            (click) = "resetSubmitted('password')" (paste)="matcher($event, 'password')" (input) = "enableSave($event, 'password')" 
+            onKeyDown="if(this.value.length==20 && event.keyCode!=8) return false;">
+            <app-field-error-display [displayError]="isFieldValid('password')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+        </div>
+        <div class="p-field p-col-12 p-md-12">
+            <label for="locked">Locked</label>
+          </div>
+          <div class="p-field p-col-12 p-md-12">
+            <p-inputSwitch formControlName="locked" (onChange)="enableSave($event, 'locked')"></p-inputSwitch>
+          </div>
+    </div>
+    <div class="center">
+        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" (click)='saveLoginPassword()' [disabled] = "disallowSave"></button>
+        <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)='reloadLoginPassword()' [disabled] = "disallowSave"></button>
+    </div>
+</div>
+</form>

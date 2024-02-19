@@ -1,0 +1,320 @@
+<fieldset style="border: 0px;" [disabled]="isViewOnly">
+<div class="card">
+  <div class="card-header profile-title">
+      <h5>Images & Logo</h5>
+      <div class="header-buttons">
+      </div>
+  </div>
+  <hr class="profile-ruler">
+  <div class="p-grid">
+    <div class="p-col-3 p-d-flex p-ai-center p-jc-center" >
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-col-12 p-md-12 p-d-flex p-ai-center p-jc-center p-mb-5" *ngIf="headerImage">
+            <img [src]="headerImage" class="rounded" width="300px"  height="150px" style=" border-radius: 05%; -webkit-filter: drop-shadow(2px 2px 2px #bbb); filter: drop-shadow(2px 2px 2px #bbb);">
+          </div>
+          <div class="p-col-12 p-md-12 p-d-flex p-ai-center p-jc-center p-mb-5" *ngIf="!headerImage">
+            <img src="./assets/lighting-bolt/images/empty-image.png" class="rounded" width="300px"  height="150px" style=" border-radius: 05%; -webkit-filter: drop-shadow(2px 2px 2px #bbb); filter: drop-shadow(2px 2px 2px #bbb);">
+          </div>
+          <div class="p-col-12 p-md-12 p-d-flex p-ai-center p-jc-center">
+            <div style="display: none;">
+              <input type="file" class="file-input" (change)="onFileSelected($event, 'header')" #headerImageUpload>
+            </div>
+            <div>
+                <a><fa-icon [icon]="faEdit" pTooltip="Update Header Image" (click)="headerImageUpload.click()"></fa-icon></a>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="p-col-1">
+      <p-divider layout="vertical">
+      </p-divider>
+    </div>
+    <div class="p-col-3 p-d-flex p-ai-center p-jc-center" >
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-col-12 p-md-12 p-d-flex p-ai-center p-jc-center p-mb-5" *ngIf="footerImage">
+            <img [src]="footerImage" class="rounded" width="300px"  height="150px" style=" border-radius: 05%; -webkit-filter: drop-shadow(2px 2px 2px #bbb); filter: drop-shadow(2px 2px 2px #bbb);">
+          </div>
+          <div class="p-col-12 p-md-12 p-d-flex p-ai-center p-jc-center p-mb-5" *ngIf="!footerImage">
+            <img src="./assets/lighting-bolt/images/empty-image.png" class="rounded" width="300px"  height="150px" style=" border-radius: 05%; -webkit-filter: drop-shadow(2px 2px 2px #bbb); filter: drop-shadow(2px 2px 2px #bbb);">
+          </div>
+          <div class="p-col-12 p-md-12 p-d-flex p-ai-center p-jc-center">
+            <div style="display: none;">
+              <input type="file" class="file-input" (change)="onFileSelected($event, 'footer')" #footerImageUpload>
+            </div>
+            <div>
+                <a><fa-icon [icon]="faEdit" pTooltip="Update Footer Image" (click)="footerImageUpload.click()"></fa-icon></a>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="p-col-1">
+      <p-divider layout="vertical">
+      </p-divider>
+    </div>
+    <div class="p-col-3 p-d-flex p-ai-center p-jc-center" >
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-col-12 p-md-12 p-d-flex p-ai-center p-jc-center p-mb-5" *ngIf="logoImage">
+            <img [src]="logoImage" class="rounded" width="300px"  height="150px" style=" border-radius: 05%; -webkit-filter: drop-shadow(2px 2px 2px #bbb); filter: drop-shadow(2px 2px 2px #bbb);">
+          </div>
+           <div class="p-col-12 p-md-12 p-d-flex p-ai-center p-jc-center p-mb-5" *ngIf="!logoImage">
+            <img src="./assets/lighting-bolt/images/empty-image.png" class="rounded" width="250px"  height="150px" style=" border-radius: 05%; -webkit-filter: drop-shadow(2px 2px 2px #bbb); filter: drop-shadow(2px 2px 2px #bbb);">
+          </div>
+          <div class="p-col-12 p-md-12 p-d-flex p-ai-center p-jc-center">
+            <div style="display: none;">
+              <input type="file" class="file-input" (change)="onFileSelected($event, 'logo')" #logoImageUpload>
+            </div>
+            <div>
+                <a><fa-icon [icon]="faEdit" pTooltip="Update Logo Image" (click)="logoImageUpload.click()"></fa-icon></a>
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
+<form [formGroup]="organizationForm" (ngSubmit)="saveOrganization()"> 
+  <p-toast></p-toast>
+    <div class="p-col-12" >
+        <div class="card">
+          <div class="card-header profile-title">
+              <h5>Info</h5>
+              <div class="header-buttons">
+              </div>
+          </div>
+          <hr class="profile-ruler">
+            
+          <input type="hidden" formControlName="OrganizationId" value="0">
+          <div class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-md-8" [ngClass]="errorIconCss('Name')">
+                <label for="Name">Name</label>
+                <input disabled formControlName="Name" type="text" maxlength = "75" pInputText [ngClass]="errorFieldCss('Name')" 
+                onkeypress="return (event.charCode > 64 && event.charCode < 91) 
+                || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) || (event.charCode==45) 
+                || (event.charCode==39) || (event.charCode==44) || (event.charCode==46)" >
+                <app-field-error-display [displayError]="isFieldValid('Name')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+            </div> 
+            <div class="p-field p-col-12 p-md-8" [ngClass]="errorIconCss('Title')">
+              <label for="Title">Title</label>
+              <input formControlName="Title" type="text" maxlength = "50" pInputText [ngClass]="errorFieldCss('Title')" 
+              onkeypress="return (event.charCode > 64 && event.charCode < 91) 
+              || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) || (event.charCode==45) 
+              || (event.charCode==39) || (event.charCode==44) || (event.charCode==46)" [disabled]="!isAddNewRecord">
+              <app-field-error-display [displayError]="isFieldValid('Title')" [addErrorMessages]="addErrorMessages">
+              </app-field-error-display>
+          </div>
+          <div class="p-field p-col-12 p-md-8">
+            <label for="AccountName">Account Name</label>
+            <input formControlName="AccountName" type="text" maxlength = "255" pInputText [ngClass]="errorFieldCss('AccountName')" 
+            onkeypress="return (event.charCode > 64 && event.charCode < 91) 
+            || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) || (event.charCode==45) 
+            || (event.charCode==39) || (event.charCode==44) || (event.charCode==46)" [readonly]="isAccNameFieldDisabled">
+        </div>                  
+            <!-- <div class="p-field p-col-12 p-md-4"></div> -->
+          </div>
+          <div class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-md-8" [ngClass]="errorIconCss('Address1')">
+              <label for="Address">Address 1</label>
+              <input pInputText formControlName="Address1" type="text" [ngClass]="errorFieldCss('Address1')" 
+              maxlength = "100">
+              <app-field-error-display [displayError]="isFieldValid('Address1')" [addErrorMessages]="addErrorMessages">
+              </app-field-error-display>
+            </div>
+            <!-- <div class="p-field p-col-12 p-md-4"></div> -->
+          </div>
+          <div class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-md-8">
+              <label for="Address">Address 2</label>
+              <input pInputText formControlName="Address2" type="text" maxlength = "100">
+            </div>
+            <!-- <div class="p-field p-col-12 p-md-4"></div> -->
+          </div>
+          <div class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-md-8">
+              <label for="Address">Address 3</label>
+              <input pInputText formControlName="Address3" type="text" maxlength = "100">
+            </div>
+            <!-- <div class="p-field p-col-12 p-md-4"></div> -->
+          </div>
+          <div class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-md-4" [ngClass]="errorIconCss('Code')">
+                <label for="Name">Code</label>
+                <input formControlName="Code" type="text" maxlength = "5" pInputText [ngClass]="errorFieldCss('Code')" 
+                onkeypress="return (event.charCode > 64 && event.charCode < 91) 
+                || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) || (event.charCode==45) 
+                || (event.charCode==39) || (event.charCode==44) || (event.charCode==46)" >
+                <app-field-error-display [displayError]="isFieldValid('Code')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+            </div>
+            <div class="p-field p-col-12 p-md-4" [ngClass]="errorIconCss('OrgPhoneNumber')">
+              <label for="OrgPhoneNumber">Phone Number</label>
+              <p-inputMask id='OrgPhoneNumber'  formControlName='OrgPhoneNumber' mask="(999) 999-9999? x99999" autocomplete="new-password" 
+              [ngClass]="errorFieldCss('OrgPhoneNumber')" ></p-inputMask>
+              <app-field-error-display [displayError]="isFieldValid('OrgPhoneNumber')" [addErrorMessages]="addErrorMessages">
+              </app-field-error-display>
+            </div>
+            <div class="p-field p-col-12 p-md-4" [ngClass]="errorIconCss('OrgPhoneNumber')">
+              <label for="OrgEmailAddress">Email</label>
+              <input type="text" pInputText autocomplete="new-password" formControlName='OrgEmailAddress' 
+              [ngClass]="errorFieldCss('OrgEmailAddress')" />
+              <app-field-error-display [displayError]="isFieldValid('OrgEmailAddress')" [addErrorMessages]="addErrorMessages">
+              </app-field-error-display>
+            </div>     
+          </div>
+          <div class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-md-4" [ngClass]="errorIconCss('City')">
+                <label for="lastName">City</label>
+                <input formControlName="City" type="text" maxlength = "30" pInputText  autocomplete="new-password" [ngClass]="errorFieldCss('City')">
+                <app-field-error-display [displayError]="isFieldValid('City')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+            </div>
+            <div class="p-field p-col-12 p-md-4" [ngClass]="errorIconCss('State')">
+              <label for="State">State</label>
+              <p-dropdown [options]="stateList" placeholder="Select State"  optionLabel="name" optionValue="code" appendTo="body" 
+              formControlName='State' [ngClass]="errorFieldCss('State')" [disabled]="isViewOnly"></p-dropdown>
+              <app-field-error-display [displayError]="isFieldValid('State')" [addErrorMessages]="addErrorMessages">
+              </app-field-error-display>
+            </div>
+            <div class="p-field p-col-12 p-md-4" [ngClass]="errorIconCss('State')">
+              <label for="suffix">Zip</label>
+              <p-inputMask formControlName='Zip' mask="99999-9999" class="p-inputtext-sm" autocomplete="new-password" [ngClass]="errorFieldCss('Zip')" 
+                [autoClear]="false" ></p-inputMask> 
+              <app-field-error-display [displayError]="isFieldValid('Zip')" [addErrorMessages]="addErrorMessages">
+              </app-field-error-display>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header profile-title">
+              <h5>Primary Contact</h5>
+              <div class="header-buttons">
+              </div>
+          </div>
+          <hr class="profile-ruler">
+          <div class="p-fluid p-formgrid p-grid">
+              <div class="p-field p-col-12 p-md-4">
+                <label for="ContactName">Name</label>
+                  <input formControlName="ContactName" type="text" maxlength = "100" pInputText class="p-inputtext-sm" [ngClass]="errorFieldCss('ContactName')" 
+                  onkeypress="return (event.charCode > 64 && event.charCode < 91) 
+                  || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) || (event.charCode==45) 
+                  || (event.charCode==39) || (event.charCode==44) || (event.charCode==46)" >
+              </div>
+              <div class="p-field p-col-12 p-md-4">
+                <label for="PhoneNumber">Phone Number</label>
+                <p-inputMask id='PhoneNumber'  formControlName='PhoneNumber' mask="(999) 999-9999? x99999" class="p-inputtext-sm" autocomplete="new-password" 
+                [ngClass]="errorFieldCss('PhoneNumber')" ></p-inputMask>
+              </div>
+              <div class="p-field p-col-12 p-md-4">
+                <label for="EmailAddress">Email</label>
+                <input type="text" class="p-inputtext-sm"  pInputText autocomplete="new-password" formControlName='EmailAddress' 
+                [ngClass]="errorFieldCss('EmailAddress')" />
+              </div>
+          </div>
+        </div>
+        <div class="card">
+            <div class="card-header profile-title">
+                <h5>Accounting</h5>
+                <div class="header-buttons">
+                </div>
+            </div>
+            <hr class="profile-ruler">
+            <div class="p-fluid p-formgrid p-grid">
+                <div class="p-field p-col-12 p-md-6" [ngClass]="errorIconCss('OnlineCreditGL')">
+                  <label for="OnlineCreditGL">Online Credit GL</label>
+                  <p-dropdown [options]="glAccountList" class="p-inputtext-sm" optionLabel="name" formControlName="OnlineCreditGL" optionValue="code" 
+                  placeholder="Select Online Credit GL" appendTo="body" [disabled]="isViewOnly" [ngClass]="errorFieldCss('OnlineCreditGL')"></p-dropdown>
+                  <app-field-error-display [displayError]="isFieldValid('OnlineCreditGL')" [addErrorMessages]="addErrorMessages">
+                  </app-field-error-display>
+                </div>
+                <div class="p-field p-col-12 p-md-6" [ngClass]="errorIconCss('OfflinePaymentGL')">
+                  <label for="OfflinePaymentGL">Offline Payment GL</label>
+                  <p-dropdown [options]="glAccountList" class="p-inputtext-sm" optionLabel="name" formControlName="OfflinePaymentGL" optionValue="code" 
+                  placeholder="Select Offline Payment GL" appendTo="body" [disabled]="isViewOnly" [ngClass]="errorFieldCss('OfflinePaymentGL')"></p-dropdown>
+                  <app-field-error-display [displayError]="isFieldValid('OfflinePaymentGL')" [addErrorMessages]="addErrorMessages">
+                  </app-field-error-display>                 
+                </div>
+                <div class="p-field p-col-12 p-md-6" [ngClass]="errorIconCss('ProcessingFeeGL')">
+                  <label for="ProcessingFeeGL">Processing Fee GL</label>
+                  <p-dropdown [options]="glAccountList" class="p-inputtext-sm" optionLabel="name" formControlName="ProcessingFeeGL" optionValue="code" 
+                  placeholder="Select Processing Fee GL" appendTo="body" [disabled]="isViewOnly" [ngClass]="errorFieldCss('ProcessingFeeGL')"></p-dropdown>
+                  <app-field-error-display [displayError]="isFieldValid('ProcessingFeeGL')" [addErrorMessages]="addErrorMessages">
+                  </app-field-error-display>
+                </div>
+                <div class="p-field p-col-12 p-md-6" [ngClass]="errorIconCss('SalesReturnGL')">
+                  <label for="SalesReturnGL">Sales Return GL</label>
+                  <p-dropdown [options]="glAccountList" class="p-inputtext-sm" optionLabel="name" formControlName="SalesReturnGL" optionValue="code" 
+                  placeholder="Select Sales Return GL" appendTo="body" [disabled]="isViewOnly" [ngClass]="errorFieldCss('SalesReturnGL')"></p-dropdown>
+                  <app-field-error-display [displayError]="isFieldValid('SalesReturnGL')" [addErrorMessages]="addErrorMessages">
+                  </app-field-error-display>
+                </div>
+                <div class="p-field p-col-12 p-md-6" [ngClass]="errorIconCss('WriteOffGL')">
+                  <label for="WriteOffGL">Write Off GL</label>
+                  <p-dropdown [options]="glAccountList" class="p-inputtext-sm" optionLabel="name" formControlName="WriteOffGL" optionValue="code" 
+                  placeholder="Select Write Off GL" appendTo="body" [disabled]="isViewOnly" [ngClass]="errorFieldCss('WriteOffGL')"></p-dropdown>
+                  <app-field-error-display [displayError]="isFieldValid('WriteOffGL')" [addErrorMessages]="addErrorMessages">
+                  </app-field-error-display>
+                </div>      
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header profile-title">
+                <h5>Social Networking</h5>
+                <div class="header-buttons">
+                </div>
+            </div>
+            <hr class="profile-ruler">
+            <div class="p-fluid p-formgrid p-grid">
+                <div class="p-field p-col-12 p-md-6">
+                  <label for="Website">Website</label>
+                  <div class="p-inputgroup">
+                      <span class="p-inputgroup-addon"><i class="pi pi-globe"></i></span>
+                      <input type="text" pInputText formControlName='Website'>         
+                  </div>
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                  <label for="Twitter">Twitter</label>
+                  <div class="p-inputgroup">
+                      <span class="p-inputgroup-addon"><i class="pi pi-twitter"></i></span>
+                      <input type="text" pInputText formControlName='Twitter'>         
+                  </div>                    
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                  <label for="Facebook">Facebook</label>
+                  <div class="p-inputgroup">
+                      <span class="p-inputgroup-addon"><i class="pi pi-facebook"></i></span>
+                      <input type="text" pInputText formControlName='Facebook'>         
+                  </div> 
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                  <label for="LinkedIN">Linked IN</label>
+                  <div class="p-inputgroup">
+                      <span class="p-inputgroup-addon"><b>in</b></span>
+                      <input type="text" pInputText formControlName='LinkedIN'>         
+                  </div> 
+                </div>   
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header profile-title">
+                <h5>Announcements</h5>
+                <div class="header-buttons">
+                </div>
+            </div>
+            <hr class="profile-ruler">
+            <div class="p-fluid p-formgrid p-grid">
+                <div class="p-field p-col-12 p-md-12">
+                  <label for="Website">Print Message</label>
+                  <textarea type="text" pInputTextarea formControlName='PrintMessage' rows="3" maxlength="255"></textarea>
+                </div>
+                <div class="p-field p-col-12 p-md-12">
+                  <label for="Twitter">Web Message</label>
+                  <textarea type="text" pInputTextarea formControlName='WebMessage' rows="3" maxlength="255"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="center" *ngIf="!isViewOnly">
+      <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" [disabled]="isPageValid"></button>
+      <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" [routerLink]="['/setup/organization']" ></button>      
+    </div>
+</form>
+</fieldset>

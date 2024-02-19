@@ -1,0 +1,57 @@
+<HR>
+  <ng-container [formGroup]="feesFormGroup">
+  <div>
+    <input type="hidden" formControlName="FeeId" value=0>
+    <div class="p-fluid p-grid">
+      <div class="p-field p-col-12 p-sm-12 p-md-6 p-lg-3 p-jc-center" [ngClass]="errorIconCss('Description')"> 
+        <label for="Description">Name</label>
+        <input type="text" class="p-inputtext-sm" maxlength="30" formControlName="Description" pInputText autofocus [ngClass]="errorFieldCss('Description')" 
+        (click) = "resetSubmitted('Description')" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) 
+        || (event.charCode==32) || (event.charCode==39)" onKeyDown="if(this.value.length==30 && event.keyCode!=8) return false;" (paste)="matcher($event, 'Name')"
+          (focusout) = "FeeNameValidation($event)" (blur) = "FeeNameValidation($event)" />
+          <app-field-error-display [displayError]="isFieldValid('Description')" [addErrorMessages]="addErrorMessages">
+          </app-field-error-display>
+      </div>
+      <div class="p-field p-col-6 p-sm-6 p-md-6 p-lg-2 p-jc-center" [ngClass]="errorIconCss('FeeAmount')" style="min-width: 16%;">
+        <label for="FeeAmount">Fee</label>
+        <div class="p-inputgroup">              
+          <span class="p-inputgroup-addon">$</span>
+          <input type = "number" size = "10" onKeyDown="if(this.value.length==10 && event.keyCode!=8) return false;" min="0.00" placeholder="0.00"
+          pInputText formControlName="FeeAmount"  [ngClass]="errorFieldCss('FeeAmount')" (click) = "resetSubmitted('FeeAmount')" (paste)="matcher($event, 'FeeAmount')"/>
+        </div>
+        <app-field-error-display [displayError]="isFieldValid('FeeAmount')" [addErrorMessages]="addErrorMessages">
+        </app-field-error-display>
+      </div>
+      
+      <div class="p-field p-col-12 p-sm-12 p-md-6 p-lg-2 p-jc-center" [ngClass]="errorIconCss('BillingFrequency')">
+        <label for="BillingFrequency">Billing Frequency</label>
+        <p-dropdown [options]="frequencies" class="p-inputtext-sm" optionLabel="name" formControlName="BillingFrequency" optionValue="code" 
+        placeholder="Select Billing Frequency" appendTo="body" [ngClass]="errorFieldCss('BillingFrequency')" (click) = "resetSubmitted('BillingFrequency')">
+        </p-dropdown>
+        <app-field-error-display [displayError]="isFieldValid('BillingFrequency')" [addErrorMessages]="addErrorMessages">
+        </app-field-error-display>
+      </div>
+      <div class="p-field p-col-12 p-sm-12 p-md-6 p-lg-3 p-jc-center" [ngClass]="errorIconCss('GlAccountId')">
+        <label for="GlAccount">GL Account</label>
+        <p-dropdown [options]="glAccountList" class="p-inputtext-sm" optionLabel="name" formControlName="GlAccountId" optionValue="code" 
+        placeholder="Select a GLAccount" appendTo="body" [ngClass]="errorFieldCss('GlAccountId')" (click) = "resetSubmitted('GlAccountId')" 
+        (onChange) = "validateGLAccountId($event)">
+        </p-dropdown>
+        <app-field-error-display [displayError]="isFieldValid('GlAccountId')" [addErrorMessages]="addErrorMessages">
+        </app-field-error-display>
+      </div>
+      <div class="p-field p-col-6 p-sm-6 p-md-6 p-lg-1 p-d-flex p-jc-center">
+        <div>
+          <label for="IsMandatory">Required</label>
+          <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+            <p-inputSwitch  formControlName="IsRequired"></p-inputSwitch>
+          </div>       
+        </div>        
+      </div>
+      <div class="p-field p-col-6 p-sm-6 p-md-6 p-lg-1 p-d-flex p-jc-center">
+        <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text p-mr-2 p-mb-2 button-icon-cancel  p-button-sm" 
+        (click)="_removeControl()"  pTooltip="Remove Fee" tooltipPosition="top"></button>            
+      </div>
+    </div>
+  </div>
+</ng-container>

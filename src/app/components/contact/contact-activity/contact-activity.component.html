@@ -1,0 +1,503 @@
+<p-toast></p-toast>
+<div class="p-grid">
+    <div class="p-col-12">
+        <div class="card">
+            <p-toolbar styleClass="p-mb-12">
+                <ng-template pTemplate="left">
+                    <div>
+                        <label class="p-mr-4 p-mb-4"><b>Date</b></label>
+                        <span style="cursor: pointer;" (click)=" dateFilterSelectEvent()"
+                            class="pi pi-filter-icon pi-filter p-mr-4 p-mb-4">
+                        </span>
+                    </div>
+
+                    <div>
+                        <label class="p-mr-4 p-mb-4"><b>Type</b></label>
+                        <span (click)=" interactionFilterSelectEvent()" style="cursor: pointer;"
+                            class="pi pi-filter-icon pi-filter p-mr-4 p-mb-4"> </span>
+
+                    </div>
+                    <div>
+                        <label class="p-mr-4 p-mb-4"><b>Contact</b></label>
+                        <span (click)=" contactFilterSelectEvent()" style="cursor: pointer;"
+                            class="pi pi-filter-icon pi-filter p-mr-4 p-mb-4"> </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="right">
+                    <button pButton label="Add Activity" type="button" icon="pi pi-plus" pRipple
+                        [disabled]="addActivityBtnDisabled" class="p-button-success p-mr-2 p-mb-2" type="submit"
+                        (click)="addActivity()"></button>
+                </ng-template>
+            </p-toolbar>
+            <p-toolbar styleClass="p-mb-12"
+                *ngIf="dateFilterSelected || interactionTypeFilterSelected || contactFilterSelected">
+                <!-- <ng-template pTemplate="left"> -->
+                <div *ngIf="dateFilterSelected" class="p-formgroup-inline">
+                    <div class="p-field">
+                        <label class="p-mr-4 p-mb-4" for="search">Date</label>
+                        <p-dropdown id='serachSelection' [options]="searchList" [(ngModel)]="selectedSearch"
+                            optionLabel="name" name="search"></p-dropdown>
+                    </div>
+                    <div *ngIf="selectedSearch.name=='Day'">
+                        <form [formGroup]="searchByDayForm">
+                            <div class="p-input-icon-left">
+                                <div class="p-field ">
+                                    <label for="day">Day</label>
+                                    <p-calendar formControlName='Day' [inputStyle]="{'width':'100px'}"
+                                        dateFormat="mm/dd/yy" [showIcon]="true"></p-calendar>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div *ngIf="selectedSearch.name=='Date Range'">
+                        <form [formGroup]="searchByDateRangeForm">
+                            <div class="p-input-icon-left">
+                                <div class="p-field">
+                                    <label for="startDate">From Date</label>
+                                    <p-calendar [inputStyle]="{'width':'100px'}" formControlName='FromDate'
+                                        [minDate]="minFromDate" (onSelect)="fromDateSelectEvent($event)"
+                                        [showIcon]="true" dateFormat="mm/dd/yy"></p-calendar>
+                                </div>
+                            </div>
+                            <div class="p-input-icon-right">
+                                <div class="p-field">
+                                    <label for="Phone">To Date</label>
+                                    <p-calendar formControlName='ToDate' this.value='' [inputStyle]="{'width':'100px'}"
+                                        [minDate]="minToDate" [showIcon]="true" dateFormat="mm/dd/yy"></p-calendar>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div *ngIf="interactionTypeFilterSelected" class="p-formgroup-inline">
+                    <div>
+                        <label class="p-mr-4 p-mb-4" for="interactionType">Interaction Type</label>
+                        <p-dropdown [options]="searchableInteractionTypes" name="interactionType" optionLabel="name"
+                            optionValue="code" [(ngModel)]="interactionTypeFilterValue" [filter]="true"
+                            filterInputAutoFocus="false" placeholder='Select Interaction Type'></p-dropdown>
+                    </div>
+                </div>
+                <div *ngIf="contactFilterSelected" class="p-formgroup-inline">
+                    <div>
+                        <label class="p-mr-4 p-mb-4" for="search">Contact</label>
+                        <p-dropdown class="contact-dropdown" [options]="people" optionLabel="name" optionValue="code"
+                            [(ngModel)]="interactionContactFilterValue" [filter]="true" placeholder="Select Contact"
+                            [virtualScroll]="true" [itemSize]="50"></p-dropdown>
+                    </div>
+                </div>
+                <div>
+                    <button pButton label="Search" type="button" icon="pi pi-search" pRipple
+                        (click)="filterActivities()" class="p-button-success p-mr-2 p-mb-2" type="button"></button>
+                    <button pButton label="Reset" type="button" icon="pi pi-times" pRipple (click)="resetSearch()"
+                        class="p-button-danger p-mr-2 p-mb-2" type="button"></button>
+
+                </div>
+                <!-- </ng-template> -->
+            </p-toolbar>
+
+            <div class="p-col-12">
+                <p-table [value]="pagedActivities" class="contact-activity-table" dataKey="contactActivityId"
+                    styleClass="p-mb-12">
+                    <ng-template pTemplate="header">
+                    </ng-template>
+                    <ng-template pTemplate="body" let-activity>
+                        <tr class="p-col-12" *ngIf="!expandedRows?.includes(activity)">
+                            <td class="p-col-1">
+                                <button type="button" pButton pRipple [pRowToggler]="activity"
+                                    (click)="expandButtonClick(activity)"
+                                    class="p-button-text p-button-rounded p-button-plain"
+                                    [icon]="expandedRows?.includes(activity) ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                            </td>
+                            <td class="p-col-8">
+                                <div class="p-col-12">
+                                    <div class="p-fluid p-formgrid p-grid">
+                                        <div class="p-col-10 p-md-10 ">
+                                            <div class="line-overflow" *ngIf="activity.entityId===entity.entityId">
+                                                <span style="text-align: left;" *ngIf="activity.interactionType===0">
+                                                    <b>Phone</b> call with </span>
+                                                <span style="text-align: left;" *ngIf="activity.interactionType===1">
+                                                    <b>In-Person Interaction </b> with</span>
+                                                <span style="text-align: left;" *ngIf="activity.interactionType===2">
+                                                    <b>Email</b> to </span>
+                                                <span
+                                                    *ngIf="activity.interactionType===0 || activity.interactionType===1 || activity.interactionType===2">
+                                                    <span
+                                                        *ngFor="let item of activity.contactActivityInteractions;let i=index">
+                                                        {{activity.contactActivityInteractions[i]?.interactionEntity?.person?.firstName}}
+                                                        {{activity.contactActivityInteractions[i]?.interactionEntity?.person?.lastName}}
+                                                        <ng-container
+                                                            *ngIf="i < activity.contactActivityInteractions.length - 1">
+                                                            <span *ngIf="i === activity.contactActivityInteractions.length - 2 && 
+                                                        activity.contactActivityInteractions.length > 2 ||
+                                                     activity.contactActivityInteractions.length === 2">
+                                                                and </span>
+                                                            <span
+                                                                *ngIf="i !== activity.contactActivityInteractions.length - 2 && 
+                                                                i !== activity.contactActivityInteractions.length - 1">,
+                                                            </span>
+                                                        </ng-container>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                            <div class="line-overflow" *ngIf="activity.entityId!==entity.entityId">
+                                                <span style="text-align: left;" *ngIf="activity.interactionType===0">
+                                                    <b>Phone</b> call with
+                                                    {{activity.entity.person?.firstName}}
+                                                    {{activity.entity.person?.lastName}}
+                                                </span>
+                                                <span style="text-align: left;" *ngIf="activity.interactionType===1">
+                                                    <b>In-Person Interaction </b> with
+                                                    {{activity.entity.person?.firstName}}
+                                                    {{activity.entity.person?.lastName}}
+                                                </span>
+                                                <span style="text-align: left;" *ngIf="activity.interactionType===2">
+                                                    <b>Email</b> from
+                                                    {{activity.entity.person?.firstName}}
+                                                    {{activity.entity.person?.lastName}}
+                                                </span>
+
+                                            </div>
+                                            <span style="text-align: left;"
+                                                *ngIf="activity.interactionType===4 || activity.interactionType===5">
+                                                <b>{{activity.subject}}</b>
+                                            </span>
+                                            <span style="text-align: left;" *ngIf="activity.interactionType===3">
+                                                <b>Other Activity</b>
+                                            </span>
+                                        </div>
+                                        <div *ngIf="activity.interactionType!=3 && activity.interactionType!=4 && activity.interactionType!=5"
+                                            class="p-col-12 p-md-12 line-overflow">{{ activity.subject }}</div>
+                                        <div class="p-col-12 p-md-12 line-overflow">{{ activity.description }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-col-2">{{ activity.activityDate | date:'MM/dd/yyyy' }}</td>
+                            <td class="p-col-1"></td>
+                        </tr>
+                        <tr *ngIf="expandedRows?.includes(activity)">
+                            <td class="p-col-1">
+                                <button type="button" pButton pRipple [pRowToggler]="activity"
+                                    (click)="expandButtonClick(activity)"
+                                    class="p-button-text p-button-rounded p-button-plain"
+                                    [icon]="expandedRows?.includes(activity) ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                            </td>
+                            <td class="p-col-8">
+                                <div class="p-col-12">
+                                    <div class="p-fluid p-formgrid p-grid">
+                                        <div>
+                                            <div style="text-wrap:wrap !important" *ngIf="activity.entityId===entity.entityId">
+                                                <span style="text-align: left;" *ngIf="activity.interactionType===0">
+                                                    <b>Phone</b> call with </span>
+                                                <span style="text-align: left;" *ngIf="activity.interactionType===1">
+                                                    <b>In-Person Interaction </b> with</span>
+                                                <span style="text-align: left;" *ngIf="activity.interactionType===2">
+                                                    <b>Email</b> to </span>
+                                                <span
+                                                    *ngIf="activity.interactionType===0 || activity.interactionType===1 || activity.interactionType===2">
+                                                    <span
+                                                        *ngFor="let item of activity.contactActivityInteractions;let i=index">
+                                                        {{activity.contactActivityInteractions[i]?.interactionEntity?.person?.firstName}}
+                                                        {{activity.contactActivityInteractions[i]?.interactionEntity?.person?.lastName}}
+                                                        <ng-container
+                                                            *ngIf="i < activity.contactActivityInteractions.length - 1">
+                                                            <span *ngIf="i === activity.contactActivityInteractions.length - 2 && 
+                                                        activity.contactActivityInteractions.length > 2 ||
+                                                     activity.contactActivityInteractions.length === 2">
+                                                                and </span>
+                                                            <span
+                                                                *ngIf="i !== activity.contactActivityInteractions.length - 2 && 
+                                                                i !== activity.contactActivityInteractions.length - 1">,
+                                                            </span>
+                                                        </ng-container>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                            <div  style="text-wrap:wrap !important" class="line-overflow" *ngIf="activity.entityId!==entity.entityId">
+                                                <span style="text-align: left;" *ngIf="activity.interactionType===0">
+                                                    <b>Phone</b> call with
+                                                    {{activity.entity.person?.firstName}}
+                                                    {{activity.entity.person?.lastName}}
+                                                </span>
+                                                <span style="text-align: left;" *ngIf="activity.interactionType===1">
+                                                    <b>In-Person Interaction </b> with
+                                                    {{activity.entity.person?.firstName}}
+                                                    {{activity.entity.person?.lastName}}
+                                                </span>
+                                                <span style="text-align: left;" *ngIf="activity.interactionType===2">
+                                                    <b>Email</b> from
+                                                    {{activity.entity.person?.firstName}}
+                                                    {{activity.entity.person?.lastName}}
+                                                </span>
+
+                                            </div>
+                                            <span style="text-align: left;"
+                                                *ngIf="activity.interactionType===4 || activity.interactionType===5">
+                                                <b>{{activity.subject}}</b>
+                                            </span>
+                                            <span style="text-align: left;" *ngIf="activity.interactionType===3">
+                                                <b>Other Activity</b>
+                                            </span>
+                                        </div>
+                                        <div class="p-col-12">
+                                            <div  style="text-wrap:wrap !important" class="p-fluid p-formgrid p-grid">
+                                                <div *ngIf="activity.interactionType!=4"
+                                                    style="overflow-wrap: break-word;" class="p-col-12 p-md-12">{{
+                                                    activity.subject }}
+                                                </div>
+                                                <div style="overflow-wrap: break-word;" class="p-col-12 p-md-12"
+                                                    [innerHTML]="activity.expandDescription">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-col-2">{{ activity.activityDate | date:'MM/dd/yyyy' }}</td>
+                            <td class="p-col-1" *ngIf="activity.interactionType!=4 && !activity.interactionType!=5"
+                                style="text-align: left;">
+                                <p-menu #menu [popup]="true" [model]="menuItems" position="left"
+                                    appendTo="body"></p-menu>
+                                <button type="button" pButton icon="pi pi-ellipsis-v" [disabled]="activity.status===0"
+                                    (click)="setActiveRow(activity);menu.toggle($event)"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+            <!-- <p-accordion [multiple]="false">
+                <p-accordionTab *ngFor="let activity of pagedActivities" [selected]="false">
+                    <ng-template pTemplate="header">
+                        <div class="p-col-12" style="padding-right: 20px;">
+                            <div class="p-fluid p-formgrid p-grid">
+                                <div class="p-col-8 p-md-8 ">
+                                    <div class="line-overflow" *ngIf="activity.entityId===entity.entityId">
+                                        <span style="text-align: left;" *ngIf="activity.interactionType===0">
+                                            <b>Phone</b> call with </span>
+                                        <span style="text-align: left;" *ngIf="activity.interactionType===1">
+                                            <b>In-Person Interaction </b> with</span>
+                                        <span style="text-align: left;" *ngIf="activity.interactionType===2">
+                                            <b>Email</b> to </span>
+                                        <span
+                                            *ngIf="activity.interactionType===0 || activity.interactionType===1 || activity.interactionType===2">
+                                            <span *ngFor="let item of activity.contactActivityInteractions;let i=index">
+                                                {{activity.contactActivityInteractions[i]?.interactionEntity?.person?.firstName}}
+                                                {{activity.contactActivityInteractions[i]?.interactionEntity?.person?.lastName}}
+                                                <ng-container
+                                                    *ngIf="i < activity.contactActivityInteractions.length - 1">
+                                                    <span *ngIf="i === activity.contactActivityInteractions.length - 2 && 
+                                                    activity.contactActivityInteractions.length > 2 ||
+                                                 activity.contactActivityInteractions.length === 2">
+                                                        and </span>
+                                                    <span *ngIf="i !== activity.contactActivityInteractions.length - 2 && 
+                                                            i !== activity.contactActivityInteractions.length - 1">,
+                                                    </span>
+                                                </ng-container>
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="line-overflow" *ngIf="activity.entityId!==entity.entityId">
+                                        <span style="text-align: left;" *ngIf="activity.interactionType===0">
+                                            <b>Phone</b> call with
+                                            {{activity.entity.person?.firstName}}
+                                            {{activity.entity.person?.lastName}}
+                                        </span>
+                                        <span style="text-align: left;" *ngIf="activity.interactionType===1">
+                                            <b>In-Person Interaction </b> with
+                                            {{activity.entity.person?.firstName}}
+                                            {{activity.entity.person?.lastName}}
+                                        </span>
+                                        <span style="text-align: left;" *ngIf="activity.interactionType===2">
+                                            <b>Email</b> from
+                                            {{activity.entity.person?.firstName}}
+                                            {{activity.entity.person?.lastName}}
+                                        </span>
+
+                                    </div>
+                                    <span style="text-align: left;"
+                                        *ngIf="activity.interactionType===3 || activity.interactionType===4 || activity.interactionType===5">
+                                        <b>{{activity.subject}}</b>
+                                    </span>
+                                </div>
+                                <div class="p-col-2 p-md-2" style="text-align: center;">
+                                    <div class="p-mt-3">
+                                        <a><fa-icon class="p-mr-3" [icon]="faEdit" pTooltip="Update activity"
+                                                (click)="editContactActivity(activity)"></fa-icon></a>
+                                        <a><fa-icon class="p-mr-3" [icon]="faTrash" pTooltip="Delete activity"
+                                                (click)="deleteContactActivity(activity)"></fa-icon></a>
+                                    </div>
+
+                                </div>
+                                <div class="p-col-2 p-md-2" style="text-align: center;">
+                                    {{activity.activityDate | date:'MM/dd/yyyy'}}</div>
+                                <div *ngIf="activity.interactionType!=3 && activity.interactionType!=4 && activity.interactionType!=5"
+                                    class="p-col-12 p-md-12 line-overflow">{{ activity.subject }}</div>
+                                <div class="p-col-12 p-md-12 line-overflow">{{ activity.description }}</div>
+                            </div>
+                        </div>
+                    </ng-template>
+
+
+                    <ng-template pTemplate="content">
+                        <div class="p-col-12" style="position: relative;left: 20px;">
+                            <div class="p-fluid p-formgrid p-grid">
+                                <div *ngIf="activity.interactionType!=4" style="overflow-wrap: break-word;"
+                                    class="p-col-12 p-md-12">{{ activity.subject }}
+                                </div>
+                                <div style="overflow-wrap: break-word;" class="p-col-12 p-md-12"
+                                    [innerHTML]="activity.expandDescription">
+                                </div>
+
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-accordionTab>
+            </p-accordion> -->
+            <p-paginator [rows]="itemsPerPage" [totalRecords]="totalRecords"
+                (onPageChange)="onPageChange($event)"></p-paginator>
+            <div *ngIf="pagedActivities?.length === 0">
+                <div class="p-grid">
+                    <div class="p-col-12 center">
+                        <h6>{{noRecordsMessage}}</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <form [formGroup]="addActivityFormGroup">
+            <p-dialog [(visible)]="showAddActivityDialog" [style]="{ 'width': '650px','overflow':'auto' }"
+                header="Add Activity" [modal]="true" styleClass="p-fluid" [contentStyle]="{minHeight: '100px'}"
+                [responsive]="true" (onHide)="cancelAddActivityDialog()">
+                <ng-template pTemplate="content">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <div class="p-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-5 p-md-5">
+                                    <label>Interacted With</label>
+                                    <input pInputText [value]="accountName" disabled="true" *ngIf="!isRoleActivity">
+                                </div>
+                                <div style="padding-top: 4%;" class=" p-field p-col-5 p-md-5" *ngIf="!isRoleActivity">
+                                    <input pInputText [value]="contactName" disabled="true">
+                                </div>
+                                <div style="padding-top: 4%;" class=" p-field p-col-2 p-md-2" *ngIf="!isRoleActivity">
+                                    <button *ngIf="enabledAddButton" pButton type="button" icon="pi pi-plus"
+                                        (click)="addInteractionTypeFields()" class="p-button-rounded p-mr-2">
+                                    </button>
+                                </div>
+                                <div class="p-col-12" formArrayName="interactionTypeFields"
+                                    *ngIf="addNewInteractionFields">
+                                    <div *ngFor="let field of interactionTypeFields.controls;let i=index;"
+                                        [formGroupName]="i">
+                                        <div class="p-fluid p-formgrid p-grid">
+                                            <div class="dropdown-activity p-field p-col-5 p-md-5">
+                                                <p-dropdown [options]="accountList" optionValue="code"
+                                                    optionLabel="name" (onChange)="onAccountSelect($event.value,i)"
+                                                    placeholder="Select Account"
+                                                    [ngClass]="errorFieldCss('interactionAccountId',i)"
+                                                    (click)="resetDropdownSubmitted('interactionAccountId',i)"
+                                                    formControlName="interactionAccountId"
+                                                    [disabled]="isRoleActivity && i == 0"></p-dropdown>
+                                                <app-field-error-display
+                                                    [displayError]="isDropdownFieldValid('interactionAccountId',i)"
+                                                    [addErrorMessages]="addErrorMessages">
+                                                </app-field-error-display>
+                                            </div>
+                                            <div class="dropdown-activity p-field p-col-5 p-md-5">
+                                                <p-dropdown [options]="contactLists[i]" optionValue="code"
+                                                    formControlName="interactionContactId" optionLabel="name"
+                                                    placeholder="Select Contact"
+                                                    [ngClass]="errorFieldCss('interactionContactId',i)"
+                                                    (click)="resetDropdownSubmitted('interactionContactId',i)"
+                                                    [disabled]="isContactListDisabled(i)"></p-dropdown>
+                                                <app-field-error-display
+                                                    [displayError]="isDropdownFieldValid('interactionContactId',i)"
+                                                    [addErrorMessages]="addErrorMessages">
+                                                </app-field-error-display>
+                                            </div>
+                                            <div class="p-field p-col-2 p-md-2">
+                                                <button pButton type="button" icon="pi pi-plus"
+                                                    *ngIf="((i===interactionTypeFields.controls.length-1 && !isRoleActivity) || (i===interactionTypeFields.controls.length-1 && isRoleActivity && i != 0))"
+                                                    [disabled]="disableInteractionFieldAddButton(i)"
+                                                    (click)="addInteractionTypeFields()"
+                                                    class="p-button-rounded p-mr-2">
+                                                </button>
+                                                <div style="padding-top: 4%;" class=" p-field p-col-2 p-md-2"
+                                                    *ngIf="isRoleActivity && i == 0">
+                                                    <button *ngIf="enabledAddButton" pButton type="button"
+                                                        icon="pi pi-plus" (click)="addInteractionTypeFields()"
+                                                        class="p-button-rounded p-mr-2">
+                                                    </button>
+                                                </div>
+                                                <button pButton pRipple type="button" icon="pi pi-times"
+                                                    *ngIf="isRoleActivity && i != 0"
+                                                    (click)="removeInteractionTypeFields(i)"
+                                                    class="p-button-rounded p-button-danger"></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class=" p-field p-col-5 p-md-5">
+                                    <label for="activityDate">Date</label>
+                                    <p-calendar [showIcon]="true" appendTo="body" styleClass="ui-column-filter"
+                                        dateFormat="mm/dd/yy" formControlName="activityDate"
+                                        [ngClass]="errorFieldCss('activityDate')"
+                                        (click)="resetSubmitted('activityDate')"></p-calendar>
+                                    <app-field-error-display [displayError]="isFieldValid('activityDate')"
+                                        [addErrorMessages]="addErrorMessages">
+                                    </app-field-error-display>
+                                </div>
+                                <div class=" p-field p-col-5 p-md-5">
+                                    <label>Type Of Interaction</label>
+                                    <p-dropdown [options]="interactionTypes" formControlName="interactionType"
+                                        optionValue="code" optionLabel="name"></p-dropdown>
+                                </div>
+                                <div class=" p-field p-col-2 p-md-2"></div>
+                                <div class=" p-field p-col-5 p-md-5">
+                                    <label>Connect Activity to</label>
+                                </div>
+                                <div class="p-col-6 p-md-6">
+                                    <div class="p-field flex align-items-center">
+                                        <p-radioButton name="activityConnection" value="0"
+                                            formControlName="activityConnection">
+                                        </p-radioButton>
+                                        <label class="ml-2">Role & Contact</label>
+                                    </div>
+                                    <div class="p-field flex align-items-center">
+                                        <p-radioButton name="activityConnection" value="1"
+                                            formControlName="activityConnection">
+                                        </p-radioButton>
+                                        <label class="ml-2">Contact Only </label>
+                                    </div>
+                                </div>
+                                <div class=" p-field p-col-12 p-md-12">
+                                    <label for="subject">Subject</label>
+                                    <input formControlName="subject" type="text" pInputText maxlength="300"
+                                        [ngClass]="errorFieldCss('subject')" (click)="resetSubmitted('subject')">
+                                    <app-field-error-display [displayError]="isFieldValid('subject')"
+                                        [addErrorMessages]="addErrorMessages">
+                                    </app-field-error-display>
+
+                                </div>
+
+                                <div class=" p-field p-col-12 p-md-12">
+                                    <label for="description">Description</label>
+                                    <textarea style="max-width: 100%;" formControlName="description" pInputTextarea
+                                        [ngClass]="errorFieldCss('description')" maxlength="500"
+                                        (click)="resetSubmitted('description')"></textarea>
+                                    <app-field-error-display [displayError]="isFieldValid('description')"
+                                        [addErrorMessages]="addErrorMessages">
+                                    </app-field-error-display>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"
+                        [disabled]="disabledSaveButton" type="submit" (click)="saveActivity()"></button>
+                    <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+                        (click)="cancelAddActivityDialog()"></button>
+                </ng-template>
+            </p-dialog>
+        </form>
+    </div>
+</div>

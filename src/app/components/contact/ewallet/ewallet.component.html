@@ -1,0 +1,335 @@
+<div>
+   <p-toolbar styleClass="p-mb-4">
+      <ng-template pTemplate="left">
+
+      </ng-template>
+      <ng-template pTemplate="right">
+         <div class="p-formgroup-inline">
+            <button pButton type="button" label="Add" icon="pi pi-plus" class="p-button-primary p-mr-2 p-mb-2"
+               (click)="addPaymentProfile()"></button>
+         </div>
+      </ng-template>
+   </p-toolbar>
+</div>
+<div *ngIf="showPaymentProfile">
+   <div class="card" *ngIf="creditCardPaymentProfile.length > 0">
+      <h6>Credit Card</h6>
+      <p-table #dt [value]="creditCardPaymentProfile" dataKey="profileId" resizableColumns="true"
+         styleClass="p-datatable-sm">
+         <ng-template pTemplate="header">
+            <tr>
+               <th class="ui-resizable-column" width="25%">
+                  Name
+               </th>
+               <th class="ui-resizable-column" width="15%">
+                  Card Type
+               </th>
+               <th class="ui-resizable-column" width="10%">
+                  Card Number
+               </th>
+               <th class="ui-resizable-column" width="10%">
+                  Expires
+               </th>
+               <th class="ui-resizable-column" width="15%">
+                  Preferred Payment?
+               </th>
+               <th class="ui-resizable-column" width="15%">
+                  Use for Recurring Payment
+               </th>
+               <th width="5%">Select</th>
+            </tr>
+         </ng-template>
+         <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+            <tr>
+               <td style="text-align:left">
+                  {{item.cardHolderName}}
+               </td>
+               <td style="text-align:left">
+                  {{item.cardType}}
+               </td>
+               <td style="text-align:left">
+                  {{item.cardNumber}}
+               </td>
+               <td style="text-align:left">
+                  {{item.expirationDate}}
+               </td>
+               <td *ngIf="item.preferredPaymentMethod==1">
+                  <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded"
+                     [disabled]="true"></button>
+               </td>
+               <td *ngIf="item.preferredPaymentMethod==0">
+
+               </td>
+               <td *ngIf="item.useForAutoBilling==1">
+                  <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded"
+                     [disabled]="true"></button>
+               </td>
+               <td *ngIf="item.useForAutoBilling==0">
+
+               </td>
+
+               <td style="text-align:center">
+                  <button pButton type="button" icon="pi pi-ellipsis-v" (click)="setActiveRow(item);menu.toggle($event)"
+                     class="p-button-rounded" styleClass="p-button-sm p-mr-0"></button>
+                  <div #pMenu></div>
+                  <p-menu #menu [popup]="true" [model]="menuItems" position="left" appendTo="body"></p-menu>
+               </td>
+            </tr>
+         </ng-template>
+      </p-table>
+   </div>
+   <div class="card" *ngIf="bankAccountPaymentProfile.length > 0">
+      <h6>Bank Account</h6>
+      <p-table #dt [value]="bankAccountPaymentProfile" dataKey="profileId" resizableColumns="true"
+         styleClass="p-datatable-sm">
+         <ng-template pTemplate="header">
+            <tr>
+               <th class="ui-resizable-column" width="25%">
+                  Name
+               </th>
+               <th class="ui-resizable-column" width="15%">
+                  Nick Name 
+               </th>
+               <th class="ui-resizable-column" width="10%">
+                  Account Number
+               </th>
+               <th class="ui-resizable-column" width="10%">
+                  Routing Number
+               </th>
+               <th class="ui-resizable-column" width="15%">
+                  Preferred Payment?
+               </th>
+               <th class="ui-resizable-column" width="15%">
+                  Use for Recurring Payment
+               </th>
+               <th width="5%">Select</th>
+            </tr>
+         </ng-template>
+         <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+            <tr>
+               <td style="text-align:left">
+                  {{item.nameOnAccount}}
+               </td>
+               <td style="text-align:left">
+                  {{item.nickName}}
+               </td>
+               <td style="text-align:left">
+                  {{item.accountNumber}}
+               </td>
+               <td style="text-align:left">
+                  {{item.routingNumber}}
+               </td>
+               <td *ngIf="item.preferredPaymentMethod==1">
+                  <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded"
+                     [disabled]="true"></button>
+               </td>
+               <td *ngIf="item.preferredPaymentMethod==0">
+
+               </td>
+               <td *ngIf="item.useForAutoBilling==1">
+                  <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded"
+                     [disabled]="true"></button>
+               </td>
+               <td *ngIf="item.useForAutoBilling==0">
+
+               </td>
+
+               <td style="text-align:center">
+                  <button pButton type="button" icon="pi pi-ellipsis-v" (click)="setActiveRow(item);menu.toggle($event)"
+                     class="p-button-rounded" styleClass="p-button-sm p-mr-0"></button>
+                  <div #pMenu></div>
+                  <p-menu #menu [popup]="true" [model]="menuItems" position="left" appendTo="body"></p-menu>
+               </td>
+            </tr>
+         </ng-template>
+      </p-table>
+   </div>
+</div>
+<div>
+   <p-dialog [(visible)]="paymentProfileDialog" [style]="{ width: '650px' }" header="Add Payment Profile" [modal]="true"
+      styleClass="p-fluid" [contentStyle]="{minHeight: '300px'}">
+      <ng-template pTemplate="content">
+         <p-tabView id="tabWallet" (onChange)="onChange($event)" [(activeIndex)]="index">
+            <p-tabPanel header="Credit Card" [cache]="false">
+               <ng-template pTemplate="content">
+                  <div class="card">
+                     <form [formGroup]="creditCardForm" (ngSubmit)="onSubmit()">
+                        <div class="p-d-flex">
+                           <div class="p-mr-2"><img class="payment-card" src="./assets/layout/images/visa.svg"></div>
+                           <div class="p-mr-2"><img class="payment-card" src="./assets/layout/images/master.svg"></div>
+                           <div class="p-mr-2"><img class="payment-card" src="./assets/layout/images/amex.svg"></div>
+                           <div class="p-mr-2"><img class="payment-card" src="./assets/layout/images/discover.svg">
+                           </div>
+                           <div class="p-mr-2"><img class="payment-card" src="./assets/layout/images/diners.svg"></div>
+                        </div>
+                        <hr>
+                        <div class="p-fluid p-formgrid p-grid">
+                           <div class="p-field p-col-12 p-md-12">
+                              <!-- <p-dropdown [options]="relationsList"  formControlName="BillableEntity" optionLabel="name" optionValue="code" appendTo="body"></p-dropdown> -->
+                              <label for="FullName">Card Holder Name</label>
+                              <input pInputText formControlName="FullName" type="text" autocomplete="FullName"
+                              (blur)="validateCardHolderName($event.target.value)"  [ngClass]="errorFieldCss('FullName')" (click)="resetSubmitted('FullName')" required/>
+                              <app-field-error-display [displayError]="isFieldValid('FullName')"
+                                 [addErrorMessages]="addErrorMessages">
+                              </app-field-error-display>
+                           </div>
+                           <div class="p-field p-col-12 p-md-6" [ngClass]="errorIconCss('CardNumber')">
+                              <label for="CardNumber">Card Number</label>
+                              <p-inputMask formControlName="CardNumber" type="text" autocomplete="new-password"
+                                 class="p-inputtext-sm" [autoClear]="false" mask="9999-9999-9999-9999"
+                                 [ngClass]="errorFieldCss('CardNumber')" (click)="resetSubmitted('CardNumber')"
+                                 (change)="creditCardNumberValidation($event)"></p-inputMask>
+                              <app-field-error-display [displayError]="isFieldValid('CardNumber')"
+                                 [addErrorMessages]="addErrorMessages">
+                              </app-field-error-display>
+                           </div>
+                           <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('ExpDate')">
+                              <label for="ExpDate">Expiration Date</label>
+                              <p-inputMask formControlName="ExpDate" type="text" autocomplete="new-password"
+                                 class="p-inputtext-sm" mask="99/99" [ngClass]="errorFieldCss('ExpDate')"
+                                 (click)="resetSubmitted('ExpDate')" preventPaste="false"
+                                 (keyup)="expirationValidation($event)" (keydown)="monthFirstPos($event)"
+                                 (paste)="matcher($event, 'ExpDate')"></p-inputMask>
+                              <app-field-error-display [displayError]="isFieldValid('ExpDate')"
+                                 [addErrorMessages]="addErrorMessages">
+                              </app-field-error-display>
+                           </div>
+                           <div class="p-field p-col-12 p-md-3" [ngClass]="errorIconCss('CVV')">
+                              <label for="CVV">CVV</label>
+                              <input type="text" pInputText formControlName="CVV" [ngClass]="errorFieldCss('CVV')"
+                                 (click)="resetSubmitted('CVV')"
+                                 onkeypress="return (event.charCode > 47 && event.charCode < 58)"
+                                 onKeyDown="if(this.value.length==4 && event.keyCode!=8) return false;"
+                                 (paste)="matcher($event, 'CVV')" (focusout)="CVVValidation($event)"
+                                 (blur)="CVVValidation($event)" />
+                              <div *ngIf="submitted">
+                                 <app-field-error-display [displayError]="isFieldValid('CVV')"
+                                    [addErrorMessages]="addErrorMessages">
+                                 </app-field-error-display>
+                              </div>
+                           </div>
+                           <div class="p-field p-col-12 p-md-6" [ngClass]="errorIconCss('StreetAddress')">
+                              <label for="StreetAddress">Street Address</label>
+                              <input type="text" pInputText formControlName="StreetAddress"
+                                 [ngClass]="errorFieldCss('StreetAddress')" (click)="resetSubmitted('StreetAddress')" />
+                              <div *ngIf="submitted">
+                                 <app-field-error-display [displayError]="isFieldValid('StreetAddress')"
+                                    [addErrorMessages]="addErrorMessages">
+                                 </app-field-error-display>
+                              </div>
+                           </div>
+                           <div class="p-field p-col-12 p-md-6" [ngClass]="errorIconCss('Zip')">
+                              <label for="Zip">Zip</label>
+                              <input type="text" pInputText formControlName="Zip" [ngClass]="errorFieldCss('Zip')"
+                                 (click)="resetSubmitted('Zip')" />
+                              <div *ngIf="submitted">
+                                 <app-field-error-display [displayError]="isFieldValid('Zip')"
+                                    [addErrorMessages]="addErrorMessages">
+                                 </app-field-error-display>
+                              </div>
+                           </div>
+                        </div>
+                     </form>
+                  </div>
+
+                  <div class="center" *ngIf="showError">
+                     <div class="alert alert-danger">
+                        <table>
+                           <tr class="item" *ngFor="let error of errorList">
+                              <td>{{error.code}}</td>
+                              <td><b>{{error.text}}</b></td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <div class="center">
+                     <div class="center">
+                        <button pButton pRipple label="Submit" icon="pi pi-credit-card"
+                           class="p-button-success p-mr-2 p-mb-2" (click)="postToAuthNet()"></button>
+                        <button pButton pRipple label="Cancel" icon="pi pi-times-circle"
+                           class="p-button-danger p-mr-2 p-mb-2" (click)="clearProfile()"></button>
+                     </div>
+                  </div>
+               </ng-template>
+            </p-tabPanel>
+            <p-tabPanel header="ACH" [cache]="false">
+               <ng-template pTemplate="content">
+                  <div class="card">
+                     <form [formGroup]="eCheckForm" (ngSubmit)="onSubmit()">
+                        <div class="p-fluid p-formgrid p-grid">
+                           <div class="p-field p-col-12 p-md-12">
+                              <input formControlName="PersonId" type="hidden">
+                              <label for="Name">Account holder name</label>
+                              <input formControlName="nameOnAccount" type="text" pInputText autocomplete="new-password"
+                                 class="p-inputtext-sm" maxlength="30" (click)="resetecheckSubmitted()"
+                                 [ngClass]="{ 'ng-dirty ng-invalid': ecsubmitted && eCheckForm.controls.nameOnAccount.errors}"
+                                 onkeypress="return (event.charCode > 64 && event.charCode < 91) 
+                      || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32) || (event.charCode==39)"
+                                 onKeyDown="if(this.value.length==30 && event.keyCode!=8) return false;"
+                                 (keyup) = "populateNickName($event)"
+                                 (paste)="matcher($event, 'nameOnAccount')" />
+                              <div *ngIf="ecsubmitted">
+                                 <small class="p-invalid"
+                                    *ngIf="eCheckForm.controls.nameOnAccount.errors?.required">Name is required.</small>
+                              </div>
+                           </div>
+                           <div class="p-field p-col-12 p-md-12">
+                              <label for="NickName">Nick Name</label>
+                              <input formControlName="nickName" type="text" pInputText autocomplete="new-password"
+                                 class="p-inputtext-sm" (click)="resetecheckSubmitted()"
+                                 [ngClass]="{ 'ng-dirty ng-invalid': ecsubmitted && eCheckForm.controls.nickName.errors}"
+                                 onKeyDown="if(this.value.length==30 && event.keyCode!=8) return false;"/>
+                              <div *ngIf="ecsubmitted">
+                                 <small class="p-invalid" *ngIf="eCheckForm.controls.nickName.errors?.required"> Nick
+                                    Name is required.</small>
+                              </div>
+                           </div>
+                           <div class="p-field p-col-12 p-md-12">
+                              <label for="RoutingNumber">Routing Number</label>
+                              <input formControlName="routingNumber" class="p-inputtext-sm" type="text" pInputText
+                                 (click)="resetecheckSubmitted()"
+                                 [ngClass]="{ 'ng-dirty ng-invalid': ecsubmitted && eCheckForm.controls.routingNumber.errors}" />
+                              <div *ngIf="ecsubmitted">
+                                 <small class="p-invalid" *ngIf="eCheckForm.controls.routingNumber.errors?.required">
+                                    Routing Number is required.</small>
+                              </div>
+                           </div>
+                           <div class="p-field p-col-12 p-md-12">
+                              <label for="AccountNumber">Account Number</label>
+                              <input type="text" onKeyDown="if(this.value.length==18 && event.keyCode!=8) return false;"
+                                 onkeypress="return (event.charCode > 47 && event.charCode < 58)" pInputText
+                                 formControlName="accountNumber" (click)="resetecheckSubmitted()"
+                                 (focusout)="AccountNumberValidation($event)" (blur)="AccountNumberValidation($event)"
+                                 (paste)="matcher($event, 'accountNumber')" class="p-inputtext-sm" />
+                              <div *ngIf="ecsubmitted">
+                                 <small class="p-invalid" *ngIf="eCheckForm.controls.accountNumber.errors?.required">
+                                    Account Number is required.</small>
+                              </div>
+                           </div>
+                        </div>
+                     </form>
+                  </div>
+                  <div class="center">
+                     <div data-ng-show="showError" class="alert alert-danger">
+                        <table>
+                           <tr class="item" *ngFor="let error of errorList">
+                              <td>{{error.code}}</td>
+                              <td><b>{{error.text}}</b></td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <BR />
+                  <div class="center">
+                     <div class="center">
+                        <button pButton pRipple label="Submit" icon="pi pi-money-bill"
+                           class="p-button-success p-mr-2 p-mb-2" (click)="postBankDataToAuthNet()"></button>
+                        <button pButton pRipple label="Cancel" icon="pi pi-times-circle"
+                           class="p-button-danger p-mr-2 p-mb-2" (click)="clearProfile()"></button>
+                     </div>
+                  </div>
+               </ng-template>
+            </p-tabPanel>
+         </p-tabView>
+      </ng-template>
+   </p-dialog>

@@ -1,0 +1,90 @@
+<div class="p-grid">
+	<div class="p-col-12">
+		<p-toast></p-toast>
+		<div class="card">
+      <div class="p-d-flex p-jc-end">
+        <div class="p-mr-2 p-mb-2" style="align-items: flex-end;">
+          <small for="Status"><strong>Include Inactive Groups?</strong></small>
+          <div class="p-col-3" style="padding-top: 5px;">
+            <p-inputSwitch [(ngModel)]="includeInactive" (onChange)="includeInactiveGroups($event)"></p-inputSwitch>
+          </div>
+        </div>
+      </div>
+      <div class="center"  *ngIf="activeGroupList.length==0 && groupList.length==0">
+					<h6>No records found.</h6>
+			</div>
+			<div>
+        <p-table #dt [value]="includeInactive ? groupList : activeGroupList" [rows]="10" [paginator]="true" resizableColumns="true" *ngIf="activeGroupList.length>0 || groupList.length > 0" 
+          styleClass="p-datatable-sm" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)" [showCurrentPageReport]="true" [autoLayout]="true" rowExpandMode="single" dataKey="groupId">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 10%;"></th>
+              <th style="width: 35%;">Group Name</th>
+              <th style="width: 25%;">Group Term</th>
+              <th style="width: 15%;">Group Status</th>
+              <th style="width: 15%;">Member Status</th>
+            </tr>
+          </ng-template>            
+          <ng-template pTemplate="body" let-group let-expanded="expanded">
+            <tr class="maxTableRow">
+              <td>
+                <button type="button" pButton pRipple [pRowToggler]="group" class="p-button-text p-button-rounded p-button-plain" 
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                </button>
+              </td>
+              <td [pTooltip]="group.groupDescription" tooltipPosition="right" style="text-overflow: ellipsis !important; max-width: 250px;">{{group.groupName}}</td>
+              <td>
+                <div *ngIf="group.terrmStartDate != null && group.termEndDate != null; else elseTermBlock">{{group.terrmStartDate | date:'MM/dd/yyyy'}} - {{group.termEndDate | date:'MM/dd/yyyy'}}</div>
+                <ng-template #elseTermBlock><label>&nbsp;</label></ng-template>
+              </td>
+              <td>
+                <div *ngIf="group.status; else elseBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+                <ng-template #elseBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+              </td>
+              <td>
+                <p-toggleButton [(ngModel)]="group.groupMembers[0].isActive" onLabel="Active" offLabel="Inactive" styleClass="p-button-danger" (click)="updateGroupMember(group.groupMembers[0])" ></p-toggleButton>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="rowexpansion" let-group>
+            <tr>
+              <td>&nbsp;</td>
+              <td colspan="3" style="width:100%">           
+                <p-table [value]="group.groupMembers[0].groupMemberRoles" dataKey="groupMemberRoleId" resizableColumns="true" styleClass="p-datatable-sm">
+                  <ng-template pTemplate="header">
+                      <tr>
+                        <th style="width: 10%;"></th>
+                        <th style="width: 35%;">Position Name</th>
+                        <th style="width: 25%;">Position Term</th>
+                        <th style="width: 15%;">Position Status</th>
+                      </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body"  let-groupMemberRole>
+                      <tr>
+                        <td>&nbsp;</td>
+                        <td>{{groupMemberRole.groupRole.groupRoleName}}</td>
+                        <td>
+                          <div *ngIf="groupMemberRole.startDate != null && groupMemberRole.endDate != null; else elseGroupMemberTermBlock">{{groupMemberRole.startDate | date:'MM/dd/yyyy'}} - {{groupMemberRole.endDate | date:'MM/dd/yyyy'}}</div>
+                          <ng-template #elseGroupMemberTermBlock><label>&nbsp;</label></ng-template>
+                        </td>
+                        <td>
+                          <p-toggleButton [(ngModel)]="groupMemberRole.isActive" onLabel="Active" offLabel="Inactive" styleClass="p-button-danger" (click)="updateGroupMemberRole(groupMemberRole)" ></p-toggleButton>
+                        </td>
+                      </tr>
+                  </ng-template>
+                </p-table>
+              </td>          
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="summary">
+            <div class="p-d-flex p-ai-center p-jc-between">
+              In total there are
+              {{ includeInactive ? groupList.length : activeGroupList.length }} groups.
+            </div>
+          </ng-template>
+        </p-table>
+		  </div>
+		</div>
+		<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+	</div>
+</div>

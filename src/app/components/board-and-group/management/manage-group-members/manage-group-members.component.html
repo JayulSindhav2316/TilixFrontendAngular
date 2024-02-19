@@ -1,0 +1,142 @@
+<p-toast></p-toast>
+<div class="p-grid" *ngIf="loadHtml">
+	<div class="p-col-12">
+    <p-toolbar styleClass="p-mb-4">
+      <ng-template pTemplate="left">
+        <h2>{{group.groupName}}</h2>
+      </ng-template>
+      <ng-template pTemplate="right">
+        <button *ngIf="!openSearch" pButton pRipple label="Add Member" icon="pi pi-plus" class="p-button-success p-mr-2 p-mb-2" (click)="openSearchFunction()"></button>
+        <button *ngIf="openSearch" pButton pRipple label="Close" icon="pi pi-times" class="p-button-danger p-mr-2 p-mb-2" (click)="openSearchFunction()"></button>
+      </ng-template>
+    </p-toolbar> 
+    <div *ngIf="openSearch">
+      <app-search  [parentControl]='"Groups"' (addMemberToGroupEvent)="addMemberToGroup($event)"></app-search>
+    </div>
+    <div *ngIf="!openSearch" class="card">
+      <div *ngIf="groupMembersList.length==0" class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-12 p-d-flex p-jc-center">
+            <h5>No Members Found</h5>
+          </div>
+      </div>
+      <p-table #dt [value]="groupMembersList" [rows]="10" [paginator]="true"  styleClass="p-datatable-sm" *ngIf="groupMembersList.length>0"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)">
+        <ng-template pTemplate="header">
+          <tr>
+            <th width="10%" style="text-align: center;">                   
+              Role
+            </th>
+            <th width="15%" style="text-align: center;">                   
+              First Name
+            </th>
+            <th width="15%" style="text-align: center;">
+              Last Name
+            </th>
+            <th width="10%" style="text-align: center;">
+              Email
+            </th>
+            <th width="10%" style="text-align: center;">
+              Phone
+            </th>
+            <th width="15%" style="text-align: center;">
+              Start Date
+            </th>
+            <th width="15%" style="text-align: center;">
+              End Date
+            </th>
+            <th width="15%" style="text-align: center;">
+              Status
+            </th>
+            <th width="5%"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-member>
+          <tr class="maxTableRow">
+            <td style="text-align: center;">
+              {{member.roleName}}
+            </td>
+            <td>
+              {{member.firstName}}
+            </td>
+            <td>
+              {{member.lastName}}
+            </td>
+            <td style="text-align: center;">
+              {{member.email}}
+            </td>
+            <td style="text-align: center;">
+              {{member.formattedPhoneNumber}}
+            </td>
+            <td style="text-align: center;">
+              {{member.startDate == null ? 'Not set' : member.startDate | date:'MM/dd/yyyy'}}
+            </td>
+            <td style="text-align: center;">
+              {{member.endDate == null ? 'Not set' : member.endDate | date:'MM/dd/yyyy'}}
+            </td>
+            <td style="text-align: center;">
+              <div *ngIf="member.isActive; else elseBlock"><p-tag styleClass="p-mr-2" severity="success" value="Active" [rounded]="true"></p-tag></div>
+              <ng-template #elseBlock><p-tag styleClass="p-mr-2" severity="danger" value="Inactive" [rounded]="true"></p-tag></ng-template>
+            </td>
+            <td style="text-align: center;">
+              <div #pMenu></div>
+              <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu> 
+              <button type="button" pButton icon="pi pi-ellipsis-v" (click)="setActiveRow(member);menu.toggle($event)"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>    
+  </div>
+</div>
+<form [formGroup]="groupMemberForm">
+  <p-dialog [(visible)]="groupMemberDialog" [style]="{ width: '600px' }" [header]="headerName" [modal]="true" styleClass="p-fluid" (onHide)="hideDialog()">
+    <ng-template pTemplate="content">
+      <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col-6">
+            <label for="Name">Member Name</label>
+            <input type="text" pInputText formControlName="MemberName" readonly/>
+        </div>
+        <div class="p-field p-col-6" [ngClass]="errorIconCss('Role')">
+            <label for="Name">Role</label>   
+            <p-dropdown [options]="roleList" formControlName="Role" placeholder="Select a Role"  optionLabel="name" optionValue="code" appendTo="body" [ngClass]="errorFieldCss('Role')"></p-dropdown>
+            <app-field-error-display [displayError]="isFieldValid('Role')" [addErrorMessages]="addErrorMessages">
+            </app-field-error-display>
+        </div>
+      </div>
+      <div  class="p-fluid p-formgrid p-grid">
+        <!-- <div>
+          <label for="Term">Status</label>
+          <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+            <p-inputSwitch formControlName="Status"></p-inputSwitch>
+          </div>
+        </div> -->
+        <div class="p-field p-col-2 ">
+          <label for="Status">Status</label>
+          <div class="p-field p-col-3 p-d-flex"  style="padding-top: 5px;" >
+            <p-toggleButton #tb formControlName="Status" onLabel="Active" offLabel="Inactive" (onChange)="toggleStatus($event)" styleClass="p-button-danger">
+            </p-toggleButton>
+          </div>
+        </div>
+        <div class="p-field p-col-2">
+          <label for="Term">Term ?</label>
+          <div class="p-field p-col-3 p-d-flex" style="padding-top: 15px;">
+            <p-inputSwitch (onChange)="toggleTerm($event)" formControlName="Term"></p-inputSwitch>
+          </div>
+        </div>
+        <div class="p-field p-col-4" *ngIf="enableTerm">
+          <label for="StartDate">Start Date</label>
+          <p-calendar formControlName="StartDate" [minDate]="minDate"  [showIcon]="true" appendTo="body" [readonlyInput]="true" (onSelect)="setMinEndDate($event)"></p-calendar>
+        </div>
+        <div class="p-field p-col-4" *ngIf="enableTerm">
+          <label for="EndDate">End Date</label>
+          <p-calendar formControlName="EndDate" [minDate]="minEndDate"  [showIcon]="true" appendTo="body"  [readonlyInput]="true"></p-calendar>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="saveGroupMember()"></button>
+      <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-danger p-mb-2" (click)="hideDialog()"></button>
+    </ng-template>
+  </p-dialog>
+</form>
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

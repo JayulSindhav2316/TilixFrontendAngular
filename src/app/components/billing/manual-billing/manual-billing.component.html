@@ -1,0 +1,306 @@
+<div class="p-grid" *ngIf="!editInvoice">
+    <div class="p-col-12">
+        <p-toast></p-toast>
+        <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+        <h5>Manual Billing Management</h5>
+        <div class="card">
+            <p-toolbar>
+                <div class="p-toolbar-group-left">
+                    <span *ngIf="showForm"><B>Create New Batch</B></span>
+                    <p-button label="Refresh" icon="pi pi-refresh" *ngIf="showMain"
+                        (click)="GetBillingCycles()"></p-button>
+                </div>
+                <div class="p-toolbar-group-right">
+                    <p-button label="New" icon="pi pi-plus" *ngIf="showMain" (click)="addNewCycle()"></p-button>
+                    <p-button label="Back" icon="pi pi-arrow-left" *ngIf="showDetail" (click)="goBack()"></p-button>
+                </div>
+            </p-toolbar>
+        </div>
+        <div class="card" *ngIf="showMain">
+            <p-table #dt [value]="billingCycles" dataKey="billingCycleId" [columns]="cols" resizableColumns="true"
+                styleClass="p-datatable-sm" rowExpandMode="single">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th width="5%"></th>
+                        <th pSortableColumn="runDate" class="ui-resizable-column" pResizableColumn width="10%">
+                            Created <p-columnFilter class="table-header-left" type="text" field="runDate"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="cycleName" class="ui-resizable-column" pResizableColumn width="20%">
+                            Batch Name <p-columnFilter class="table-header-left" type="text" field="cycleName"
+                                display="menu"></p-columnFilter>
+                        </th>
+
+                        <th pSortableColumn="throughDate" class="ui-resizable-column" pResizableColumn width="10%">
+                            Through Date <p-columnFilter class="table-header-left" type="text" field="throughDate"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="invoiceCount" class="ui-resizable-column" pResizableColumn width="10%">
+                            # Invoice <p-columnFilter class="table-header-left" type="text" field="invoiceCount"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th pSortableColumn="invoiced" class="ui-resizable-column" pResizableColumn width="10%">
+                            Total <p-columnFilter class="table-header-left" type="text" field="invoiced"
+                                display="menu"></p-columnFilter>
+                        </th>
+                        <th width="5%">Status?</th>
+                        <th width="10%">Regenerate?</th>
+                        <th width="5%">Delete</th>
+                        <th width="5%"></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-billingCycle let-expanded="expanded">
+                    <tr class="maxTableRow">
+                        <td>
+                            <button type="button" pButton pRipple [pRowToggler]="billingCycle"
+                                class="p-button-text p-button-rounded p-button-plain"
+                                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                            </button>
+                        </td>
+                        <td>
+                            {{ billingCycle.runDate | date:"MM/dd/yyyy"}}
+                        </td>
+
+                        <td>
+                            {{ billingCycle.cycleName }}
+                        </td>
+
+                        <td>
+                            {{ billingCycle.throughDate | date:"MM/dd/yyyy" }}
+                        </td>
+                        <td>
+                            {{ billingCycle.invoiceCount }}
+                        </td>
+                        <td>
+                            {{ billingCycle.totalAmount | currency}}
+                        </td>
+                        <td style='text-align:center'>
+                            <button pButton *ngIf="billingCycle.status===0" type="button" icon="pi pi-spin pi-spinner"
+                                class="p-button-rounded" styleClass="p-button-sm" pTooltip="Created"></button>
+                            <button pButton *ngIf="billingCycle.status===2" type="button" icon="pi pi-spin pi-spinner"
+                                class="p-button-rounded" styleClass="p-button-sm" pTooltip="Finalizing"></button>
+                            <button pButton *ngIf="billingCycle.status===1" type="button" icon="pi pi-check-square"
+                                class="p-button-rounded" styleClass="p-button-sm" pTooltip="Generated"></button>
+                            <button pButton *ngIf="billingCycle.status===3" type="button" icon="pi pi-check"
+                                class="p-button-rounded" styleClass="p-button-sm" pTooltip="Finalized"></button>
+                        </td>
+                        <td style='text-align:center'>
+                            <button pButton *ngIf="billingCycle.status===1" type="button" icon="pi pi-refresh"
+                                class="p-button-rounded p-button-warning" styleClass="p-button-sm"
+                                (click)="regenrateCycle(billingCycle)"></button>
+                        </td>
+                        <td style='text-align:center'>
+                            <button pButton *ngIf="billingCycle.status <= 1" type="button" icon="pi pi-trash"
+                                class="p-button-rounded p-button-danger" styleClass="p-button-sm"
+                                (click)="deleteCycle(billingCycle)"></button>
+                            <button pButton *ngIf="billingCycle.status > 1" type="button" [disabled]="true"
+                                icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                                styleClass="p-button-sm"></button>
+                            <div #pMenu></div>
+                            <p-menu #menu [popup]="true" [model]="items" position="left" appendTo="body"></p-menu>
+                        </td>
+                        <td style='text-align:center'>
+                            <button type="button" pButton icon="pi pi-ellipsis-v"
+                                (click)="setActiveRow(billingCycle);menu.toggle($event)"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-billingCycle>
+                    <tr>
+                        <td colspan="1">
+                        </td>
+                        <td colspan="9">
+                            <p-table [value]="billingCycle.billingBatches" dataKey="billingBatchId"
+                                resizableColumns="true" styleClass="p-datatable-sm">
+                                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Category </th>
+                        <th>Type </th>
+                        <th>Period </th>
+                        <th>Payment Frequency</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-billingBatch>
+                    <tr>
+                        <td>{{billingBatch.category}}</td>
+                        <td>{{billingBatch.membershipType}}</td>
+                        <td>{{billingBatch.period}}</td>
+                        <td>{{billingBatch.frequency}}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            </td>
+            </tr>
+            </ng-template>
+            </p-table>
+        </div>
+        <div class="card" *ngIf="showDetail">
+            <p-toolbar>
+                <div class="p-toolbar-group-left">
+                    <div class="p-formgroup-inline">
+                        <div class="p-field">
+                            <input id="cycleName" [(ngModel)]="selectedCycle" style="width:300px" type="text"
+                                [readonly]="true" pInputText>
+                        </div>
+                        <div class="p-field">
+                            <input id="generateddate " [(ngModel)]="selectedDate" type="text" [readonly]="true"
+                                pInputText>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-toolbar-group-right">
+                    <p-button label="Paper Invoice" icon="pi pi-file-excel" [disabled]="manualBillingMemberCount==0"
+                        styleClass="p-button-success p-mr-2 p-ml-2" (onClick)="exportToPDF()"></p-button>
+                    <p-button label="Export to Excel" icon="pi pi-file-excel" [disabled]="manualBillingMemberCount==0"
+                        styleClass="p-button-success p-mr-2 p-ml-2" (onClick)="exportToExcel()"></p-button>
+                    <p-button label="Members" icon="pi pi-users" badge="{{manualBillingMemberCount}}"
+                        styleClass="p-mr-2"></p-button>
+                    <p-button label="Revenue" icon="pi pi-dollar" styleClass="p-button-warning"
+                        badge="{{manualBillingRevenue | currency}}" badgeClass="p-badge-danger"></p-button>
+                </div>
+            </p-toolbar>
+            <BR />
+            <div>
+                <div>
+                    <p-table #mt [value]="manualBillingList" [columns]="cols" resizableColumns="true"
+                        styleClass="p-datatable-sm" [globalFilterFields]="['name','description']">
+                        <ng-template pTemplate="caption">
+                            <div style="text-align: right">
+                                <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+                                <input type="text" pInputText size="50" placeholder="Search .."
+                                    (input)="mt.filterGlobal($event.target.value, 'contains')" style="width:auto">
+                            </div>
+                        </ng-template>
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th pSortableColumn="createdDate" class="ui-resizable-column" pResizableColumn
+                                    width="15%">
+                                    Created <p-columnFilter class="table-header-left" type="text" field="createdDate"
+                                        display="menu"></p-columnFilter>
+                                </th>
+                                <th pSortableColumn="billableName" class="ui-resizable-column" pResizableColumn
+                                    width="30%">
+                                    Billable Member <p-columnFilter class="table-header-left" type="text"
+                                        field="billableName" display="menu"></p-columnFilter>
+                                </th>
+                                <th pSortableColumn="membershipType" class="ui-resizable-column" pResizableColumn
+                                    width="30%">
+                                    Membership Type <p-columnFilter class="table-header-left" type="text"
+                                        field="membershipType" display="menu"></p-columnFilter>
+                                </th>
+                                <!-- <th pSortableColumn="name" class="ui-resizable-column" pResizableColumn width="30%" >
+                          Member Name <p-columnFilter class="table-header-left" type="text" field="name" display="menu"></p-columnFilter>   
+                      </th> -->
+                                <th pSortableColumn="countMembership" class="ui-resizable-column" pResizableColumn
+                                    width="30%">
+                                    Count Of Membership <p-columnFilter class="table-header-left" type="text"
+                                        field="countMembership" display="menu"></p-columnFilter>
+                                </th>
+                                <th pSortableColumn="dueDate" class="ui-resizable-column" pResizableColumn width="15%">
+                                    Due Date <p-columnFilter class="table-header-left" type="text" field="dueDate"
+                                        display="menu"></p-columnFilter>
+                                </th>
+                                <th pSortableColumn="description" class="ui-resizable-column" pResizableColumn
+                                    width="25%">
+                                    Description <p-columnFilter class="table-header-left" type="text"
+                                        field="description" display="menu"></p-columnFilter>
+                                </th>
+                                <th pSortableColumn="preferredBillingNotifictaion" class="ui-resizable-column"
+                                    pResizableColumn width="15%">
+                                    Preference <p-columnFilter class="table-header-left" type="text"
+                                        field="preferredBillingNotifictaion" display="menu"></p-columnFilter>
+                                </th>
+                                <th pSortableColumn="amount" class="ui-resizable-column" pResizableColumn width="15%">
+                                    Amount <p-columnFilter class="table-header-left" type="text" field="amount"
+                                        display="menu"></p-columnFilter>
+                                </th>
+                                <th width="5%"></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-item>
+                            <tr class="maxTableRow">
+                                <td>
+                                    {{ item.createDate | date:"MM/dd/yyyy"}}
+                                </td>
+                                <td>
+                                    {{ item.billableName }}
+                                </td>
+                                <td>
+                                    {{ item.invoice.membership.membershipType.name }}
+                                </td>
+                                <td>
+                                    {{item.invoice.membership.membershipConnections.length}}
+                                </td>
+                                <td>
+                                    {{ item.dueDate | date:"MM/dd/yyyy"}}
+                                </td>
+                                <td>
+                                    {{ item.description }}
+                                </td>
+                                <td>
+                                    {{ item.preferredBillingNotifictaion }}
+                                </td>
+                                <td>
+                                    {{ item.amount | currency}}
+                                </td>
+                                <td style='text-align:center'>
+                                    <div #pinvoiceMenu></div>
+                                    <p-menu #invoicemenu [popup]="true" [model]="invoiceItems" position="left"
+                                        appendTo="body"></p-menu>
+                                    <button type="button" pButton icon="pi pi-ellipsis-v"
+                                        (click)="setActiveInvoice(item);invoicemenu.toggle($event)"></button>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="showForm">
+            <div class="card">
+                <form [formGroup]="billingForm">
+                    <div class="p-fluid">
+                        <div class="p-field p-grid">
+                            <label for="cycleName" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">Batch Name</label>
+                            <div class="p-col-12 p-md-10">
+                                <input formControlName="cycleName" type="text" placeholder="Batch name" pInputText>
+                            </div>
+                        </div>
+                        <div class="p-field p-grid">
+                            <label for="membershipCategory" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">Category</label>
+                            <div class="p-col-12 p-md-10">
+                                <p-dropdown formControlName='category' [options]="membershipCategory"
+                                    placeholder="Select a Category" optionLabel="name"
+                                    (onChange)="getMembershipTypes($event)"></p-dropdown>
+                            </div>
+                        </div>
+                        <div class="p-field p-grid">
+                            <label for="membershipType" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">Membership Type</label>
+                            <div class="p-col-12 p-md-10">
+                                <p-multiSelect formControlName='membershipType' [options]="membershipTypes"
+                                    optionLabel="name" placeholder="Select Membership Type(s)"></p-multiSelect>
+                            </div>
+                        </div>
+                        <div class="p-field p-grid">
+                            <label for="throughDate" class="p-col-12 p-mb-2 p-md-2 p-mb-md-0">Through Date</label>
+                            <div class="p-col-12 p-md-10">
+                                <p-calendar formControlName="throughDate" [disabledDates]="invalidDates"
+                                    placeholder="Through Date"></p-calendar>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="center">
+                    <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2"
+                        type="submit" (click)="createBillingCycle()"></button>
+                    <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2"
+                        (click)="hideDialog()"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div *ngIf="editInvoice">
+    <app-edit-invoice [invoiceId]="selectedInvoice.invoiceId" [paperInvoiceId]="selectedInvoice.paperInvoiceId"
+        (closeEvent)='closeEditInvoice($event)'></app-edit-invoice>
+</div>

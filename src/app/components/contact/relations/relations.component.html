@@ -1,0 +1,113 @@
+<div class="p-grid">
+	<div class="p-col-12">
+		<p-toast></p-toast>
+		<div *ngIf="showSearch"> 
+			<app-search [exceptMemberIds]="existedRelationIds" [showCompany]='false' [parentControl]='parentControl'  [parentEntityId]='entityId' (addRelationToContact)="addRelationToContact($event)" (closeEvent)='closeSearchControl($event)'></app-search>
+		</div>
+		<div class="card"  *ngIf="!showSearch">
+			<div> 
+			<p-toolbar styleClass="p-mb-4">
+				<ng-template pTemplate="left">
+					               
+				</ng-template>
+				<ng-template pTemplate="right">
+                    <div class="p-formgroup-inline">		
+                        <button pButton type="button" label="Add"  icon="pi pi-plus" class="p-button-primary p-mr-2 p-mb-2"  (click)="addRelation()"></button>
+                    </div>
+				</ng-template>
+			</p-toolbar>
+			</div>
+			<div class="card" *ngIf="!hasRelations">
+				<div class="center">
+					<h6>None.</h6>
+				</div>
+			</div>
+			<div *ngIf="showTable">
+			<p-table #dt [value]="relations" [columns]="cols" [rows]="5" [paginator]="true" [globalFilterFields]="['firstName','lastName','age','relationship','gender']" 
+                 [rowHover]="true" dataKey="relationId" resizableColumns="true"
+				styleClass="p-datatable-sm" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} record(s)"
+				[showCurrentPageReport]="true">
+				<ng-template pTemplate="header">
+					<tr>
+						<th>                            
+						</th>
+						<th pSortableColumn="fullName" class="ui-resizable-column" pResizableColumn width="30%"> 							
+                            Name
+							<p-columnFilter type="text" field="fullName" display="menu"></p-columnFilter>
+						</th>
+						
+						<th  pSortableColumn="dateOfBirth" pResizableColumn width="15%">
+              				Birth Date
+							<p-columnFilter type="text" field="dateOfBirth" display="menu"></p-columnFilter>
+						</th>
+							<th  pSortableColumn="type" pResizableColumn width="15%">
+							Relation
+							<p-columnFilter type="text" field="type" display="menu"></p-columnFilter>
+						</th>
+						<th  pSortableColumn="gender" pResizableColumn width="15%">
+							Gender
+							<p-columnFilter type="text" field="gender" display="menu"></p-columnFilter>
+					</th>
+					<th width="5%" style="text-align: center;">
+					</th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-relation let-i="rowIndex" >
+					<tr class="maxTableRow">
+						<td  class='image-loader'>
+							<app-image-loader [imgSrc]='images[i]'></app-image-loader>
+							<!--img width="75"  height="75" class="p-shadow-4"  [src]='images[0]'-->
+						</td>
+						<td>
+							<button pButton type="button" label="{{ relation.fullName}}" class="p-button-link" (click)="showDetail(relation)"></button>
+							
+						</td>
+
+						<td>
+							{{relation.dateOfBirth | date:'MM/dd/yyyy' }}
+						</td>
+						<td>
+							{{ relation.relationshipType == "Company" ? currentUser.accountName :  relation.relationshipType}}
+						</td>
+						<td>
+							{{ relation.gender }}
+						</td>
+						
+						<td style="text-align:center">
+							<button pButton  type="button" icon="pi pi-ellipsis-v"  (click)="setActiveRow(relation);menu.toggle($event)" class="p-button-rounded" styleClass="p-button-sm p-mr-0" ></button>
+							<div #pMenu></div>
+							<p-menu #menu [popup]="true" [model]="menuItems" position="left" appendTo="body"></p-menu>
+						</td>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="summary">
+					<div class="p-d-flex p-ai-center p-jc-between">
+						In total there are
+						{{ relations ? relations.length : 0 }} Relations.
+					</div>
+				</ng-template>
+			</p-table>
+		</div>
+        
+		</div>
+	</div>
+	<form [formGroup]="relationForm">
+		<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+		<p-dialog [(visible)]="showRelationDialog" [style]="{ width: '450px' }" header="Select Relation" [modal]="true"	styleClass="p-fluid" 
+		[contentStyle]="{minHeight: '250px'}" (onHide)="hideRelationDialog()"  >
+			<ng-template pTemplate="content">
+				<div class="p-field">
+					<label for="Relation">Relation</label>
+					<p-dropdown id='serachSelection' [options]="relationshipTypes"  formControlName='relationType' required placeholder="Select Relations" optionLabel="name" optionValue="code" appendTo="body"></p-dropdown>
+					<div *ngIf="relationSubmitted">
+					<small class="p-invalid" *ngIf="relationForm.controls.relationType.errors?.required && relationSubmitted">Please select a Relation</small>
+					</div>
+				</div>
+			</ng-template>
+			<ng-template pTemplate="footer">
+        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="isNewRelationRecord ? saveRelation() : updateRelation()"></button>
+			  <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideRelationDialog()"></button>
+			</ng-template>
+		</p-dialog>
+	</form>
+</div>

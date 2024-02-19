@@ -1,0 +1,45 @@
+<div *ngIf="showLoader">
+  <div [hidden]="!loading" class="progress-container">
+    <p-progressSpinner></p-progressSpinner>
+</div>
+</div>   
+<div class="card">
+	<app-show-invoice></app-show-invoice>
+</div>
+<div>
+    <form [formGroup]="emailForm">
+      <p-dialog [(visible)]="showEmail" [style]="{ width: '600px' }" header="Email Invoice" [modal]="true" styleClass="p-fluid" (onHide)="hideEmailDialog()">
+        <ng-template pTemplate="content">
+          <div class="p-field p-col-12" [ngClass]="errorIconCss('ToEmail')">
+              <label for="Email">Email</label>
+              <input type="text" pInputText formControlName="ToEmail" [ngClass]="errorFieldCss('ToEmail')"/>
+                <app-field-error-display [displayError]="isFieldValid('ToEmail')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+          </div>
+          <div class="p-field p-col-12" [ngClass]="errorIconCss('Subject')">
+              <label for="Subject">Subject</label>
+              <input type="text" pInputText formControlName="Subject" [ngClass]="errorFieldCss('Subject')"
+              onkeypress="return (event.charCode > 40 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32)" 
+              onKeyDown="if(this.value.length==64 && event.keyCode!=8) return false;"
+              (paste)="matcher($event, 'Subject')" />
+                <app-field-error-display [displayError]="isFieldValid('Subject')" [addErrorMessages]="addErrorMessages">
+                </app-field-error-display>
+          </div>
+          </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Send" icon="pi pi-save" class="p-button-success p-mr-2 p-mb-2" type="submit" (click)="sendEmail()"></button>
+          <button pButton pRipple label="Cancel" icon="pi pi-cross" class="p-button-danger p-mb-2" (click)="hideEmailDialog()"></button>
+        </ng-template>
+      </p-dialog>
+    </form>
+  </div>
+<div>
+    <div class="card">
+        <div class="center">
+            <button pButton pRipple label="Back" [disabled]="hideBackButton" icon="pi pi-arrow-left" class="p-button-success p-mr-2 p-mb-2" (click)="goBack()"></button>
+            <button pButton pRipple label="Print" icon="pi pi-print" class="p-button-success p-mr-2 p-mb-2" (click)="showPdf()" ></button>
+            <button pButton pRipple label="Send Email" icon="pi pi-envelope" class="p-button-success p-mr-2 p-mb-2" (click)="showEmailDialog()" ></button>
+            <button pButton pRipple label="Collect Payment" icon="pi pi-card" class="p-button-success p-mb-2" (click)="addToCart()" [disabled]="disablePayment"></button>
+        </div>
+    </div>
+</div>
